@@ -1,0 +1,2 @@
+export { FadeInText } from './FadeInText';
+

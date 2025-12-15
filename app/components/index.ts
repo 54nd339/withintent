@@ -1,4 +1,4 @@
-export { FadeInText } from './FadeInText';
-export { Footer } from './Footer';
-export { Navbar } from './Navbar';
-export { ProductCard } from './ProductCard';
+export * from './sections';
+export * from './animation';
+export * from './layout';
+export * from './ui';
