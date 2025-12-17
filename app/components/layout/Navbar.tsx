@@ -29,7 +29,7 @@ export function Navbar({ isMenuOpen, setIsMenuOpen, navigation, logo }: Props) {
           : 'backdrop-blur-md border-b border-black/5 dark:border-white/10 bg-[var(--background)]/70 dark:bg-neutral-900/40'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-6 lg:px-8 h-20 flex items-center justify-between">
         <Link href="/">
           <Image
             src={logoUrl}
@@ -44,7 +44,7 @@ export function Navbar({ isMenuOpen, setIsMenuOpen, navigation, logo }: Props) {
         {navigation && navigation.length > 0 && (
           <div className="hidden md:flex items-center space-x-12 font-sans text-xs tracking-[0.2em] uppercase text-neutral-900 dark:text-neutral-50">
             {navigation.map((item, index) => {
-              const href = item.externalUrl || 
+              const href = item.externalUrl || item.url ||
                           (item.page?.slug ? `/${item.page.slug}` : '') ||
                           (item.collection?.slug ? `/collection/${item.collection.slug}` : '#');
               

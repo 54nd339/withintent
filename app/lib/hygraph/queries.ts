@@ -3,7 +3,7 @@ import { gql } from 'graphql-request';
 // Get Global Settings
 export const GET_GLOBAL_SETTINGS = gql`
   query GetGlobalSettings($id: ID!) {
-    globalSetting(where: { id: $id }) {
+    globalSetting(where: {id: $id}) {
       siteName
       contactEmail
       contactWhatsApp
@@ -23,66 +23,212 @@ export const GET_GLOBAL_SETTINGS = gql`
       }
       mainNavigation {
         label
-        externalUrl
-        page {
-          slug
-        }
-        collection {
-          slug
-        }
+        url
       }
       footer {
-        brandName
-        description {
-          raw
+        text {
+          heading
+          body {
+            raw
+          }
+          textSize
+          fontWeight
+        }
+        shopButtons {
+          label
+          url
+          type
+          style
+          role
+          icon
+          openInNewTab
+        }
+        socialButtons {
+          label
+          url
+          type
+          style
+          role
+          icon
+          openInNewTab
+        }
+        companyButtons {
+          label
+          url
+          type
+          style
+          role
+          icon
+          openInNewTab
         }
         copyrightText
-        shopLinks {
-          label
-          externalUrl
-          page {
-            slug
-          }
-          collection {
-            slug
-          }
+        layout {
+          paddingTop
+          paddingBottom
+          paddingLeft
+          paddingRight
+          marginTop
+          marginBottom
+          marginLeft
+          marginRight
+          textAlign
+          verticalAlign
+          containerWidth
+          minHeight
+          layoutType
+          dividerHeight
         }
-        companyLinks {
-          label
-          externalUrl
-          page {
-            slug
+        theme {
+          backgroundColor {
+            hex
           }
-          collection {
-            slug
+          darkBackgroundColor {
+            hex
           }
+          textColor {
+            hex
+          }
+          darkTextColor {
+            hex
+          }
+          accentColor {
+            hex
+          }
+          darkAccentColor {
+            hex
+          }
+          overlayColor {
+            hex
+          }
+          darkOverlayColor {
+            hex
+          }
+          overlayOpacity
+          darkOverlayOpacity
+          shadow
         }
-        socialLinks {
-          url
-          platform
-          icon
-        }
-        legalLinks {
-          label
-          externalUrl
-          page {
-            slug
-          }
-          collection {
-            slug
-          }
-        }
-        paddingTop
-        paddingBottom
-        marginTop
-        marginBottom
       }
     }
   }
 `;
 
-// Get Page by Slug
+// Get Page by Slug (using fragments to reduce query size)
 export const GET_PAGE_BY_SLUG = gql`
+  fragment LayoutSettingFields on LayoutSetting {
+    paddingTop
+    paddingBottom
+    paddingLeft
+    paddingRight
+    marginTop
+    marginBottom
+    marginLeft
+    marginRight
+    textAlign
+    verticalAlign
+    containerWidth
+    minHeight
+    layoutType
+    dividerHeight
+  }
+
+  fragment ThemeSettingFields on ThemeSetting {
+    backgroundColor {
+      hex
+    }
+    darkBackgroundColor {
+      hex
+    }
+    textColor {
+      hex
+    }
+    darkTextColor {
+      hex
+    }
+    accentColor {
+      hex
+    }
+    darkAccentColor {
+      hex
+    }
+    overlayColor {
+      hex
+    }
+    darkOverlayColor {
+      hex
+    }
+    overlayOpacity
+    darkOverlayOpacity
+    borderRadius
+    shadow
+  }
+
+  fragment TextGroupFields on TextGroup {
+    eyebrow
+    heading
+    subheading
+    body {
+      raw
+    }
+    textSize
+    fontWeight
+  }
+
+  fragment MediaFields on Media {
+    type
+    asset {
+      url
+      fileName
+      width
+      height
+    }
+    alt
+    thumbnail {
+      url
+      fileName
+      width
+      height
+    }
+  }
+
+  fragment ButtonFields on Button {
+    label
+    url
+    type
+    style
+    role
+    icon
+    openInNewTab
+  }
+
+  fragment GridFields on Grid {
+    kind
+    columns
+    gapSize
+    limit
+    showViewAll
+    viewAllButton {
+      ...ButtonFields
+    }
+    cardThemeOverride {
+      ...ThemeSettingFields
+    }
+  }
+
+  fragment CardFields on Card {
+    media {
+      ...MediaFields
+    }
+    title
+    subtitle
+    body {
+      raw
+    }
+    buttons {
+      ...ButtonFields
+    }
+    badge
+  }
+
   query PageBySlug($slug: String!) {
     page(where: { slug: $slug }) {
       title
@@ -100,99 +246,180 @@ export const GET_PAGE_BY_SLUG = gql`
       }
       sections {
         ... on HeroBlock {
-          heroHeadline: headline
-          subHeadline {
-            raw
+          text {
+            ...TextGroupFields
           }
-          eyebrow
-          backgroundImage {
-            url
-            fileName
-            width
-            height
+          media {
+            ...MediaFields
           }
-          overlayColor {
-            hex
+          layout {
+            ...LayoutSettingFields
           }
-          overlayOpacity
-          minHeight
+          theme {
+            ...ThemeSettingFields
+          }
+          buttons {
+            ...ButtonFields
+          }
           showScrollIndicator
           scrollIndicatorText
-          textAlignment
-          buttons {
-            label
-            url
-            type
-            style
-          }
-          paddingTop
-          paddingBottom
-          marginTop
-          marginBottom
+          emphasisText
         }
         ... on PhilosophyBlock {
-          eyebrow
-          quote
-          description {
-            raw
+          text {
+            ...TextGroupFields
           }
-          textAlignment
-          paddingTop
-          paddingBottom
-          marginTop
-          marginBottom
+          quote
+          layout {
+            ...LayoutSettingFields
+          }
+          theme {
+            ...ThemeSettingFields
+          }
         }
         ... on ProductGridBlock {
-          gridHeadline: headline
-          subhead
-          eyebrow
-          limit
-          columns
-          showViewAllLink
-          viewAllLink {
-            label
-            url
-            type
-            style
+          header {
+            ...TextGroupFields
           }
-          gapSize
-          product {
-            title
-            slug
-            price
-            productStatus
+          grid {
+            ...GridFields
           }
+          showPrice
+          showStatus
           filterCollection {
             slug
           }
-          paddingTop
-          paddingBottom
-          marginTop
-          marginBottom
+          filterCategory {
+            slug
+          }
+          layout {
+            ...LayoutSettingFields
+          }
+          theme {
+            ...ThemeSettingFields
+          }
         }
         ... on StoryBlock {
-          eyebrow
-          heading
-          content {
-            raw
+          text {
+            ...TextGroupFields
           }
-          image {
-            url
-            fileName
-            width
-            height
+          media {
+            ...MediaFields
           }
-          imagePosition
-          cta {
-            label
-            url
-            type
+          layout {
+            ...LayoutSettingFields
+          }
+          theme {
+            ...ThemeSettingFields
+          }
+          primaryButton {
+            ...ButtonFields
+          }
+        }
+        ... on BannerBlock {
+          text {
+            ...TextGroupFields
+          }
+          backgroundMedia {
+            ...MediaFields
+          }
+          layout {
+            ...LayoutSettingFields
+          }
+          theme {
+            ...ThemeSettingFields
+          }
+          buttons {
+            ...ButtonFields
+          }
+        }
+        ... on TextBlock {
+          text {
+            ...TextGroupFields
+          }
+          layout {
+            ...LayoutSettingFields
+          }
+          theme {
+            ...ThemeSettingFields
+          }
+        }
+        ... on CategoryGridBlock {
+          header {
+            ...TextGroupFields
+          }
+          grid {
+            ...GridFields
+          }
+          layout {
+            ...LayoutSettingFields
+          }
+          theme {
+            ...ThemeSettingFields
+          }
+        }
+        ... on GalleryBlock {
+          header {
+            ...TextGroupFields
+          }
+          grid {
+            kind
+            columns
+            gapSize
+            limit
+            showViewAll
+          }
+          cards {
+            ...CardFields
+          }
+          enableLightbox
+          layout {
+            ...LayoutSettingFields
+          }
+          theme {
+            ...ThemeSettingFields
+          }
+        }
+        ... on TeamBlock {
+          header {
+            ...TextGroupFields
+          }
+          grid {
+            kind
+            columns
+            gapSize
+            limit
+          }
+          cards {
+            ...CardFields
+          }
+          layout {
+            ...LayoutSettingFields
+          }
+          theme {
+            ...ThemeSettingFields
+          }
+        }
+        ... on FaqBlock {
+          header {
+            ...TextGroupFields
+          }
+          accordion {
             style
+            items {
+              label
+              content {
+                raw
+              }
+              defaultOpen
+            }
           }
-          paddingTop
-          paddingBottom
-          marginTop
-          marginBottom
+          layout {
+            ...LayoutSettingFields
+          }
+          theme {
+            ...ThemeSettingFields
+          }
         }
       }
     }

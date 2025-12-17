@@ -15,7 +15,7 @@ export function Cta({ cta, className = '' }: CtaProps) {
   const combinedClasses = `${baseClasses} ${className}`;
 
   // Handle WhatsApp
-  if (cta.type === 'whatsApp') {
+  if (cta.type === 'whatsApp' && cta.url) {
     const whatsappNumber = cta.url.replace(/[^\d]/g, '');
     const whatsappUrl = `https://wa.me/${whatsappNumber}`;
     return (
@@ -31,7 +31,7 @@ export function Cta({ cta, className = '' }: CtaProps) {
   }
 
   // Handle Email
-  if (cta.type === 'email') {
+  if (cta.type === 'email' && cta.url) {
     return (
       <a
         href={`mailto:${cta.url}`}
@@ -52,15 +52,20 @@ export function Cta({ cta, className = '' }: CtaProps) {
   }
 
   // Handle External Link
-  return (
-    <a
-      href={cta.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={combinedClasses}
-    >
-      {cta.label}
-    </a>
-  );
+  if (cta.url) {
+    return (
+      <a
+        href={cta.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={combinedClasses}
+      >
+        {cta.label}
+      </a>
+    );
+  }
+
+  // Fallback if no URL is provided
+  return null;
 }
 

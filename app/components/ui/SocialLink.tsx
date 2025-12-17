@@ -7,7 +7,7 @@ interface SocialLinkProps {
   className?: string;
 }
 
-const iconMap: Record<Social, React.ComponentType<{ size?: number; className?: string }>> = {
+const iconMap: Partial<Record<Social, React.ComponentType<{ size?: number; className?: string }>>> = {
   instagram: Instagram,
   email: Mail,
   whatsapp: MessageCircle,

@@ -1,10 +1,27 @@
-// Enums
-export type Alignment = 'left' | 'right' | 'center';
-export type SpacingType = 'none' | 'small' | 'medium' | 'large' | 'xlarge';
+// Enums (mirroring Hygraph enums in migration script / schemaDef)
+export type Alignment = 'left' | 'center' | 'right';
+export type VerticalAlignment = 'top' | 'center' | 'bottom';
+export type SpacingSize = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xl2';
+export type ContainerWidth = 'narrow' | 'default' | 'wide' | 'full';
+export type AspectRatio = 'auto' | 'square' | 'portrait34' | 'landscape169' | 'ultrawide219';
+export type LayoutType = 'fullWidth' | 'twoColumn' | 'offsetLeft' | 'offsetRight';
+
+export type TextSize = 'sm' | 'base' | 'lg' | 'xl' | 'xl2' | 'xl3' | 'xl4';
+export type FontWeight = 'normal' | 'medium' | 'semibold' | 'bold';
+export type BorderRadius = 'none' | 'sm' | 'md' | 'lg' | 'full';
+export type ShadowSize = 'none' | 'sm' | 'md' | 'lg' | 'xl';
+
+export type MediaType = 'image' | 'video';
+
+export type ButtonType = 'internalLink' | 'externalLink' | 'whatsApp' | 'email' | 'instagram';
+export type ButtonStyle = 'primary' | 'secondary' | 'outline' | 'ghost' | 'link';
+export type ButtonRole = 'cta' | 'link' | 'nav' | 'social';
+
+export type GridKind = 'products' | 'categories' | 'collections';
+export type GridColumns = 'one' | 'two' | 'three' | 'four';
+export type AccordionStyle = 'single' | 'multiple';
 export type ProductStatus = 'available' | 'reserved' | 'sold';
-export type CtaType = 'internalLink' | 'externalLink' | 'whatsApp' | 'email';
-export type Style = 'primary' | 'secondary';
-export type Social = 'instagram' | 'email' | 'whatsapp' | 'facebook';
+export type SocialPlatform = 'instagram' | 'facebook' | 'whatsapp' | 'email' | 'pinterest' | 'tiktok';
 
 // Asset
 export interface Asset {
@@ -14,17 +31,49 @@ export interface Asset {
   height?: number;
 }
 
-// Color
-export interface Color {
-  hex: string;
+// LayoutSetting
+export interface LayoutSetting {
+  paddingTop?: SpacingSize;
+  paddingBottom?: SpacingSize;
+  paddingLeft?: SpacingSize;
+  paddingRight?: SpacingSize;
+  marginTop?: SpacingSize;
+  marginBottom?: SpacingSize;
+  marginLeft?: SpacingSize;
+  marginRight?: SpacingSize;
+  textAlign?: Alignment;
+  verticalAlign?: VerticalAlignment;
+  containerWidth?: ContainerWidth;
+  minHeight?: string;
+  layoutType?: LayoutType;
+  dividerHeight?: SpacingSize;
 }
 
-// RichText
-export interface RichText {
-  raw: any; // JSON structure from Hygraph
+// ThemeSetting
+export interface ThemeSetting {
+  backgroundColor?: { hex: string };
+  darkBackgroundColor?: { hex: string };
+  textColor?: { hex: string };
+  darkTextColor?: { hex: string };
+  accentColor?: { hex: string };
+  darkAccentColor?: { hex: string };
+  overlayColor?: { hex: string };
+  darkOverlayColor?: { hex: string };
+  overlayOpacity?: number;
+  darkOverlayOpacity?: number;
+  borderRadius?: BorderRadius;
+  shadow?: ShadowSize;
 }
 
-// SEO
+// Media
+export interface Media {
+  type?: MediaType;
+  asset?: Asset;
+  alt?: string;
+  thumbnail?: Asset;
+}
+
+// Seo
 export interface Seo {
   metaTitle?: string;
   metaDescription?: string;
@@ -32,43 +81,88 @@ export interface Seo {
   noIndex?: boolean;
 }
 
-// CTA
-export interface Cta {
+// Button
+export interface Button {
   label: string;
-  url: string;
-  type: CtaType;
-  style: Style;
+  url?: string;
+  type?: ButtonType;
+  style?: ButtonStyle;
+  role?: ButtonRole;
+  icon?: string;
+  openInNewTab?: boolean;
+  page?: { slug: string };
+  collection?: { slug: string };
+  category?: { slug: string };
 }
 
-// NavigationItem
-export interface NavigationItem {
-  label: string;
+// NavigationItem (extends Button with externalUrl support)
+export interface NavigationItem extends Button {
   externalUrl?: string;
-  page?: {
-    slug: string;
-  };
-  collection?: {
-    slug: string;
-  };
 }
 
-// Link (for footer)
-export interface Link {
-  label: string;
-  externalUrl?: string;
-  page?: {
-    slug: string;
-  };
-  collection?: {
-    slug: string;
-  };
+// Cta (alias for Button)
+export type Cta = Button;
+
+// RichText
+export interface RichText {
+  raw: unknown;
 }
+
+// Link (alias for NavigationItem)
+export type Link = NavigationItem;
+
+// Social (alias for SocialPlatform)
+export type Social = SocialPlatform;
 
 // SocialLink
 export interface SocialLink {
-  url: string;
   platform: Social;
-  icon?: string;
+  url: string;
+}
+
+// Card
+export interface Card {
+  media?: Media;
+  title?: string;
+  subtitle?: string;
+  body?: RichText;
+  buttons?: Button[];
+  badge?: string;
+  themeOverride?: ThemeSetting;
+}
+
+// AccordionItem
+export interface AccordionItem {
+  label: string;
+  content: RichText;
+  defaultOpen?: boolean;
+}
+
+// Accordion
+export interface Accordion {
+  style?: AccordionStyle;
+  items?: AccordionItem[];
+}
+
+// TextGroup
+export interface TextGroup {
+  eyebrow?: string;
+  heading?: string;
+  subheading?: string;
+  body?: RichText;
+  textSize?: TextSize;
+  fontWeight?: FontWeight;
+}
+
+// Grid config component
+export interface Grid {
+  kind?: GridKind;
+  columns?: GridColumns;
+  gapSize?: SpacingSize;
+  limit?: number;
+  showViewAll?: boolean;
+  viewAllButton?: Button;
+  cardThemeOverride?: ThemeSetting;
 }
 
 // Product
@@ -106,83 +200,99 @@ export interface Collection {
 
 // HeroBlock
 export interface HeroBlock {
-  headline?: string;
-  subHeadline?: RichText;
-  eyebrow?: string;
-  backgroundImage?: Asset;
-  overlayColor?: Color;
-  overlayOpacity?: number;
-  minHeight?: string;
+  text?: TextGroup;
+  media?: Media;
+  layout?: LayoutSetting;
+  theme?: ThemeSetting;
+  buttons?: Button[];
   showScrollIndicator?: boolean;
   scrollIndicatorText?: string;
-  textAlignment?: Alignment;
-  buttons?: Cta[];
-  paddingTop?: SpacingType;
-  paddingBottom?: SpacingType;
-  marginTop?: SpacingType;
-  marginBottom?: SpacingType;
+  emphasisText?: string;
 }
 
 // PhilosophyBlock
 export interface PhilosophyBlock {
-  eyebrow?: string;
+  text?: TextGroup;
   quote?: string;
-  description?: RichText;
-  textAlignment?: Alignment;
-  paddingTop?: SpacingType;
-  paddingBottom?: SpacingType;
-  marginTop?: SpacingType;
-  marginBottom?: SpacingType;
+  layout?: LayoutSetting;
+  theme?: ThemeSetting;
 }
 
 // ProductGridBlock
 export interface ProductGridBlock {
-  headline?: string;
-  subhead?: string;
-  eyebrow?: string;
-  limit?: number;
-  columns?: number;
-  showViewAllLink?: boolean;
-  viewAllLink?: Cta;
-  gapSize?: SpacingType;
-  product?: Product;
-  filterCollection?: {
-    slug: string;
-  };
-  paddingTop?: SpacingType;
-  paddingBottom?: SpacingType;
-  marginTop?: SpacingType;
-  marginBottom?: SpacingType;
+  header?: TextGroup;
+  grid?: Grid;
+  showPrice?: boolean;
+  showStatus?: boolean;
+  filterCollection?: { slug: string };
+  filterCategory?: { slug: string };
+  layout?: LayoutSetting;
+  theme?: ThemeSetting;
 }
 
 // StoryBlock
 export interface StoryBlock {
-  eyebrow?: string;
-  heading?: string;
-  content?: RichText;
-  backgroundColor?: Color;
-  image?: Asset;
-  imagePosition?: Alignment;
-  cta?: Cta;
-  paddingTop?: SpacingType;
-  paddingBottom?: SpacingType;
-  marginTop?: SpacingType;
-  marginBottom?: SpacingType;
+  text?: TextGroup;
+  media?: Media;
+  layout?: LayoutSetting;
+  theme?: ThemeSetting;
+  primaryButton?: Button;
 }
 
-// FooterBlock
+export interface BannerBlock {
+  text?: TextGroup;
+  backgroundMedia?: Media;
+  layout?: LayoutSetting;
+  theme?: ThemeSetting;
+  buttons?: Button[];
+}
+
+export interface TextBlock {
+  text?: TextGroup;
+  layout?: LayoutSetting;
+  theme?: ThemeSetting;
+}
+
+export interface CategoryGridBlock {
+  header?: TextGroup;
+  grid?: Grid;
+  layout?: LayoutSetting;
+  theme?: ThemeSetting;
+}
+
+export interface GalleryBlock {
+  header?: TextGroup;
+  grid?: Grid;
+  cards?: Card[];
+  enableLightbox?: boolean;
+  layout?: LayoutSetting;
+  theme?: ThemeSetting;
+}
+
+export interface TeamBlock {
+  header?: TextGroup;
+  grid?: Grid;
+  cards?: Card[];
+  layout?: LayoutSetting;
+  theme?: ThemeSetting;
+}
+
+export interface FaqBlock {
+  header?: TextGroup;
+  accordion?: Accordion;
+  layout?: LayoutSetting;
+  theme?: ThemeSetting;
+}
+
+// FooterBlock model
 export interface FooterBlock {
-  brandName?: string;
-  description?: RichText;
+  text?: TextGroup;
+  shopButtons?: Button[];
+  companyButtons?: Button[];
+  socialButtons?: Button[];
   copyrightText?: string;
-  shopLinks?: Link[];
-  companyLinks?: Link[];
-  socialLinks?: SocialLink[];
-  legalLinks?: Link[];
-  paddingTop?: SpacingType;
-  paddingBottom?: SpacingType;
-  marginTop?: SpacingType;
-  marginBottom?: SpacingType;
+  layout?: LayoutSetting;
+  theme?: ThemeSetting;
 }
 
 // GlobalSetting
@@ -191,9 +301,9 @@ export interface GlobalSetting {
   contactEmail?: string;
   contactWhatsApp?: boolean;
   whatsAppNumber?: string;
-  themeSettings?: any;
+  themeSettings?: ThemeSetting;
   defaultSeo?: Seo;
-  mainNavigation?: NavigationItem[];
+  mainNavigation?: Button[];
   footer?: FooterBlock;
   logo?: Asset;
 }
@@ -207,6 +317,16 @@ export interface Page {
   whatsAppLink?: string;
   whatsAppEnabled?: boolean;
   seo?: Seo;
-  sections?: (HeroBlock | PhilosophyBlock | ProductGridBlock | StoryBlock)[];
+  sections?:
+    | HeroBlock[]
+    | StoryBlock[]
+    | PhilosophyBlock[]
+    | BannerBlock[]
+    | TextBlock[]
+    | ProductGridBlock[]
+    | CategoryGridBlock[]
+    | GalleryBlock[]
+    | TeamBlock[]
+    | FaqBlock[];
 }
 

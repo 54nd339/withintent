@@ -1,93 +1,200 @@
+'use client';
+
 import React from 'react';
-import { RichText, SmartLink, SocialLink } from '@/app/components';
-import { FooterBlock } from '@/app/types';
-import { getSpacingClasses } from '@/app/lib/utils';
+import Link from 'next/link';
+import { Instagram, Mail, MessageCircle } from 'lucide-react';
+import { RichText } from '@/app/components';
+import { FooterBlock, Button } from '@/app/types';
+import { 
+  getSpacingClassesFromLayout, 
+  getContainerWidthClasses,
+  getThemeWithDefaults,
+  getThemeStyles,
+  getLayoutWithDefaults
+} from '@/app/lib/utils';
+import { useTheme } from '@/app/providers';
 
 interface FooterProps {
   data?: FooterBlock;
 }
 
 export function Footer({ data }: FooterProps) {
+  const { darkMode } = useTheme();
+
   if (!data) {
     return null;
   }
 
-  const spacingClasses = getSpacingClasses(
-    data.paddingTop,
-    data.paddingBottom,
-    data.marginTop,
-    data.marginBottom
-  );
+  // Get layout and theme with defaults
+  const layout = getLayoutWithDefaults(data.layout);
+  const theme = getThemeWithDefaults(data.theme, darkMode);
+  const themeStyles = getThemeStyles(theme, darkMode);
+
+  const spacingClasses = getSpacingClassesFromLayout(layout);
+  const containerWidthClasses = getContainerWidthClasses(layout.containerWidth);
+
+  const text = data.text;
+
+  // Footer link component with hover underline (like NavLink)
+  const FooterLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
+    return (
+      <a 
+        href={href} 
+        className="relative group text-xs normal-case tracking-normal opacity-70 hover:opacity-100 transition-opacity"
+        style={{ color: themeStyles.color || 'inherit' }}
+      >
+        {children}
+        <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-current transition-all duration-300 group-hover:w-full" />
+      </a>
+    );
+  };
+
+  // Get icon for button type
+  const getButtonIcon = (button: Button) => {
+    if (!button.url) return null;
+    
+    switch (button.type) {
+      case 'instagram':
+        return <Instagram size={18} />;
+      case 'email':
+        return <Mail size={18} />;
+      case 'whatsApp':
+        return <MessageCircle size={18} />;
+      default:
+        return null;
+    }
+  };
+
+  // Get href for button
+  const getButtonHref = (button: Button): string | null => {
+    if (!button.url) return null;
+    
+    if (button.type === 'whatsApp') {
+      const whatsappNumber = button.url.replace(/[^\d]/g, '');
+      return `https://wa.me/${whatsappNumber}`;
+    }
+    
+    if (button.type === 'email') {
+      return `mailto:${button.url}`;
+    }
+    
+    return button.url;
+  };
 
   return (
-    <footer className={`bg-neutral-900 text-neutral-400 py-20 px-6 font-sans text-sm ${spacingClasses}`}>
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
+    <footer 
+      className={`py-8 sm:py-12 md:py-16 lg:py-20 xl:py-24 px-4 sm:px-5 md:px-6 lg:px-8 font-sans text-sm ${spacingClasses} ${containerWidthClasses}`}
+      style={themeStyles}
+    >
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 sm:gap-8 md:gap-10 lg:gap-12 xl:gap-16">
         <div className="md:col-span-1">
-          {data.brandName && (
-            <h4 className="font-serif text-2xl text-white mb-6 tracking-widest">
-              {data.brandName}
+          {text?.heading && (
+            <h4 
+              className="font-serif text-2xl mb-6 tracking-widest"
+              style={{ color: themeStyles.color || 'inherit' }}
+            >
+              {text.heading}
             </h4>
           )}
-          {data.description && (
-            <div className="leading-relaxed text-xs">
-              <RichText content={data.description} className="text-neutral-400" />
+          {text?.body && (
+            <div 
+              className="leading-relaxed text-xs"
+              style={{ opacity: 0.7, color: themeStyles.color || 'inherit' }}
+            >
+              <RichText content={text.body} />
             </div>
           )}
         </div>
 
-        {data.shopLinks && data.shopLinks.length > 0 && (
+        {data.shopButtons && data.shopButtons.length > 0 && (
           <div>
-            <h5 className="text-white uppercase tracking-widest text-xs mb-6">Shop</h5>
-            <ul className="space-y-4 text-xs">
-              {data.shopLinks.map((link, index) => (
-                <li key={index}>
-                  <SmartLink link={link} className="hover:text-white transition-colors">
-                    {link.label}
-                  </SmartLink>
-                </li>
-              ))}
+            <h5 
+              className="uppercase tracking-widest text-xs mb-6"
+              style={{ color: themeStyles.color || 'inherit' }}
+            >
+              Shop
+            </h5>
+            <ul className="space-y-3 text-xs">
+              {data.shopButtons.map((button, index) => {
+                const href = button.url || 
+                            (button.page?.slug ? `/${button.page.slug}` : '') ||
+                            (button.collection?.slug ? `/collection/${button.collection.slug}` : '#');
+                return (
+                  <li key={index}>
+                    <FooterLink href={href}>{button.label}</FooterLink>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}
 
-        {data.companyLinks && data.companyLinks.length > 0 && (
+        {data.companyButtons && data.companyButtons.length > 0 && (
           <div>
-            <h5 className="text-white uppercase tracking-widest text-xs mb-6">Company</h5>
-            <ul className="space-y-4 text-xs">
-              {data.companyLinks.map((link, index) => (
-                <li key={index}>
-                  <SmartLink link={link} className="hover:text-white transition-colors">
-                    {link.label}
-                  </SmartLink>
-                </li>
-              ))}
+            <h5 
+              className="uppercase tracking-widest text-xs mb-6"
+              style={{ color: themeStyles.color || 'inherit' }}
+            >
+              Company
+            </h5>
+            <ul className="space-y-3 text-xs">
+              {data.companyButtons.map((button, index) => {
+                const href = button.url || 
+                            (button.page?.slug ? `/${button.page.slug}` : '') ||
+                            (button.collection?.slug ? `/collection/${button.collection.slug}` : '#');
+                return (
+                  <li key={index}>
+                    <FooterLink href={href}>{button.label}</FooterLink>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}
 
-        {data.socialLinks && data.socialLinks.length > 0 && (
+        {data.socialButtons && data.socialButtons.length > 0 && (
           <div>
-            <h5 className="text-white uppercase tracking-widest text-xs mb-6">Connect</h5>
+            <h5 
+              className="uppercase tracking-widest text-xs mb-6"
+              style={{ color: themeStyles.color || 'inherit' }}
+            >
+              Connect
+            </h5>
             <div className="flex space-x-4">
-              {data.socialLinks.map((link, index) => (
-                <SocialLink key={index} link={link} />
-              ))}
+              {data.socialButtons.map((button, index) => {
+                const href = getButtonHref(button);
+                const icon = getButtonIcon(button);
+                
+                if (!href || !icon) return null;
+                
+                return (
+                  <a
+                    key={index}
+                    href={href}
+                    target={button.type === 'externalLink' || button.type === 'instagram' || button.type === 'whatsApp' ? '_blank' : undefined}
+                    rel={button.type === 'externalLink' || button.type === 'instagram' || button.type === 'whatsApp' ? 'noopener noreferrer' : undefined}
+                    className="opacity-70 hover:opacity-100 transition-opacity"
+                    style={{ color: themeStyles.color || 'inherit' }}
+                    aria-label={button.label}
+                  >
+                    {icon}
+                  </a>
+                );
+              })}
             </div>
           </div>
         )}
       </div>
 
-      <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center text-xs text-neutral-600">
+      <div 
+        className="mt-8 sm:mt-12 md:mt-16 lg:mt-20 xl:mt-24 pt-6 sm:pt-7 md:pt-8 lg:pt-10 border-t flex flex-col md:flex-row justify-between items-center text-xs"
+        style={{ 
+          borderColor: themeStyles.color || 'currentColor',
+          opacity: 0.1,
+          color: themeStyles.color || 'inherit'
+        }}
+      >
         {data.copyrightText && <p>{data.copyrightText}</p>}
-        {data.legalLinks && data.legalLinks.length > 0 && (
-          <div className="flex space-x-6 mt-4 md:mt-0">
-            {data.legalLinks.map((link, index) => (
-              <SmartLink key={index} link={link} className="hover:text-white transition-colors">
-                {link.label}
-              </SmartLink>
-            ))}
-          </div>
-        )}
       </div>
     </footer>
   );

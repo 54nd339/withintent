@@ -3,10 +3,38 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingBag } from 'lucide-react';
-import { Navbar, Footer, HeroSection, PhilosophySection, ProductGrid, StorySection } from '@/app/components';
+import { 
+  Navbar, 
+  Footer, 
+  HeroSection, 
+  PhilosophySection, 
+  ProductGrid, 
+  StorySection,
+  BannerSection,
+  TextSection,
+  CategoryGridSection,
+  GallerySection,
+  TeamSection,
+  FaqSection
+} from '@/app/components';
 import { useTheme } from '@/app/providers';
-import { hygraphClient, GET_GLOBAL_SETTINGS, GET_PAGE_BY_SLUG, GET_PRODUCTS_BY_COLLECTION, GET_ALL_PRODUCTS } from '@/app/lib/hygraph';
-import { GlobalSetting, Page, Product, ProductGridBlock, HeroBlock } from '@/app/types';
+import { hygraphClient, GET_GLOBAL_SETTINGS, GET_PAGE_BY_SLUG, GET_PRODUCTS_BY_COLLECTION, GET_ALL_PRODUCTS, GET_ALL_CATEGORIES } from '@/app/lib/hygraph';
+import { 
+  GlobalSetting, 
+  Page, 
+  Product, 
+  ProductGridBlock, 
+  HeroBlock,
+  PhilosophyBlock,
+  StoryBlock,
+  BannerBlock,
+  TextBlock,
+  CategoryGridBlock,
+  GalleryBlock,
+  TeamBlock,
+  FaqBlock,
+  Category
+} from '@/app/types';
 import { formatWhatsAppUrl } from '@/app/lib/utils';
 
 export default function App() {
@@ -15,6 +43,7 @@ export default function App() {
   const [globalSettings, setGlobalSettings] = useState<GlobalSetting | null>(null);
   const [page, setPage] = useState<Page | null>(null);
   const [products, setProducts] = useState<Record<string, Product[]>>({});
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,29 +69,41 @@ export default function App() {
         setGlobalSettings(globalSettingsData.globalSetting);
         setPage(pageData.page);
 
-        // Fetch products for each ProductGridBlock
+        // Fetch products for each ProductGridBlock and categories for CategoryGridBlock
         if (pageData.page.sections) {
           const productPromises = pageData.page.sections
-            .filter((section): section is ProductGridBlock => 'filterCollection' in section)
+            .filter((section): section is ProductGridBlock => 'filterCollection' in section || 'filterCategory' in section)
             .map(async (section) => {
               if (section.filterCollection?.slug) {
                 const collectionData = await hygraphClient.request<{
                   collections: Array<{ products: Product[] }>;
                 }>(GET_PRODUCTS_BY_COLLECTION, {
                   slug: section.filterCollection.slug,
-                  limit: section.limit,
+                  limit: section.grid?.limit,
                 });
 
                 return {
                   key: section.filterCollection.slug,
                   products: collectionData.collections[0]?.products || [],
                 };
-              } else {
-                // Fetch all products if no collection filter
+              } else if (section.filterCategory?.slug) {
+                // Handle category filter if needed
                 const allProductsData = await hygraphClient.request<{
                   products: Product[];
                 }>(GET_ALL_PRODUCTS, {
-                  limit: section.limit,
+                  limit: section.grid?.limit,
+                });
+
+                return {
+                  key: section.filterCategory.slug,
+                  products: allProductsData.products || [],
+                };
+              } else {
+                // Fetch all products if no filter
+                const allProductsData = await hygraphClient.request<{
+                  products: Product[];
+                }>(GET_ALL_PRODUCTS, {
+                  limit: section.grid?.limit,
                 });
 
                 return {
@@ -78,6 +119,18 @@ export default function App() {
             productsMap[result.key] = result.products;
           });
           setProducts(productsMap);
+
+          // Fetch categories if any CategoryGridBlock exists
+          const hasCategoryGrid = pageData.page.sections.some(
+            (section): section is CategoryGridBlock => 'grid' in section && section.grid?.kind === 'categories'
+          );
+          
+          if (hasCategoryGrid) {
+            const categoriesData = await hygraphClient.request<{
+              categories: Category[];
+            }>(GET_ALL_CATEGORIES);
+            setCategories(categoriesData.categories || []);
+          }
         }
       } catch (err) {
         console.error('Error fetching data:', err);
@@ -139,40 +192,20 @@ export default function App() {
 
       <main>
         {page.sections?.map((section, index) => {
-          const sectionAny = section as any;
-
-          if (('heroHeadline' in section || 'headline' in section || 'backgroundImage' in section) && 
-              ('backgroundImage' in section || 'subHeadline' in section || 'showScrollIndicator' in section)) {
-            const heroSection: HeroBlock = {
-              headline: sectionAny.heroHeadline || sectionAny.headline,
-              subHeadline: sectionAny.subHeadline,
-              eyebrow: sectionAny.eyebrow,
-              backgroundImage: sectionAny.backgroundImage,
-              overlayColor: sectionAny.overlayColor,
-              overlayOpacity: sectionAny.overlayOpacity,
-              minHeight: sectionAny.minHeight,
-              showScrollIndicator: sectionAny.showScrollIndicator,
-              scrollIndicatorText: sectionAny.scrollIndicatorText,
-              textAlignment: sectionAny.textAlignment,
-              buttons: sectionAny.buttons,
-              paddingTop: sectionAny.paddingTop,
-              paddingBottom: sectionAny.paddingBottom,
-              marginTop: sectionAny.marginTop,
-              marginBottom: sectionAny.marginBottom,
-            };
-            return <HeroSection key={index} data={heroSection} />;
+          // HeroBlock
+          if ('showScrollIndicator' in section || ('text' in section && 'media' in section && 'buttons' in section)) {
+            return <HeroSection key={index} data={section as HeroBlock} />;
           }
 
           // PhilosophyBlock
-          if ('quote' in section && 'description' in section) {
-            return <PhilosophySection key={index} data={section} />;
+          if ('quote' in section) {
+            return <PhilosophySection key={index} data={section as PhilosophyBlock} />;
           }
 
           // ProductGridBlock
-          if ('filterCollection' in section || 'product' in section) {
-            const gridSection = { ...section, headline: (section as any).gridHeadline };
-            delete (gridSection as any).gridHeadline;
-            const collectionSlug = gridSection.filterCollection?.slug || 'all';
+          if ('filterCollection' in section || 'filterCategory' in section || ('grid' in section && (section as ProductGridBlock).grid?.kind === 'products')) {
+            const gridSection = section as ProductGridBlock;
+            const collectionSlug = gridSection.filterCollection?.slug || gridSection.filterCategory?.slug || 'all';
             const sectionProducts = products[collectionSlug] || [];
             return (
               <ProductGrid
@@ -185,8 +218,42 @@ export default function App() {
           }
 
           // StoryBlock
-          if ('heading' in section && 'content' in section) {
-            return <StorySection key={index} data={section} />;
+          if ('primaryButton' in section && 'text' in section && 'media' in section) {
+            return <StorySection key={index} data={section as StoryBlock} />;
+          }
+
+          // BannerBlock
+          if ('backgroundMedia' in section && 'buttons' in section) {
+            return <BannerSection key={index} data={section as BannerBlock} />;
+          }
+
+          // TextBlock
+          if ('text' in section && !('media' in section) && !('quote' in section) && !('grid' in section)) {
+            return <TextSection key={index} data={section as TextBlock} />;
+          }
+
+          // CategoryGridBlock
+          if ('grid' in section && (section as CategoryGridBlock).grid?.kind === 'categories') {
+            return <CategoryGridSection key={index} data={section as CategoryGridBlock} categories={categories} />;
+          }
+
+          // GalleryBlock
+          if ('cards' in section && 'enableLightbox' in section) {
+            return <GallerySection key={index} data={section as GalleryBlock} />;
+          }
+
+          // TeamBlock
+          if ('cards' in section && !('enableLightbox' in section)) {
+            // Check if it's TeamBlock by looking for team-specific structure
+            const teamSection = section as TeamBlock;
+            if (teamSection.grid && !teamSection.grid.kind) {
+              return <TeamSection key={index} data={teamSection} />;
+            }
+          }
+
+          // FaqBlock
+          if ('accordion' in section) {
+            return <FaqSection key={index} data={section as FaqBlock} />;
           }
 
           return null;

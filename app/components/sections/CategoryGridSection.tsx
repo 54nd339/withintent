@@ -1,9 +1,12 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { FadeInText, ProductCard, Cta, RichText } from '@/app/components';
-import { ProductGridBlock, Product } from '@/app/types';
+import { FadeInText, RichText, Cta } from '@/app/components';
+import { CategoryGridBlock, Category } from '@/app/types';
 import { 
   getSpacingClassesFromLayout, 
   getContainerWidthClasses,
@@ -15,13 +18,39 @@ import {
 } from '@/app/lib/utils';
 import { useTheme } from '@/app/providers';
 
-interface ProductGridProps {
-  data?: ProductGridBlock;
-  products?: Product[];
-  whatsAppNumber?: string;
+interface CategoryGridSectionProps {
+  data?: CategoryGridBlock;
+  categories?: Category[];
 }
 
-export function ProductGrid({ data, products = [], whatsAppNumber }: ProductGridProps) {
+function CategoryCard({ category, index }: { category: Category; index: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-50px' }}
+      transition={{ duration: 0.8, delay: index * 0.1 }}
+      className="group cursor-pointer"
+    >
+      <Link href={`/category/${category.slug}`}>
+        <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100 dark:bg-neutral-800 mb-6">
+          {category.coverImage && (
+            <motion.img
+              src={category.coverImage.url}
+              alt={category.name}
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
+            />
+          )}
+        </div>
+        <h3 className="font-serif text-lg mb-1 text-neutral-900 dark:text-neutral-100 group-hover:opacity-70 transition-opacity">
+          {category.name}
+        </h3>
+      </Link>
+    </motion.div>
+  );
+}
+
+export function CategoryGridSection({ data, categories = [] }: CategoryGridSectionProps) {
   const { darkMode } = useTheme();
 
   if (!data) {
@@ -40,13 +69,12 @@ export function ProductGrid({ data, products = [], whatsAppNumber }: ProductGrid
   const gridColumns = getGridColumnsClasses(grid?.columns);
   const gapSize = getGapSizeClasses(grid?.gapSize);
   const limit = grid?.limit;
-  const displayProducts = limit ? products.slice(0, limit) : products;
+  const displayCategories = limit ? categories.slice(0, limit) : categories;
 
   const header = data.header;
 
   return (
     <section 
-      id="shop" 
       className={`px-4 sm:px-5 md:px-6 lg:px-8 mx-auto ${spacingClasses} ${containerWidthClasses}`}
       style={themeStyles}
     >
@@ -92,24 +120,18 @@ export function ProductGrid({ data, products = [], whatsAppNumber }: ProductGrid
         )}
       </div>
 
-      {displayProducts.length > 0 ? (
+      {displayCategories.length > 0 ? (
         <div className={`grid ${gridColumns} ${gapSize}`}>
-          {displayProducts.map((product, index) => (
-            <ProductCard
-              key={product.slug}
-              product={product}
-              index={index}
-              whatsAppNumber={whatsAppNumber}
-              showPrice={data.showPrice}
-              showStatus={data.showStatus}
-            />
+          {displayCategories.map((category, index) => (
+            <CategoryCard key={category.slug} category={category} index={index} />
           ))}
         </div>
       ) : (
         <div className="text-center py-8 sm:py-10 md:py-12 lg:py-16" style={{ opacity: 0.6, color: themeStyles.color || 'inherit' }}>
-          <p>No products available at the moment.</p>
+          <p>No categories available at the moment.</p>
         </div>
       )}
     </section>
   );
 }
+

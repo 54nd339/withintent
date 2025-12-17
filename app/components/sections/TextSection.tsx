@@ -2,22 +2,22 @@
 
 import React from 'react';
 import { FadeInText, RichText } from '@/app/components';
-import { PhilosophyBlock } from '@/app/types';
+import { TextBlock } from '@/app/types';
 import { 
   getSpacingClassesFromLayout, 
-  getAlignmentClassesFromLayout,
   getContainerWidthClasses,
+  getAlignmentClassesFromLayout,
   getThemeWithDefaults,
   getThemeStyles,
   getLayoutWithDefaults
 } from '@/app/lib/utils';
 import { useTheme } from '@/app/providers';
 
-interface PhilosophySectionProps {
-  data?: PhilosophyBlock;
+interface TextSectionProps {
+  data?: TextBlock;
 }
 
-export function PhilosophySection({ data }: PhilosophySectionProps) {
+export function TextSection({ data }: TextSectionProps) {
   const { darkMode } = useTheme();
 
   if (!data) {
@@ -30,51 +30,51 @@ export function PhilosophySection({ data }: PhilosophySectionProps) {
   const themeStyles = getThemeStyles(theme, darkMode);
 
   const spacingClasses = getSpacingClassesFromLayout(layout);
-  const alignmentClasses = getAlignmentClassesFromLayout(layout);
   const containerWidthClasses = getContainerWidthClasses(layout.containerWidth);
+  const alignmentClasses = getAlignmentClassesFromLayout(layout);
 
   const text = data.text;
 
   return (
     <section
-      id="philosophy"
-      className={`px-4 sm:px-5 md:px-6 lg:px-8 mx-auto relative ${spacingClasses} ${alignmentClasses} ${containerWidthClasses}`}
+      className={`px-4 sm:px-5 md:px-6 lg:px-8 mx-auto ${spacingClasses} ${containerWidthClasses} ${alignmentClasses}`}
       style={themeStyles}
     >
-      <div 
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-20 bg-gradient-to-b from-current to-transparent"
-        style={{ opacity: 0.3, color: themeStyles.color || 'currentColor' }}
-      />
       <FadeInText>
         {text?.eyebrow && (
           <span 
-            className="block font-sans text-xs tracking-[0.3em] uppercase mb-6 sm:mb-7 md:mb-8 lg:mb-10"
+            className="block font-sans text-xs tracking-[0.3em] uppercase mb-3 sm:mb-4 md:mb-5"
             style={{ opacity: 0.7, color: themeStyles.color || 'inherit' }}
           >
             {text.eyebrow}
           </span>
         )}
-        {data.quote && (
+        {text?.heading && (
           <h2 
-            className="font-serif text-3xl md:text-5xl leading-tight mb-6 sm:mb-7 md:mb-8 lg:mb-10"
+            className="font-serif text-3xl md:text-5xl mb-4 sm:mb-5 md:mb-6 lg:mb-8"
             style={{ color: themeStyles.color || 'inherit' }}
           >
-            &ldquo;{data.quote}&rdquo;
+            {text.heading}
           </h2>
+        )}
+        {text?.subheading && (
+          <p 
+            className="font-sans text-lg mb-4 sm:mb-5 md:mb-6 lg:mb-8"
+            style={{ opacity: 0.8, color: themeStyles.color || 'inherit' }}
+          >
+            {text.subheading}
+          </p>
         )}
         {text?.body && (
           <div 
-            className="font-sans text-lg leading-relaxed max-w-xl mx-auto"
+            className="font-sans leading-relaxed"
             style={{ opacity: 0.8, color: themeStyles.color || 'inherit' }}
           >
             <RichText content={text.body} />
           </div>
         )}
       </FadeInText>
-      <div 
-        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1px] h-20 bg-gradient-to-t from-current to-transparent"
-        style={{ opacity: 0.3, color: themeStyles.color || 'currentColor' }}
-      />
     </section>
   );
 }
+

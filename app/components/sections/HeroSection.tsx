@@ -4,7 +4,14 @@ import React, { useRef } from 'react';
 import Image from 'next/image';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { HeroBlock } from '@/app/types';
-import { getSpacingClasses, getAlignmentClasses } from '@/app/lib/utils';
+import { 
+  getSpacingClassesFromLayout, 
+  getAlignmentClassesFromLayout,
+  getThemeWithDefaults,
+  getThemeStyles,
+  getLayoutWithDefaults
+} from '@/app/lib/utils';
+import { useTheme } from '@/app/providers';
 import { RichText, Cta } from '@/app/components';
 
 interface HeroSectionProps {
@@ -17,42 +24,51 @@ export function HeroSection({ data }: HeroSectionProps) {
     target: ref,
     offset: ['start start', 'end start'],
   });
+  const { darkMode } = useTheme();
   
-  // Smooth parallax with easing - moves slower than scroll
+  // Intensified parallax for more dramatic effect
   const y = useTransform(scrollYProgress, [0, 1], ['0%', '30%'], {
-    clamp: false,
+    clamp: true,
   });
 
   if (!data) {
     return null;
   }
 
-  const spacingClasses = getSpacingClasses(
-    data.paddingTop,
-    data.paddingBottom,
-    data.marginTop,
-    data.marginBottom
-  );
+  // Get layout and theme with defaults
+  const layout = getLayoutWithDefaults(data.layout);
+  const theme = getThemeWithDefaults(data.theme, darkMode);
+  const themeStyles = getThemeStyles(theme, darkMode);
 
-  const alignmentClasses = getAlignmentClasses(data.textAlignment);
-  const minHeight = data.minHeight 
-    ? (typeof data.minHeight === 'number' ? `${data.minHeight}vh` : data.minHeight)
-    : '100vh';
-  const overlayOpacity = data.overlayOpacity || 20;
-  const overlayColor = data.overlayColor?.hex || '#000000';
+  const spacingClasses = getSpacingClassesFromLayout(layout);
+  const alignmentClasses = getAlignmentClassesFromLayout(layout);
+  const minHeight = layout.minHeight || '100vh';
+  
+  const overlayOpacity = darkMode 
+    ? (theme.darkOverlayOpacity ?? theme.overlayOpacity ?? 0.2)
+    : (theme.overlayOpacity ?? 0.2);
+  const overlayColor = darkMode
+    ? (theme.darkOverlayColor?.hex || theme.overlayColor?.hex || '#000000')
+    : (theme.overlayColor?.hex || '#000000');
+
+  const mediaAsset = data.media?.asset;
+  const text = data.text;
 
   return (
     <section
       ref={ref}
-      className={`relative w-full overflow-hidden flex items-center justify-center bg-neutral-900 ${spacingClasses}`}
-      style={{ minHeight }}
+      className={`relative w-full overflow-hidden flex items-center justify-center ${spacingClasses}`}
+      style={{ 
+        minHeight,
+        ...themeStyles,
+      }}
     >
-      {data.backgroundImage && (
+      {mediaAsset && (
         <motion.div 
           style={{ 
             y,
             willChange: 'transform',
-          }} 
+          }}
           className="absolute inset-0 z-0"
         >
           <motion.div
@@ -62,8 +78,8 @@ export function HeroSection({ data }: HeroSectionProps) {
             className="relative w-full h-full"
           >
             <Image
-              src={data.backgroundImage.url}
-              alt={data.backgroundImage.fileName || 'Hero background'}
+              src={mediaAsset.url}
+              alt={data.media?.alt || mediaAsset.fileName || 'Hero background'}
               fill
               priority
               className="object-cover opacity-90"
@@ -74,37 +90,77 @@ export function HeroSection({ data }: HeroSectionProps) {
             className="absolute inset-0 z-10"
             style={{
               backgroundColor: overlayColor,
-              opacity: overlayOpacity / 100,
+              opacity: overlayOpacity,
             }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30 z-10" />
         </motion.div>
       )}
 
-      <div className={`relative z-20 flex flex-col items-center justify-center h-full text-center px-4 w-full mt-10 ${alignmentClasses}`}>
-        {data.headline && (
+      <div className={`relative z-20 flex flex-col items-center justify-center h-full px-4 sm:px-5 md:px-6 lg:px-8 w-full mt-6 sm:mt-8 md:mt-10 lg:mt-12 ${alignmentClasses}`}>
+        {text?.eyebrow && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="mb-3 sm:mb-4 md:mb-5"
+          >
+            <span className="font-sans text-[10px] md:text-sm tracking-[0.4em] uppercase">
+              {text.eyebrow}
+            </span>
+          </motion.div>
+        )}
+
+        {text?.heading && (
           <div className="overflow-hidden mb-2">
             <motion.h1
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 1, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
-              className="font-serif text-[15vw] md:text-[12vw] leading-[0.85] text-white/90 tracking-tighter mix-blend-overlay"
+              className="font-serif text-[15vw] md:text-[12vw] leading-[0.85] tracking-tighter mix-blend-overlay"
+              style={{ color: themeStyles.color || 'inherit' }}
             >
-              {data.headline}
+              {text.heading}
             </motion.h1>
           </div>
         )}
 
-        {data.subHeadline && (
+        {data.emphasisText && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="mb-3 sm:mb-4 md:mb-5"
+          >
+            <span className="font-serif text-2xl md:text-4xl" style={{ color: themeStyles.color || 'inherit' }}>
+              {data.emphasisText}
+            </span>
+          </motion.div>
+        )}
+
+        {text?.subheading && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            className="flex flex-col items-center mt-4 md:mt-8"
+            className="flex flex-col items-center mt-3 sm:mt-4 md:mt-6 lg:mt-8"
+          >
+            <span className="font-sans text-[10px] md:text-sm tracking-[0.4em] uppercase">
+              {text.subheading}
+            </span>
+          </motion.div>
+        )}
+
+        {text?.body && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.8 }}
+            className="flex flex-col items-center mt-3 sm:mt-4 md:mt-6 lg:mt-8"
           >
             <RichText
-              content={data.subHeadline}
-              className="font-sans text-[10px] md:text-sm text-white/80 tracking-[0.4em] uppercase text-center"
+              content={text.body}
+              className="font-sans text-[10px] md:text-sm tracking-[0.4em] uppercase"
             />
           </motion.div>
         )}
@@ -114,7 +170,7 @@ export function HeroSection({ data }: HeroSectionProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1 }}
-            className="flex flex-col md:flex-row items-center gap-4 mt-8"
+            className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 md:gap-6 lg:gap-8 mt-6 sm:mt-7 md:mt-8 lg:mt-10"
           >
             {data.buttons.map((button, index) => (
               <Cta key={index} cta={button} />

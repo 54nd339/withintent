@@ -15,7 +15,7 @@ export function RichText({ content, className }: RichTextProps) {
   return (
     <div className={className}>
       <RichTextRenderer
-        content={content.raw}
+        content={content.raw as any}
         renderers={{
           p: ({ children }) => {
             return <p className="mb-2 last:mb-0">{children}</p>;
