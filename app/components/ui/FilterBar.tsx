@@ -92,11 +92,10 @@ export function FilterBar({
           <div className="space-y-2">
             <button
               onClick={() => onCategoryChange(undefined)}
-              className={`block w-full text-left px-3 py-2 text-sm transition-colors rounded ${
-                !selectedCategory
+              className={`block w-full text-left px-3 py-2 text-sm transition-colors rounded ${!selectedCategory
                   ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black'
                   : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 hover:bg-neutral-200 dark:hover:bg-neutral-700'
-              }`}
+                }`}
             >
               All Categories
             </button>
@@ -104,11 +103,10 @@ export function FilterBar({
               <button
                 key={category.slug}
                 onClick={() => onCategoryChange(category.slug)}
-                className={`block w-full text-left px-3 py-2 text-sm transition-colors rounded ${
-                  selectedCategory === category.slug
+                className={`block w-full text-left px-3 py-2 text-sm transition-colors rounded ${selectedCategory === category.slug
                     ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black'
                     : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 hover:bg-neutral-200 dark:hover:bg-neutral-700'
-                }`}
+                  }`}
               >
                 {category.name}
               </button>
@@ -124,11 +122,10 @@ export function FilterBar({
           <div className="space-y-2">
             <button
               onClick={() => onCollectionChange(undefined)}
-              className={`block w-full text-left px-3 py-2 text-sm transition-colors rounded ${
-                !selectedCollection
+              className={`block w-full text-left px-3 py-2 text-sm transition-colors rounded ${!selectedCollection
                   ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black'
                   : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 hover:bg-neutral-200 dark:hover:bg-neutral-700'
-              }`}
+                }`}
             >
               All Collections
             </button>
@@ -136,11 +133,10 @@ export function FilterBar({
               <button
                 key={collection.slug}
                 onClick={() => onCollectionChange(collection.slug)}
-                className={`block w-full text-left px-3 py-2 text-sm transition-colors rounded ${
-                  selectedCollection === collection.slug
+                className={`block w-full text-left px-3 py-2 text-sm transition-colors rounded ${selectedCollection === collection.slug
                     ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black'
                     : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 hover:bg-neutral-200 dark:hover:bg-neutral-700'
-                }`}
+                  }`}
               >
                 {collection.title}
               </button>
@@ -155,11 +151,10 @@ export function FilterBar({
         <div className="space-y-2">
           <button
             onClick={() => onStatusChange(undefined)}
-            className={`block w-full text-left px-3 py-2 text-sm transition-colors rounded ${
-              !selectedStatus
+            className={`block w-full text-left px-3 py-2 text-sm transition-colors rounded ${!selectedStatus
                 ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black'
                 : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 hover:bg-neutral-200 dark:hover:bg-neutral-700'
-            }`}
+              }`}
           >
             All Status
           </button>
@@ -167,11 +162,10 @@ export function FilterBar({
             <button
               key={status}
               onClick={() => onStatusChange(status)}
-              className={`block w-full text-left px-3 py-2 text-sm transition-colors capitalize rounded ${
-                selectedStatus === status
+              className={`block w-full text-left px-3 py-2 text-sm transition-colors capitalize rounded ${selectedStatus === status
                   ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-black'
                   : 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 hover:bg-neutral-200 dark:hover:bg-neutral-700'
-              }`}
+                }`}
             >
               {status}
             </button>
@@ -204,21 +198,21 @@ export function FilterBar({
               className="flex-1 px-3 py-2 border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 text-sm rounded"
             />
           </div>
-          
+
           {/* Dual range slider */}
           <div className="relative h-6">
             {/* Track background */}
             <div className="absolute top-1/2 -translate-y-1/2 w-full h-1 bg-neutral-200 dark:bg-neutral-600 rounded" />
-            
+
             {/* Active track */}
-            <div 
+            <div
               className="absolute top-1/2 -translate-y-1/2 h-1 bg-neutral-900 dark:bg-white rounded"
-              style={{ 
-                left: `${minPercent}%`, 
-                width: `${maxPercent - minPercent}%` 
+              style={{
+                left: `${minPercent}%`,
+                width: `${maxPercent - minPercent}%`
               }}
             />
-            
+
             {/* Min slider */}
             <input
               type="range"
@@ -228,7 +222,7 @@ export function FilterBar({
               onChange={handleMinChange}
               className="absolute w-full h-6 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-neutral-900 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-neutral-900 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white dark:[&::-webkit-slider-thumb]:bg-white dark:[&::-webkit-slider-thumb]:border-neutral-900 dark:[&::-moz-range-thumb]:bg-white dark:[&::-moz-range-thumb]:border-neutral-900"
             />
-            
+
             {/* Max slider */}
             <input
               type="range"
@@ -239,7 +233,7 @@ export function FilterBar({
               className="absolute w-full h-6 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-neutral-900 [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:shadow-lg [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-white [&::-moz-range-thumb]:pointer-events-auto [&::-moz-range-thumb]:appearance-none [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-neutral-900 [&::-moz-range-thumb]:cursor-pointer [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-white dark:[&::-webkit-slider-thumb]:bg-white dark:[&::-webkit-slider-thumb]:border-neutral-900 dark:[&::-moz-range-thumb]:bg-white dark:[&::-moz-range-thumb]:border-neutral-900"
             />
           </div>
-          
+
           <div className="flex justify-between text-xs text-neutral-600 dark:text-neutral-400">
             <span>₹{priceRange[0].toLocaleString('en-IN')}</span>
             <span>₹{priceRange[1].toLocaleString('en-IN')}</span>

@@ -52,4 +52,3 @@ export function CollectionsGrid({ collections, className = '' }: CollectionsGrid
     </div>
   );
 }
-

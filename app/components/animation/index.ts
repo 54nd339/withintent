@@ -1,2 +1,2 @@
-export { FadeInText } from './FadeInText';
 
+export { FadeInText } from './FadeInText';

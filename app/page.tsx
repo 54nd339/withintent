@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingBag } from 'lucide-react';
-import { 
-  Navbar, 
-  Footer, 
-  HeroSection, 
-  ProductGrid, 
+import {
+  Navbar,
+  Footer,
+  HeroSection,
+  ProductGrid,
   StorySection,
   BannerSection,
   TextSection,
@@ -18,11 +18,11 @@ import {
 } from '@/app/components';
 import { useTheme } from '@/app/providers';
 import { hygraphClient, GET_GLOBAL_SETTINGS, GET_PAGE_BY_SLUG, GET_PRODUCTS_BY_COLLECTION, GET_ALL_PRODUCTS, GET_ALL_CATEGORIES } from '@/app/lib/hygraph';
-import { 
-  GlobalSetting, 
-  Page, 
-  Product, 
-  ProductGridBlock, 
+import {
+  GlobalSetting,
+  Page,
+  Product,
+  ProductGridBlock,
   HeroBlock,
   StoryBlock,
   BannerBlock,
@@ -49,7 +49,7 @@ export default function App() {
     async function fetchData() {
       try {
         const globalSettingId = process.env.NEXT_PUBLIC_HYGRAPH_GLOBAL_SETTING_ID;
-        
+
         if (!globalSettingId) {
           throw new Error('HYGRAPH_GLOBAL_SETTING_ID is not defined');
         }
@@ -122,7 +122,7 @@ export default function App() {
           const hasCategoryGrid = pageData.page.sections.some(
             (section): section is CategoryGridBlock => 'grid' in section && section.grid?.kind === 'categories'
           );
-          
+
           if (hasCategoryGrid) {
             const categoriesData = await hygraphClient.request<{
               categories: Category[];

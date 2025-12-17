@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
+import Image from 'next/image';
 import { Navbar, Footer, ProductGridWithFilters, ProductModal } from '@/app/components';
 import { hygraphClient, GET_GLOBAL_SETTINGS, GET_CATEGORY_BY_SLUG, GET_ALL_CATEGORIES, GET_ALL_COLLECTIONS } from '@/app/lib/hygraph';
 import { GlobalSetting, Category, Collection, Product } from '@/app/types';
@@ -28,7 +29,7 @@ export default function CategoryPage() {
 
       try {
         const globalSettingId = process.env.NEXT_PUBLIC_HYGRAPH_GLOBAL_SETTING_ID;
-        
+
         if (!globalSettingId) {
           throw new Error('HYGRAPH_GLOBAL_SETTING_ID is not defined');
         }
@@ -117,10 +118,11 @@ export default function CategoryPage() {
           </h1>
           {category.coverImage && (
             <div className="relative aspect-[16/9] md:aspect-[21/9] overflow-hidden bg-neutral-100 dark:bg-neutral-800 rounded-lg">
-              <img
+              <Image
                 src={category.coverImage.url}
                 alt={category.name}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
               />
             </div>
           )}
@@ -155,4 +157,3 @@ export default function CategoryPage() {
     </div>
   );
 }
-

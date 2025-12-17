@@ -128,23 +128,21 @@ export function ProductGridWithFilters({
       </button>
 
       {/* Overlay */}
-      <div 
-        className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${
-          isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
-        }`}
+      <div
+        className={`fixed inset-0 bg-black/50 z-40 transition-opacity duration-300 ${isSidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          }`}
         onClick={() => setIsSidebarOpen(false)}
       />
 
       {/* Slide-in Sidebar */}
-      <div 
-        className={`fixed top-0 left-0 h-full w-80 max-w-[85vw] bg-white dark:bg-neutral-900 z-50 transform transition-transform duration-300 ease-in-out shadow-2xl ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
+      <div
+        className={`fixed top-0 left-0 h-full w-80 max-w-[85vw] bg-white dark:bg-neutral-900 z-50 transform transition-transform duration-300 ease-in-out shadow-2xl ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
       >
         {/* Sidebar Header */}
         <div className="sticky top-0 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-700 p-4 flex items-center justify-between z-10">
           <span className="text-sm uppercase tracking-widest font-medium text-neutral-900 dark:text-neutral-100">Filters</span>
-          <button 
+          <button
             onClick={() => setIsSidebarOpen(false)}
             className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
           >

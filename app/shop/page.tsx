@@ -1,13 +1,15 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
 import { Navbar, Footer, CollectionBanner, CollectionsGrid, ProductGridWithFilters, ProductModal } from '@/app/components';
 import { hygraphClient, GET_GLOBAL_SETTINGS, GET_ALL_PRODUCTS, GET_ALL_CATEGORIES, GET_ALL_COLLECTIONS } from '@/app/lib/hygraph';
 import { GlobalSetting, Product, Category, Collection } from '@/app/types';
 import { useTheme } from '@/app/providers';
 
-export default function ShopPage() {
+function ShopPageContent() {
   useTheme();
   const searchParams = useSearchParams();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -24,7 +26,7 @@ export default function ShopPage() {
     async function fetchData() {
       try {
         const globalSettingId = process.env.NEXT_PUBLIC_HYGRAPH_GLOBAL_SETTING_ID;
-        
+
         if (!globalSettingId) {
           throw new Error('HYGRAPH_GLOBAL_SETTING_ID is not defined');
         }
@@ -143,17 +145,18 @@ export default function ShopPage() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
               {categories.map((category) => (
-                <a
+                <Link
                   key={category.slug}
                   href={`/shop/category/${category.slug}`}
                   className="group block"
                 >
                   <div className="relative aspect-[16/9] overflow-hidden bg-neutral-100 dark:bg-neutral-700">
                     {category.coverImage && (
-                      <img
+                      <Image
                         src={category.coverImage.url}
                         alt={category.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                       />
                     )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
@@ -163,7 +166,7 @@ export default function ShopPage() {
                       </h3>
                     </div>
                   </div>
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -203,3 +206,10 @@ export default function ShopPage() {
   );
 }
 
+export default function ShopPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen" />}>
+      <ShopPageContent />
+    </Suspense>
+  );
+}

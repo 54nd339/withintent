@@ -42,4 +42,3 @@ export const DEFAULT_LAYOUT: LayoutSetting = {
   layoutType: 'fullWidth',
   dividerHeight: 'none',
 };
-

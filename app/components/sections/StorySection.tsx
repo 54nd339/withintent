@@ -3,8 +3,8 @@
 import { motion } from 'framer-motion';
 import { FadeInText, RichText, Cta } from '@/app/components';
 import { StoryBlock } from '@/app/types';
-import { 
-  getSpacingClassesFromLayout, 
+import {
+  getSpacingClassesFromLayout,
   getContainerWidthClasses,
   getLayoutTypeClasses,
   getThemeWithDefaults,
@@ -46,9 +46,8 @@ export function StorySection({ data }: StorySectionProps) {
       <div className={`${layoutTypeClasses || 'grid grid-cols-1 md:grid-cols-2'} gap-6 sm:gap-8 md:gap-10 lg:gap-12 xl:gap-16 items-center`}>
         {mediaAsset && (
           <div
-            className={`relative aspect-square md:aspect-[4/5] overflow-hidden ${
-              isOffsetRight ? 'md:order-2' : ''
-            }`}
+            className={`relative aspect-square md:aspect-[4/5] overflow-hidden ${isOffsetRight ? 'md:order-2' : ''
+              }`}
           >
             <motion.img
               initial={{ scale: 1.2 }}
@@ -64,7 +63,7 @@ export function StorySection({ data }: StorySectionProps) {
         <div className={`${isOffsetRight ? 'md:pr-12 md:pl-0' : 'md:pl-12'}`}>
           <FadeInText>
             {text?.eyebrow && (
-              <span 
+              <span
                 className="block font-sans text-xs tracking-[0.3em] uppercase mb-4 sm:mb-5 md:mb-6"
                 style={{ opacity: 0.7, color: themeStyles.color || 'inherit' }}
               >
@@ -72,7 +71,7 @@ export function StorySection({ data }: StorySectionProps) {
               </span>
             )}
             {text?.heading && (
-              <h2 
+              <h2
                 className="font-serif text-4xl md:text-5xl mb-6 sm:mb-7 md:mb-8 lg:mb-10"
                 style={{ color: themeStyles.color || 'inherit' }}
               >
@@ -80,7 +79,7 @@ export function StorySection({ data }: StorySectionProps) {
               </h2>
             )}
             {text?.subheading && (
-              <p 
+              <p
                 className="font-sans text-lg mb-6 sm:mb-7 md:mb-8 lg:mb-10"
                 style={{ opacity: 0.8, color: themeStyles.color || 'inherit' }}
               >
@@ -88,7 +87,7 @@ export function StorySection({ data }: StorySectionProps) {
               </p>
             )}
             {text?.body && (
-              <div 
+              <div
                 className="font-sans mb-6 sm:mb-7 md:mb-8 lg:mb-10 leading-relaxed"
                 style={{ opacity: 0.8, color: themeStyles.color || 'inherit' }}
               >

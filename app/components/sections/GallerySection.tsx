@@ -6,10 +6,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { FadeInText, RichText, Cta } from '@/app/components';
 import { GalleryBlock, Card } from '@/app/types';
-import { 
-  getSpacingClassesFromLayout, 
+import {
+  getSpacingClassesFromLayout,
   getContainerWidthClasses,
-  getGridColumnsClasses, 
+  getGridColumnsClasses,
   getGapSizeClasses,
   getThemeWithDefaults,
   getThemeStyles,
@@ -87,14 +87,14 @@ export function GallerySection({ data }: GallerySectionProps) {
 
   return (
     <>
-      <section 
+      <section
         className={`px-4 sm:px-5 md:px-6 lg:px-8 mx-auto ${spacingClasses} ${containerWidthClasses}`}
         style={themeStyles}
       >
         <div className="flex justify-between items-end mb-6 sm:mb-8 md:mb-12 lg:mb-16 xl:mb-20">
           <FadeInText className="text-left">
             {header?.eyebrow && (
-              <h3 
+              <h3
                 className="font-sans text-xs tracking-[0.3em] uppercase mb-4"
                 style={{ opacity: 0.7, color: themeStyles.color || 'inherit' }}
               >
@@ -102,7 +102,7 @@ export function GallerySection({ data }: GallerySectionProps) {
               </h3>
             )}
             {header?.heading && (
-              <h2 
+              <h2
                 className="font-serif text-4xl"
                 style={{ color: themeStyles.color || 'inherit' }}
               >
@@ -110,7 +110,7 @@ export function GallerySection({ data }: GallerySectionProps) {
               </h2>
             )}
             {header?.subheading && (
-              <p 
+              <p
                 className="font-sans text-lg mt-2"
                 style={{ opacity: 0.8, color: themeStyles.color || 'inherit' }}
               >
@@ -128,9 +128,9 @@ export function GallerySection({ data }: GallerySectionProps) {
         {displayCards.length > 0 ? (
           <div className={`grid ${gridColumns} ${gapSize}`}>
             {displayCards.map((card, index) => (
-              <GalleryCard 
-                key={index} 
-                card={card} 
+              <GalleryCard
+                key={index}
+                card={card}
                 index={index}
                 onOpen={() => data.enableLightbox && setSelectedImage(index)}
               />
@@ -184,4 +184,3 @@ export function GallerySection({ data }: GallerySectionProps) {
     </>
   );
 }
-

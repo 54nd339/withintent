@@ -3,10 +3,10 @@
 import { ArrowRight } from 'lucide-react';
 import { FadeInText, ProductCard, Cta, RichText } from '@/app/components';
 import { ProductGridBlock, Product } from '@/app/types';
-import { 
-  getSpacingClassesFromLayout, 
+import {
+  getSpacingClassesFromLayout,
   getContainerWidthClasses,
-  getGridColumnsClasses, 
+  getGridColumnsClasses,
   getGapSizeClasses,
   getThemeWithDefaults,
   getThemeStyles,
@@ -45,15 +45,15 @@ export function ProductGrid({ data, products = [], whatsAppNumber, onProductClic
   const header = data.header;
 
   return (
-    <section 
-      id="shop" 
+    <section
+      id="shop"
       className={`px-4 sm:px-5 md:px-6 lg:px-8 mx-auto ${spacingClasses} ${containerWidthClasses}`}
       style={themeStyles}
     >
       <div className="flex justify-between items-end mb-6 sm:mb-8 md:mb-12 lg:mb-16 xl:mb-20">
         <FadeInText className="text-left">
           {header?.eyebrow && (
-            <h3 
+            <h3
               className="font-sans text-xs tracking-[0.3em] uppercase mb-4"
               style={{ opacity: 0.7, color: themeStyles.color || 'inherit' }}
             >
@@ -61,7 +61,7 @@ export function ProductGrid({ data, products = [], whatsAppNumber, onProductClic
             </h3>
           )}
           {header?.heading && (
-            <h2 
+            <h2
               className="font-serif text-4xl"
               style={{ color: themeStyles.color || 'inherit' }}
             >
@@ -69,7 +69,7 @@ export function ProductGrid({ data, products = [], whatsAppNumber, onProductClic
             </h2>
           )}
           {header?.subheading && (
-            <p 
+            <p
               className="font-sans text-lg mt-2"
               style={{ opacity: 0.8, color: themeStyles.color || 'inherit' }}
             >

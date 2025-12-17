@@ -21,7 +21,7 @@
   --color-foreground: var(--foreground);
   --color-cream: var(--cream);
   --color-gold: var(--gold);
-  
+
   /* Fonts */
   --font-playfair: var(--font-playfair-display);
   --font-inter: var(--font-inter-sans);
@@ -36,12 +36,28 @@ body {
 }
 
 /* Font utilities backed by next/font variables */
-.font-serif { font-family: var(--font-playfair), serif; }
-.font-sans { font-family: var(--font-inter), sans-serif; }
+.font-serif {
+  font-family: var(--font-playfair), serif;
+}
 
-html { scroll-behavior: smooth; }
+.font-sans {
+  font-family: var(--font-inter), sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
 
 /* Minimal scrollbar styling */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}

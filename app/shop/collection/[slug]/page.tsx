@@ -16,7 +16,7 @@ export default function CollectionPage() {
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, [0, 500], [0, 150]);
   const opacity = useTransform(scrollY, [0, 300], [1, 0.3]);
-  
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [globalSettings, setGlobalSettings] = useState<GlobalSetting | null>(null);
   const [collection, setCollection] = useState<Collection | null>(null);
@@ -34,7 +34,7 @@ export default function CollectionPage() {
 
       try {
         const globalSettingId = process.env.NEXT_PUBLIC_HYGRAPH_GLOBAL_SETTING_ID;
-        
+
         if (!globalSettingId) {
           throw new Error('HYGRAPH_GLOBAL_SETTING_ID is not defined');
         }
@@ -118,7 +118,7 @@ export default function CollectionPage() {
       {/* Hero Section */}
       <div className="relative w-full min-h-[60vh] md:min-h-[70vh] overflow-hidden flex items-center justify-center">
         {collection.coverImage && (
-          <motion.div 
+          <motion.div
             className="absolute inset-0 z-0"
             style={{ y }}
           >
@@ -134,7 +134,7 @@ export default function CollectionPage() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/20" />
           </motion.div>
         )}
-        
+
         <div className="relative z-10 text-center text-white px-4 sm:px-6 md:px-8">
           <motion.span
             initial={{ opacity: 0, y: 20 }}
@@ -195,4 +195,3 @@ export default function CollectionPage() {
     </div>
   );
 }
-

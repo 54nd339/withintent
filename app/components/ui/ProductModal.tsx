@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, Share2, Check } from 'lucide-react';
 import { Product } from '@/app/types';
@@ -17,11 +18,11 @@ interface ProductModalProps {
 export function ProductModal({ product, isOpen, onClose, whatsAppNumber = '919876543210' }: ProductModalProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [copied, setCopied] = useState(false);
-  
+
   // Reset image index when product changes using a key-based approach
   const productKey = product?.slug || '';
   const [imageKey, setImageKey] = React.useState(productKey);
-  
+
   React.useEffect(() => {
     if (productKey && productKey !== imageKey) {
       setImageKey(productKey);
@@ -108,12 +109,13 @@ export function ProductModal({ product, isOpen, onClose, whatsAppNumber = '91987
               <div className="relative flex-1 bg-neutral-100 dark:bg-neutral-800 min-h-[300px] lg:min-h-0">
                 {currentImage && (
                   <>
-                    <img
+                    <Image
                       src={currentImage.url}
                       alt={product.title}
-                      className="w-full h-full object-contain"
+                      fill
+                      className="object-contain"
                     />
-                    
+
                     {/* Image Navigation */}
                     {allImages.length > 1 && (
                       <>
@@ -137,7 +139,7 @@ export function ProductModal({ product, isOpen, onClose, whatsAppNumber = '91987
                         >
                           <ChevronRight size={20} />
                         </button>
-                        
+
                         {/* Image Indicators */}
                         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                           {allImages.map((_, index) => (
@@ -147,11 +149,10 @@ export function ProductModal({ product, isOpen, onClose, whatsAppNumber = '91987
                                 e.stopPropagation();
                                 setCurrentImageIndex(index);
                               }}
-                              className={`w-2 h-2 rounded-full transition-all ${
-                                index === currentImageIndex
+                              className={`w-2 h-2 rounded-full transition-all ${index === currentImageIndex
                                   ? 'bg-white w-8'
                                   : 'bg-white/50'
-                              }`}
+                                }`}
                               aria-label={`Go to image ${index + 1}`}
                             />
                           ))}
@@ -262,4 +263,3 @@ export function ProductModal({ product, isOpen, onClose, whatsAppNumber = '91987
     </AnimatePresence>
   );
 }
-

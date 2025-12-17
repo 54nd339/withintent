@@ -303,7 +303,7 @@ export function getThemeWithDefaults(theme?: ThemeSetting | null, isDark: boolea
  */
 export function getLayoutWithDefaults(layout?: LayoutSetting | null): LayoutSetting {
   if (!layout) return DEFAULT_LAYOUT;
-  
+
   return {
     paddingTop: layout.paddingTop ?? DEFAULT_LAYOUT.paddingTop,
     paddingBottom: layout.paddingBottom ?? DEFAULT_LAYOUT.paddingBottom,
@@ -326,24 +326,22 @@ export function getLayoutWithDefaults(layout?: LayoutSetting | null): LayoutSett
  * Get theme styles as React.CSSProperties for inline styles
  */
 export function getThemeStyles(theme: ThemeSetting, isDark: boolean): React.CSSProperties {
-  const bgColor = isDark 
+  const bgColor = isDark
     ? (theme.darkBackgroundColor?.hex || theme.backgroundColor?.hex)
     : theme.backgroundColor?.hex;
   const textColor = isDark
     ? (theme.darkTextColor?.hex || theme.textColor?.hex)
     : theme.textColor?.hex;
-  
+
   const styles: React.CSSProperties = {};
-  
+
   if (bgColor) {
     styles.backgroundColor = bgColor;
   }
-  
+
   if (textColor) {
     styles.color = textColor;
   }
-  
+
   return styles;
 }
-
-

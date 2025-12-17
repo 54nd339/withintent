@@ -11,4 +11,3 @@ export const hygraphClient = new GraphQLClient(endpoint, {
     authorization: `Bearer ${process.env.NEXT_PUBLIC_HYGRAPH_API_TOKEN}`,
   },
 });
-

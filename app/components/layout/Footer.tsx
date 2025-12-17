@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { Instagram, Mail, MessageCircle } from 'lucide-react';
 import { RichText } from '@/app/components';
 import { FooterBlock, Button } from '@/app/types';
-import { 
-  getSpacingClassesFromLayout, 
+import {
+  getSpacingClassesFromLayout,
   getContainerWidthClasses,
   getThemeWithDefaults,
   getThemeStyles,
@@ -38,21 +38,21 @@ export function Footer({ data }: FooterProps) {
   // Footer link component with hover underline (like NavLink)
   const FooterLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
     return (
-      <a 
-        href={href} 
+      <Link
+        href={href}
         className="relative group text-xs normal-case tracking-normal opacity-70 hover:opacity-100 transition-opacity"
         style={{ color: themeStyles.color || 'inherit' }}
       >
         {children}
         <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-current transition-all duration-300 group-hover:w-full" />
-      </a>
+      </Link>
     );
   };
 
   // Get icon for button type
   const getButtonIcon = (button: Button) => {
     if (!button.url) return null;
-    
+
     switch (button.type) {
       case 'instagram':
         return <Instagram size={18} />;
@@ -68,28 +68,28 @@ export function Footer({ data }: FooterProps) {
   // Get href for button
   const getButtonHref = (button: Button): string | null => {
     if (!button.url) return null;
-    
+
     if (button.type === 'whatsApp') {
       const whatsappNumber = button.url.replace(/[^\d]/g, '');
       return `https://wa.me/${whatsappNumber}`;
     }
-    
+
     if (button.type === 'email') {
       return `mailto:${button.url}`;
     }
-    
+
     return button.url;
   };
 
   return (
-    <footer 
+    <footer
       className={`py-8 sm:py-12 md:py-16 lg:py-20 xl:py-24 px-4 sm:px-5 md:px-6 lg:px-8 font-sans text-sm ${spacingClasses} ${containerWidthClasses}`}
       style={themeStyles}
     >
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 sm:gap-8 md:gap-10 lg:gap-12 xl:gap-16">
         <div className="md:col-span-1">
           {text?.heading && (
-            <h4 
+            <h4
               className="font-serif text-2xl mb-6 tracking-widest"
               style={{ color: themeStyles.color || 'inherit' }}
             >
@@ -97,7 +97,7 @@ export function Footer({ data }: FooterProps) {
             </h4>
           )}
           {text?.body && (
-            <div 
+            <div
               className="leading-relaxed text-xs"
               style={{ opacity: 0.7, color: themeStyles.color || 'inherit' }}
             >
@@ -108,7 +108,7 @@ export function Footer({ data }: FooterProps) {
 
         {data.shopButtons && data.shopButtons.length > 0 && (
           <div>
-            <h5 
+            <h5
               className="uppercase tracking-widest text-xs mb-6"
               style={{ color: themeStyles.color || 'inherit' }}
             >
@@ -116,9 +116,9 @@ export function Footer({ data }: FooterProps) {
             </h5>
             <ul className="space-y-3 text-xs">
               {data.shopButtons.map((button, index) => {
-                const href = button.url || 
-                            (button.page?.slug ? `/${button.page.slug}` : '') ||
-                            (button.collection?.slug ? `/collection/${button.collection.slug}` : '#');
+                const href = button.url ||
+                  (button.page?.slug ? `/${button.page.slug}` : '') ||
+                  (button.collection?.slug ? `/collection/${button.collection.slug}` : '#');
                 return (
                   <li key={index}>
                     <FooterLink href={href}>{button.label}</FooterLink>
@@ -131,7 +131,7 @@ export function Footer({ data }: FooterProps) {
 
         {data.companyButtons && data.companyButtons.length > 0 && (
           <div>
-            <h5 
+            <h5
               className="uppercase tracking-widest text-xs mb-6"
               style={{ color: themeStyles.color || 'inherit' }}
             >
@@ -139,9 +139,9 @@ export function Footer({ data }: FooterProps) {
             </h5>
             <ul className="space-y-3 text-xs">
               {data.companyButtons.map((button, index) => {
-                const href = button.url || 
-                            (button.page?.slug ? `/${button.page.slug}` : '') ||
-                            (button.collection?.slug ? `/collection/${button.collection.slug}` : '#');
+                const href = button.url ||
+                  (button.page?.slug ? `/${button.page.slug}` : '') ||
+                  (button.collection?.slug ? `/collection/${button.collection.slug}` : '#');
                 return (
                   <li key={index}>
                     <FooterLink href={href}>{button.label}</FooterLink>
@@ -154,7 +154,7 @@ export function Footer({ data }: FooterProps) {
 
         {data.socialButtons && data.socialButtons.length > 0 && (
           <div>
-            <h5 
+            <h5
               className="uppercase tracking-widest text-xs mb-6"
               style={{ color: themeStyles.color || 'inherit' }}
             >
@@ -164,9 +164,9 @@ export function Footer({ data }: FooterProps) {
               {data.socialButtons.map((button, index) => {
                 const href = getButtonHref(button);
                 const icon = getButtonIcon(button);
-                
+
                 if (!href || !icon) return null;
-                
+
                 return (
                   <a
                     key={index}
@@ -186,9 +186,9 @@ export function Footer({ data }: FooterProps) {
         )}
       </div>
 
-      <div 
+      <div
         className="mt-8 sm:mt-12 md:mt-16 lg:mt-20 xl:mt-24 pt-6 sm:pt-7 md:pt-8 lg:pt-10 border-t flex flex-col md:flex-row justify-between items-center text-xs"
-        style={{ 
+        style={{
           borderColor: themeStyles.color || 'currentColor',
           opacity: 0.1,
           color: themeStyles.color || 'inherit'

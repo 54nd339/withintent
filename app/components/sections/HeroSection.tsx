@@ -4,8 +4,8 @@ import React, { useRef } from 'react';
 import Image from 'next/image';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { HeroBlock } from '@/app/types';
-import { 
-  getSpacingClassesFromLayout, 
+import {
+  getSpacingClassesFromLayout,
   getAlignmentClassesFromLayout,
   getThemeWithDefaults,
   getThemeStyles,
@@ -25,7 +25,7 @@ export function HeroSection({ data }: HeroSectionProps) {
     offset: ['start start', 'end start'],
   });
   const { darkMode } = useTheme();
-  
+
   // Intensified parallax for more dramatic effect
   const y = useTransform(scrollYProgress, [0, 1], ['0%', '30%'], {
     clamp: true,
@@ -43,8 +43,8 @@ export function HeroSection({ data }: HeroSectionProps) {
   const spacingClasses = getSpacingClassesFromLayout(layout);
   const alignmentClasses = getAlignmentClassesFromLayout(layout);
   const minHeight = layout.minHeight || '100vh';
-  
-  const overlayOpacity = darkMode 
+
+  const overlayOpacity = darkMode
     ? (theme.darkOverlayOpacity ?? theme.overlayOpacity ?? 0.2)
     : (theme.overlayOpacity ?? 0.2);
   const overlayColor = darkMode
@@ -58,14 +58,14 @@ export function HeroSection({ data }: HeroSectionProps) {
     <section
       ref={ref}
       className={`relative w-full overflow-hidden flex items-center justify-center ${spacingClasses}`}
-      style={{ 
+      style={{
         minHeight,
         ...themeStyles,
       }}
     >
       {mediaAsset && (
-        <motion.div 
-          style={{ 
+        <motion.div
+          style={{
             y,
             willChange: 'transform',
           }}

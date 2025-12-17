@@ -24,7 +24,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
           initial = 'dark';
         }
-      } catch {}
+      } catch { }
     }
     return initial;
   });
@@ -34,7 +34,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.classList.toggle('dark', isDark);
     try {
       localStorage.setItem('theme', theme);
-    } catch {}
+    } catch { }
   }, [theme]);
 
   const toggleTheme = () => setThemeState((prev) => (prev === 'dark' ? 'light' : 'dark'));

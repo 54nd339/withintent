@@ -5,8 +5,8 @@ import { ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FadeInText, RichText } from '@/app/components';
 import { FaqBlock, AccordionItem } from '@/app/types';
-import { 
-  getSpacingClassesFromLayout, 
+import {
+  getSpacingClassesFromLayout,
   getContainerWidthClasses,
   getThemeWithDefaults,
   getThemeStyles,
@@ -18,14 +18,14 @@ interface FaqSectionProps {
   data?: FaqBlock;
 }
 
-function AccordionItemComponent({ 
-  item, 
-  isOpen, 
+function AccordionItemComponent({
+  item,
+  isOpen,
   onToggle,
-  themeStyles 
-}: { 
-  item: AccordionItem; 
-  isOpen: boolean; 
+  themeStyles
+}: {
+  item: AccordionItem;
+  isOpen: boolean;
   onToggle: () => void;
   themeStyles: React.CSSProperties;
 }) {
@@ -53,7 +53,7 @@ function AccordionItemComponent({
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            <div 
+            <div
               className="pb-6 font-sans leading-relaxed"
               style={{ opacity: 0.9, color: themeStyles.color || 'inherit' }}
             >
@@ -110,14 +110,14 @@ export function FaqSection({ data }: FaqSectionProps) {
   const header = data.header;
 
   return (
-    <section 
+    <section
       className={`px-4 sm:px-5 md:px-6 lg:px-8 mx-auto ${spacingClasses} ${containerWidthClasses}`}
       style={themeStyles}
     >
       <div className="mb-6 sm:mb-8 md:mb-12 lg:mb-16 xl:mb-20 text-center">
         <FadeInText>
           {header?.eyebrow && (
-            <h3 
+            <h3
               className="font-sans text-xs tracking-[0.3em] uppercase mb-4"
               style={{ opacity: 0.7, color: themeStyles.color || 'inherit' }}
             >
@@ -125,7 +125,7 @@ export function FaqSection({ data }: FaqSectionProps) {
             </h3>
           )}
           {header?.heading && (
-            <h2 
+            <h2
               className="font-serif text-4xl mb-4"
               style={{ color: themeStyles.color || 'inherit' }}
             >
@@ -133,7 +133,7 @@ export function FaqSection({ data }: FaqSectionProps) {
             </h2>
           )}
           {header?.subheading && (
-            <p 
+            <p
               className="font-sans text-lg mb-4"
               style={{ opacity: 0.8, color: themeStyles.color || 'inherit' }}
             >
@@ -168,4 +168,3 @@ export function FaqSection({ data }: FaqSectionProps) {
     </section>
   );
 }
-

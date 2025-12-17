@@ -3,8 +3,8 @@
 import Image from 'next/image';
 import { FadeInText, RichText, Cta } from '@/app/components';
 import { BannerBlock } from '@/app/types';
-import { 
-  getSpacingClassesFromLayout, 
+import {
+  getSpacingClassesFromLayout,
   getContainerWidthClasses,
   getAlignmentClassesFromLayout,
   getThemeWithDefaults,
@@ -36,7 +36,7 @@ export function BannerSection({ data }: BannerSectionProps) {
   const backgroundMedia = data.backgroundMedia?.asset;
   const text = data.text;
 
-  const overlayOpacity = darkMode 
+  const overlayOpacity = darkMode
     ? (theme.darkOverlayOpacity ?? theme.overlayOpacity ?? 0.2)
     : (theme.overlayOpacity ?? 0.2);
   const overlayColor = darkMode
@@ -70,7 +70,7 @@ export function BannerSection({ data }: BannerSectionProps) {
       <div className={`relative z-20 px-4 sm:px-5 md:px-6 lg:px-8 w-full ${containerWidthClasses} ${alignmentClasses}`}>
         <FadeInText>
           {text?.eyebrow && (
-            <span 
+            <span
               className="block font-sans text-xs tracking-[0.3em] uppercase mb-3 sm:mb-4 md:mb-5"
               style={{ opacity: 0.7, color: themeStyles.color || 'inherit' }}
             >
@@ -78,7 +78,7 @@ export function BannerSection({ data }: BannerSectionProps) {
             </span>
           )}
           {text?.heading && (
-            <h2 
+            <h2
               className="font-serif text-3xl md:text-5xl mb-4 sm:mb-5 md:mb-6 lg:mb-8"
               style={{ color: themeStyles.color || 'inherit' }}
             >
@@ -86,7 +86,7 @@ export function BannerSection({ data }: BannerSectionProps) {
             </h2>
           )}
           {text?.subheading && (
-            <p 
+            <p
               className="font-sans text-lg mb-4 sm:mb-5 md:mb-6 lg:mb-8"
               style={{ opacity: 0.8, color: themeStyles.color || 'inherit' }}
             >
@@ -94,7 +94,7 @@ export function BannerSection({ data }: BannerSectionProps) {
             </p>
           )}
           {text?.body && (
-            <div 
+            <div
               className="font-sans mb-6 sm:mb-7 md:mb-8 lg:mb-10 leading-relaxed"
               style={{ opacity: 0.8, color: themeStyles.color || 'inherit' }}
             >
@@ -113,4 +113,3 @@ export function BannerSection({ data }: BannerSectionProps) {
     </section>
   );
 }
-
