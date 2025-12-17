@@ -167,6 +167,7 @@ export interface Product {
   productStatus: ProductStatus;
   seo?: Seo;
   relatedProducts?: Product[];
+  createdAt?: string;
 }
 
 // Category

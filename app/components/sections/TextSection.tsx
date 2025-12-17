@@ -13,10 +13,11 @@ import {
 import { useTheme } from '@/app/providers';
 
 interface TextSectionProps {
+  id: string;
   data?: TextBlock;
 }
 
-export function TextSection({ data }: TextSectionProps) {
+export function TextSection({ id, data }: TextSectionProps) {
   const { darkMode } = useTheme();
 
   if (!data) {
@@ -36,6 +37,7 @@ export function TextSection({ data }: TextSectionProps) {
 
   return (
     <section
+      id={id}
       className={`px-4 sm:px-5 md:px-6 lg:px-8 mx-auto relative ${spacingClasses} ${alignmentClasses} ${containerWidthClasses}`}
       style={themeStyles}
     >

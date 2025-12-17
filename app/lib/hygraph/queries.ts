@@ -445,11 +445,12 @@ export const GET_PRODUCTS_BY_COLLECTION = gql`
 // Get All Products
 export const GET_ALL_PRODUCTS = gql`
   query GetAllProducts($limit: Int) {
-    products(first: $limit) {
+    products(first: $limit, orderBy: createdAt_DESC) {
       title
       slug
       price
       productStatus
+      createdAt
       description {
         raw
       }

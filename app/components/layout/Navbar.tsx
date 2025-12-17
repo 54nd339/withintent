@@ -77,18 +77,19 @@ export function Navbar({ isMenuOpen, setIsMenuOpen, navigation, logo }: Props) {
           {navigation && navigation.length > 0 && (
             <div className="flex flex-col items-center space-y-8 font-serif text-3xl">
               {navigation.map((item, index) => {
-                const href = item.externalUrl || 
+                const href = item.externalUrl || item.url ||
                             (item.page?.slug ? `/${item.page.slug}` : '') ||
                             (item.collection?.slug ? `/collection/${item.collection.slug}` : '#');
                 
                 return (
-                  <a
+                  <Link
                     key={index}
                     href={href}
                     onClick={() => setIsMenuOpen(false)}
+                    className="hover:opacity-70 transition-opacity"
                   >
                     {item.label}
-                  </a>
+                  </Link>
                 );
               })}
             </div>
@@ -101,9 +102,9 @@ export function Navbar({ isMenuOpen, setIsMenuOpen, navigation, logo }: Props) {
 
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <a href={href} className="relative group py-2">
+    <Link href={href} className="relative group py-2">
       {children}
       <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-current transition-all duration-300 group-hover:w-full" />
-    </a>
+    </Link>
   );
 }

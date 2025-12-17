@@ -13,7 +13,8 @@ import {
   TextSection,
   CategoryGridSection,
   GallerySection,
-  FaqSection
+  FaqSection,
+  ProductModal
 } from '@/app/components';
 import { useTheme } from '@/app/providers';
 import { hygraphClient, GET_GLOBAL_SETTINGS, GET_PAGE_BY_SLUG, GET_PRODUCTS_BY_COLLECTION, GET_ALL_PRODUCTS, GET_ALL_CATEGORIES } from '@/app/lib/hygraph';
@@ -42,6 +43,7 @@ export default function App() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     async function fetchData() {
@@ -204,6 +206,7 @@ export default function App() {
                 data={gridSection}
                 products={sectionProducts}
                 whatsAppNumber={whatsAppNumber}
+                onProductClick={setSelectedProduct}
               />
             );
           }
@@ -220,7 +223,7 @@ export default function App() {
 
           // TextBlock
           if ('text' in section && !('media' in section) && !('primaryButton' in section) && !('grid' in section) && !('backgroundMedia' in section)) {
-            return <TextSection key={index} data={section as TextBlock} />;
+            return <TextSection id="philosophy" key={index} data={section as TextBlock} />;
           }
 
           // CategoryGridBlock
@@ -259,6 +262,13 @@ export default function App() {
           <ShoppingBag size={24} />
         </motion.a>
       )}
+
+      <ProductModal
+        isOpen={!!selectedProduct}
+        product={selectedProduct}
+        whatsAppNumber={whatsAppNumber}
+        onClose={() => setSelectedProduct(null)}
+      />
     </div>
   );
 }

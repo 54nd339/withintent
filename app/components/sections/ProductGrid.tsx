@@ -18,9 +18,10 @@ interface ProductGridProps {
   data?: ProductGridBlock;
   products?: Product[];
   whatsAppNumber?: string;
+  onProductClick?: (product: Product) => void;
 }
 
-export function ProductGrid({ data, products = [], whatsAppNumber }: ProductGridProps) {
+export function ProductGrid({ data, products = [], whatsAppNumber, onProductClick }: ProductGridProps) {
   const { darkMode } = useTheme();
 
   if (!data) {
@@ -101,6 +102,7 @@ export function ProductGrid({ data, products = [], whatsAppNumber }: ProductGrid
               whatsAppNumber={whatsAppNumber}
               showPrice={data.showPrice}
               showStatus={data.showStatus}
+              onProductClick={onProductClick}
             />
           ))}
         </div>

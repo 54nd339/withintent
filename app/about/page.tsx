@@ -18,7 +18,7 @@ export default function AboutPage() {
     async function fetchData() {
       try {
         const globalSettingId = process.env.NEXT_PUBLIC_HYGRAPH_GLOBAL_SETTING_ID;
-        
+
         if (!globalSettingId) {
           throw new Error('HYGRAPH_GLOBAL_SETTING_ID is not defined');
         }
