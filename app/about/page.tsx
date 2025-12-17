@@ -1,101 +1,66 @@
-'use client';
-
-import React, { useState, useEffect } from 'react';
-import { Navbar, Footer, StorySection, FaqSection, LoadingSpinner, ErrorMessage, PageWrapper } from '@/app/components';
+import { Metadata } from 'next';
 import { hygraphClient, GET_GLOBAL_SETTINGS, GET_PAGE_BY_SLUG } from '@/app/lib/hygraph';
-import { GlobalSetting, Page, StoryBlock, FaqBlock } from '@/app/types';
-import { useTheme } from '@/app/providers';
+import { GlobalSetting, Page } from '@/app/types';
+import AboutPageClient from './AboutPageClient';
 
-export default function AboutPage() {
-  useTheme();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [globalSettings, setGlobalSettings] = useState<GlobalSetting | null>(null);
-  const [page, setPage] = useState<Page | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+async function fetchAboutData() {
+  const globalSettingId = process.env.NEXT_PUBLIC_HYGRAPH_GLOBAL_SETTING_ID;
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const globalSettingId = process.env.NEXT_PUBLIC_HYGRAPH_GLOBAL_SETTING_ID;
-
-        if (!globalSettingId) {
-          throw new Error('HYGRAPH_GLOBAL_SETTING_ID is not defined');
-        }
-
-        // Fetch global settings and page in parallel
-        const [globalSettingsData, pageData] = await Promise.all([
-          hygraphClient.request<{ globalSetting: GlobalSetting }>(GET_GLOBAL_SETTINGS, {
-            id: globalSettingId,
-          }),
-          hygraphClient.request<{ page: Page }>(GET_PAGE_BY_SLUG, {
-            slug: 'about',
-          }),
-        ]);
-
-        setGlobalSettings(globalSettingsData.globalSetting);
-        setPage(pageData.page);
-      } catch (err) {
-        console.error('Error fetching data:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch data');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return <LoadingSpinner />;
+  if (!globalSettingId) {
+    throw new Error('HYGRAPH_GLOBAL_SETTING_ID is not defined');
   }
 
-  if (error) {
-    return <ErrorMessage error={error} />;
+  const [globalSettingsData, pageData] = await Promise.all([
+    hygraphClient.request<{ globalSetting: GlobalSetting }>(GET_GLOBAL_SETTINGS, {
+      id: globalSettingId,
+    }),
+    hygraphClient.request<{ page: Page }>(GET_PAGE_BY_SLUG, {
+      slug: 'about',
+    }),
+  ]);
+
+  return {
+    globalSettings: globalSettingsData.globalSetting,
+    page: pageData.page,
+  };
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const { page, globalSettings } = await fetchAboutData();
+
+    const title = page?.seo?.metaTitle || page?.title || 'About';
+    const description = page?.seo?.metaDescription || (globalSettings?.siteName ? `Learn more about ${globalSettings.siteName}` : undefined);
+
+    return {
+      title,
+      description,
+      openGraph: page?.seo?.ogImage?.url ? {
+        title,
+        description,
+        images: [page.seo.ogImage.url],
+      } : undefined,
+    };
+  } catch {
+    return { title: 'About' };
   }
+}
 
-  if (!page || !globalSettings) {
-    return null;
-  }
+export default async function AboutPage() {
+  const { globalSettings, page } = await fetchAboutData();
 
-  // Separate StoryBlocks and FaqBlock from sections
-  const storyBlocks: StoryBlock[] = [];
-  let faqBlock: FaqBlock | null = null;
-
-  if (page.sections) {
-    page.sections.forEach((section) => {
-      if ('primaryButton' in section && 'text' in section && 'media' in section) {
-        storyBlocks.push(section as StoryBlock);
-      } else if ('accordion' in section) {
-        faqBlock = section as FaqBlock;
-      }
-    });
+  if (!page) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-lg text-neutral-600 dark:text-neutral-400">Page not found</p>
+      </div>
+    );
   }
 
   return (
-    <PageWrapper>
-      {page.showNavigation && globalSettings.mainNavigation && (
-        <Navbar
-          isMenuOpen={isMenuOpen}
-          setIsMenuOpen={setIsMenuOpen}
-          navigation={globalSettings.mainNavigation}
-          logo={globalSettings.logo}
-        />
-      )}
-
-      <main className="pt-16 sm:pt-20">
-        {/* StoryBlocks (Team Members) */}
-        {storyBlocks.map((storyBlock, index) => (
-          <StorySection key={index} data={storyBlock} />
-        ))}
-
-        {/* FAQ Block */}
-        {faqBlock && <FaqSection data={faqBlock} />}
-      </main>
-
-      {page.showFooter && globalSettings.footer && (
-        <Footer data={globalSettings.footer} />
-      )}
-    </PageWrapper>
+    <AboutPageClient
+      globalSettings={globalSettings}
+      page={page}
+    />
   );
 }

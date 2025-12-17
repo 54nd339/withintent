@@ -1,202 +1,58 @@
-'use client';
-
-import React, { useState, useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import Image from 'next/image';
-import Link from 'next/link';
-import { Navbar, Footer, CollectionBanner, CollectionsGrid, ProductGridWithFilters, ProductModal, LoadingSpinner, ErrorMessage, PageWrapper } from '@/app/components';
+import { Metadata } from 'next';
 import { hygraphClient, GET_GLOBAL_SETTINGS, GET_ALL_PRODUCTS, GET_ALL_CATEGORIES, GET_ALL_COLLECTIONS } from '@/app/lib/hygraph';
 import { GlobalSetting, Product, Category, Collection } from '@/app/types';
-import { useTheme } from '@/app/providers';
+import ShopPageClient from './ShopPageClient';
 
-function ShopPageContent() {
-  useTheme();
-  const searchParams = useSearchParams();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [globalSettings, setGlobalSettings] = useState<GlobalSetting | null>(null);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [collections, setCollections] = useState<Collection[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+async function fetchShopData() {
+  const globalSettingId = process.env.NEXT_PUBLIC_HYGRAPH_GLOBAL_SETTING_ID;
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const globalSettingId = process.env.NEXT_PUBLIC_HYGRAPH_GLOBAL_SETTING_ID;
+  if (!globalSettingId) {
+    throw new Error('HYGRAPH_GLOBAL_SETTING_ID is not defined');
+  }
 
-        if (!globalSettingId) {
-          throw new Error('HYGRAPH_GLOBAL_SETTING_ID is not defined');
-        }
+  const [globalSettingsData, productsData, categoriesData, collectionsData] = await Promise.all([
+    hygraphClient.request<{ globalSetting: GlobalSetting }>(GET_GLOBAL_SETTINGS, {
+      id: globalSettingId,
+    }),
+    hygraphClient.request<{ products: Product[] }>(GET_ALL_PRODUCTS, { limit: 50, orderBy: 'createdAt_DESC' }),
+    hygraphClient.request<{ categories: Category[] }>(GET_ALL_CATEGORIES),
+    hygraphClient.request<{ collections: Collection[] }>(GET_ALL_COLLECTIONS),
+  ]);
 
-        // Fetch all data in parallel
-        const [globalSettingsData, productsData, categoriesData, collectionsData] = await Promise.all([
-          hygraphClient.request<{ globalSetting: GlobalSetting }>(GET_GLOBAL_SETTINGS, {
-            id: globalSettingId,
-          }),
-          hygraphClient.request<{ products: Product[] }>(GET_ALL_PRODUCTS, { limit: 50, orderBy: 'createdAt_DESC' }),
-          hygraphClient.request<{ categories: Category[] }>(GET_ALL_CATEGORIES),
-          hygraphClient.request<{ collections: Collection[] }>(GET_ALL_COLLECTIONS),
-        ]);
-
-        setGlobalSettings(globalSettingsData.globalSetting);
-        setProducts(productsData.products || []);
-        setCategories(categoriesData.categories || []);
-        setCollections(collectionsData.collections || []);
-      } catch (err) {
-        console.error('Error fetching data:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch data');
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchData();
-  }, []);
-
-  // Open modal from URL query param
-  useEffect(() => {
-    const productSlug = searchParams.get('product');
-    if (productSlug && products.length > 0) {
-      const product = products.find(p => p.slug === productSlug);
-      if (product) {
-        setSelectedProduct(product);
-        setIsModalOpen(true);
-      }
-    }
-  }, [searchParams, products]);
-
-  const handleProductClick = (product: Product) => {
-    setSelectedProduct(product);
-    setIsModalOpen(true);
-    // Update URL without navigation
-    window.history.pushState({}, '', `/shop?product=${product.slug}`);
+  return {
+    globalSettings: globalSettingsData.globalSetting,
+    products: productsData.products || [],
+    categories: categoriesData.categories || [],
+    collections: collectionsData.collections || [],
   };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedProduct(null);
-    // Clear URL param
-    window.history.pushState({}, '', '/shop');
-  };
-
-  // Get banner collection (most recent with showInBanner = true)
-  const bannerCollection = collections.find((col) => col.showInBanner) || collections[0];
-  const otherCollections = collections.filter((col) => col.slug !== bannerCollection?.slug);
-
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-
-  if (error) {
-    return <ErrorMessage error={error} />;
-  }
-
-  if (!globalSettings) {
-    return null;
-  }
-
-  return (
-    <PageWrapper>
-      {globalSettings.mainNavigation && (
-        <Navbar
-          isMenuOpen={isMenuOpen}
-          setIsMenuOpen={setIsMenuOpen}
-          navigation={globalSettings.mainNavigation}
-          logo={globalSettings.logo}
-        />
-      )}
-
-      <main className="pt-20 sm:pt-24 md:pt-28 pb-8 sm:pb-10 md:pb-12 lg:pb-16">
-        {/* Banner Collection */}
-        {bannerCollection && (
-          <div className="mb-12 sm:mb-16 md:mb-20 lg:mb-24 px-4 sm:px-5 md:px-6 lg:px-8">
-            <CollectionBanner collection={bannerCollection} />
-          </div>
-        )}
-
-        {/* Collections Grid */}
-        {otherCollections.length > 0 && (
-          <div className="mb-12 sm:mb-16 md:mb-20 lg:mb-24 px-4 sm:px-5 md:px-6 lg:px-8">
-            <CollectionsGrid collections={otherCollections} />
-          </div>
-        )}
-
-        {/* Categories Grid */}
-        {categories.length > 0 && (
-          <div className="mb-12 sm:mb-16 md:mb-20 lg:mb-24 px-4 sm:px-5 md:px-6 lg:px-8 py-12 sm:py-16 md:py-20 bg-neutral-50 dark:bg-[#1a1a1a]">
-            <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl mb-8 sm:mb-10 md:mb-14 text-neutral-900 dark:text-neutral-50 tracking-tight">
-              Shop by Category
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
-              {categories.map((category) => (
-                <Link
-                  key={category.slug}
-                  href={`/shop/category/${category.slug}`}
-                  className="group block"
-                >
-                  <div className="relative aspect-[16/9] overflow-hidden bg-neutral-100 dark:bg-neutral-700">
-                    {category.coverImage && (
-                      <Image
-                        src={category.coverImage.url}
-                        alt={category.name}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 md:p-6">
-                      <h3 className="font-serif text-lg md:text-xl text-white group-hover:text-white/90 transition-colors duration-300">
-                        {category.name}
-                      </h3>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Products with Filters */}
-        <div className="px-4 sm:px-5 md:px-6 lg:px-8">
-          <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl mb-8 sm:mb-10 md:mb-14 text-neutral-900 dark:text-neutral-100 tracking-tight">
-            All Products
-          </h2>
-          <ProductGridWithFilters
-            products={products}
-            categories={categories}
-            collections={collections}
-            whatsAppNumber={globalSettings.whatsAppNumber}
-            showPrice={true}
-            showStatus={true}
-            gridColumns="three"
-            gapSize="md"
-            onProductClick={handleProductClick}
-          />
-        </div>
-      </main>
-
-      {globalSettings.footer && (
-        <Footer data={globalSettings.footer} />
-      )}
-
-      {/* Product Modal */}
-      <ProductModal
-        product={selectedProduct}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        whatsAppNumber={globalSettings.whatsAppNumber}
-      />
-    </PageWrapper>
-  );
 }
 
-export default function ShopPage() {
+export async function generateMetadata(): Promise<Metadata> {
+  try {
+    const { globalSettings } = await fetchShopData();
+
+    const title = globalSettings?.siteName ? `Shop | ${globalSettings.siteName}` : 'Shop';
+    const description = globalSettings?.siteName ? `Browse our collection of products at ${globalSettings.siteName}` : undefined;
+
+    return {
+      title,
+      description,
+      openGraph: { title, description },
+    };
+  } catch {
+    return { title: 'Shop' };
+  }
+}
+
+export default async function ShopPage() {
+  const { globalSettings, products, categories, collections } = await fetchShopData();
+
   return (
-    <Suspense fallback={<div className="min-h-screen" />}>
-      <ShopPageContent />
-    </Suspense>
+    <ShopPageClient
+      globalSettings={globalSettings}
+      products={products}
+      categories={categories}
+      collections={collections}
+    />
   );
 }

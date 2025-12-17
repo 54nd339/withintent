@@ -15,7 +15,7 @@ type Props = {
 };
 
 export function Navbar({ isMenuOpen, setIsMenuOpen, navigation, logo }: Props) {
-  const { darkMode, toggleTheme } = useTheme();
+  const { darkMode, mounted, toggleTheme } = useTheme();
 
   const logoUrl = logo?.url || '/logo.svg';
   const logoAlt = logo?.fileName || 'WITH INTENT Logo';
@@ -58,7 +58,7 @@ export function Navbar({ isMenuOpen, setIsMenuOpen, navigation, logo }: Props) {
         {/* Actions */}
         <div className="flex items-center space-x-6">
           <button onClick={toggleTheme} className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
-            {darkMode ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} />}
+            {mounted ? (darkMode ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} />) : <Moon size={20} />}
           </button>
           <button className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
