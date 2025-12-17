@@ -7,14 +7,12 @@ import {
   Navbar, 
   Footer, 
   HeroSection, 
-  PhilosophySection, 
   ProductGrid, 
   StorySection,
   BannerSection,
   TextSection,
   CategoryGridSection,
   GallerySection,
-  TeamSection,
   FaqSection
 } from '@/app/components';
 import { useTheme } from '@/app/providers';
@@ -25,13 +23,11 @@ import {
   Product, 
   ProductGridBlock, 
   HeroBlock,
-  PhilosophyBlock,
   StoryBlock,
   BannerBlock,
   TextBlock,
   CategoryGridBlock,
   GalleryBlock,
-  TeamBlock,
   FaqBlock,
   Category
 } from '@/app/types';
@@ -197,11 +193,6 @@ export default function App() {
             return <HeroSection key={index} data={section as HeroBlock} />;
           }
 
-          // PhilosophyBlock
-          if ('quote' in section) {
-            return <PhilosophySection key={index} data={section as PhilosophyBlock} />;
-          }
-
           // ProductGridBlock
           if ('filterCollection' in section || 'filterCategory' in section || ('grid' in section && (section as ProductGridBlock).grid?.kind === 'products')) {
             const gridSection = section as ProductGridBlock;
@@ -228,7 +219,7 @@ export default function App() {
           }
 
           // TextBlock
-          if ('text' in section && !('media' in section) && !('quote' in section) && !('grid' in section)) {
+          if ('text' in section && !('media' in section) && !('primaryButton' in section) && !('grid' in section) && !('backgroundMedia' in section)) {
             return <TextSection key={index} data={section as TextBlock} />;
           }
 
@@ -240,15 +231,6 @@ export default function App() {
           // GalleryBlock
           if ('cards' in section && 'enableLightbox' in section) {
             return <GallerySection key={index} data={section as GalleryBlock} />;
-          }
-
-          // TeamBlock
-          if ('cards' in section && !('enableLightbox' in section)) {
-            // Check if it's TeamBlock by looking for team-specific structure
-            const teamSection = section as TeamBlock;
-            if (teamSection.grid && !teamSection.grid.kind) {
-              return <TeamSection key={index} data={teamSection} />;
-            }
           }
 
           // FaqBlock

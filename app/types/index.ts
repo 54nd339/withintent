@@ -108,17 +108,6 @@ export interface RichText {
   raw: unknown;
 }
 
-// Link (alias for NavigationItem)
-export type Link = NavigationItem;
-
-// Social (alias for SocialPlatform)
-export type Social = SocialPlatform;
-
-// SocialLink
-export interface SocialLink {
-  platform: Social;
-  url: string;
-}
 
 // Card
 export interface Card {
@@ -196,6 +185,7 @@ export interface Collection {
   coverImage?: Asset;
   products?: Product[];
   seo?: Seo;
+  showInBanner?: boolean;
 }
 
 // HeroBlock
@@ -208,14 +198,6 @@ export interface HeroBlock {
   showScrollIndicator?: boolean;
   scrollIndicatorText?: string;
   emphasisText?: string;
-}
-
-// PhilosophyBlock
-export interface PhilosophyBlock {
-  text?: TextGroup;
-  quote?: string;
-  layout?: LayoutSetting;
-  theme?: ThemeSetting;
 }
 
 // ProductGridBlock
@@ -249,6 +231,7 @@ export interface BannerBlock {
 
 export interface TextBlock {
   text?: TextGroup;
+  quote?: string;
   layout?: LayoutSetting;
   theme?: ThemeSetting;
 }
@@ -265,14 +248,6 @@ export interface GalleryBlock {
   grid?: Grid;
   cards?: Card[];
   enableLightbox?: boolean;
-  layout?: LayoutSetting;
-  theme?: ThemeSetting;
-}
-
-export interface TeamBlock {
-  header?: TextGroup;
-  grid?: Grid;
-  cards?: Card[];
   layout?: LayoutSetting;
   theme?: ThemeSetting;
 }
@@ -320,13 +295,11 @@ export interface Page {
   sections?:
     | HeroBlock[]
     | StoryBlock[]
-    | PhilosophyBlock[]
     | BannerBlock[]
     | TextBlock[]
     | ProductGridBlock[]
     | CategoryGridBlock[]
     | GalleryBlock[]
-    | TeamBlock[]
     | FaqBlock[];
 }
 

@@ -30,13 +30,13 @@ function AccordionItemComponent({
   themeStyles: React.CSSProperties;
 }) {
   return (
-    <div className="border-b" style={{ borderColor: themeStyles.color || 'currentColor', opacity: 0.2 }}>
+    <div className="border-b" style={{ borderColor: themeStyles.color || 'currentColor', borderBottomWidth: '1px', opacity: 0.7 }}>
       <button
         onClick={onToggle}
-        className="w-full py-6 flex justify-between items-center text-left hover:opacity-70 transition-opacity"
-        style={{ color: themeStyles.color || 'inherit' }}
+        className="w-full py-6 flex justify-between items-center text-left hover:opacity-80 transition-opacity"
+        style={{ color: themeStyles.color || 'inherit', opacity: 1 }}
       >
-        <span className="font-sans text-lg font-medium pr-8">{item.label}</span>
+        <span className="font-sans text-lg font-medium pr-8" style={{ opacity: 1 }}>{item.label}</span>
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
           transition={{ duration: 0.3 }}
@@ -55,7 +55,7 @@ function AccordionItemComponent({
           >
             <div 
               className="pb-6 font-sans leading-relaxed"
-              style={{ opacity: 0.8, color: themeStyles.color || 'inherit' }}
+              style={{ opacity: 0.9, color: themeStyles.color || 'inherit' }}
             >
               <RichText content={item.content} />
             </div>

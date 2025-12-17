@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { ArrowRight } from 'lucide-react';
 import { FadeInText, ProductCard, Cta, RichText } from '@/app/components';
 import { ProductGridBlock, Product } from '@/app/types';

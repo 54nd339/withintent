@@ -1,10 +1,8 @@
 export { HeroSection } from './HeroSection';
-export { PhilosophySection } from './PhilosophySection';
 export { ProductGrid } from './ProductGrid';
 export { StorySection } from './StorySection';
 export { BannerSection } from './BannerSection';
 export { TextSection } from './TextSection';
 export { CategoryGridSection } from './CategoryGridSection';
 export { GallerySection } from './GallerySection';
-export { TeamSection } from './TeamSection';
 export { FaqSection } from './FaqSection';

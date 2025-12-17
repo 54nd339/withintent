@@ -11,9 +11,10 @@ type Props = {
   whatsAppNumber?: string;
   showPrice?: boolean;
   showStatus?: boolean;
+  onProductClick?: (product: Product) => void;
 };
 
-export function ProductCard({ product, index, whatsAppNumber = '919876543210', showPrice = true, showStatus = true }: Props) {
+export function ProductCard({ product, index, whatsAppNumber = '919876543210', showPrice = true, showStatus = true, onProductClick }: Props) {
   const [isHovered, setIsHovered] = useState(false);
 
   const mainImage = product.mainImage?.url;
@@ -27,6 +28,12 @@ export function ProductCard({ product, index, whatsAppNumber = '919876543210', s
     return `${url}?text=${encodeURIComponent(`I am interested in ${title}`)}`;
   };
 
+  const handleClick = () => {
+    if (onProductClick) {
+      onProductClick(product);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
@@ -36,6 +43,7 @@ export function ProductCard({ product, index, whatsAppNumber = '919876543210', s
       className="group cursor-pointer"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={handleClick}
     >
       <div className="relative aspect-[3/4] overflow-hidden bg-neutral-100 dark:bg-neutral-800 mb-6">
         {showStatus && status && status !== 'AVAILABLE' && (

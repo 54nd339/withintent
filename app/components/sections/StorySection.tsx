@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { motion } from 'framer-motion';
 import { FadeInText, RichText, Cta } from '@/app/components';
 import { StoryBlock } from '@/app/types';

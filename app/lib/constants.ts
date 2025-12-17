@@ -1,4 +1,4 @@
-import { ThemeSetting, LayoutSetting, SpacingSize, Alignment, ContainerWidth, VerticalAlignment, LayoutType, BorderRadius, ShadowSize } from '@/app/types';
+import { ThemeSetting, LayoutSetting } from '@/app/types';
 
 /**
  * Default theme values from globals.css

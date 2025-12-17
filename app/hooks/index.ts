@@ -1,2 +1,1 @@
-export * from './useDarkMode';
-export * from './useParallax';
+// Hooks exports - currently empty

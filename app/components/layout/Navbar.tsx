@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { Moon, Sun, Menu, X } from 'lucide-react';
 import { useTheme } from '@/app/providers';
 import { NavigationItem, Asset } from '@/app/types';
-// SmartLink not needed in Navbar - using direct Link component
 
 type Props = {
   isMenuOpen: boolean;

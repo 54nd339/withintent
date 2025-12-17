@@ -1,4 +1,5 @@
-import { SpacingSize, LayoutSetting, ThemeSetting, BorderRadius, ShadowSize, Alignment } from '@/app/types';
+import React from 'react';
+import { SpacingSize, LayoutSetting, ThemeSetting } from '@/app/types';
 import { DEFAULT_THEME_LIGHT, DEFAULT_THEME_DARK, DEFAULT_LAYOUT } from './constants';
 
 /**
@@ -345,41 +346,4 @@ export function getThemeStyles(theme: ThemeSetting, isDark: boolean): React.CSSP
   return styles;
 }
 
-/**
- * Get border radius classes
- */
-export function getBorderRadiusClasses(borderRadius?: BorderRadius | null): string {
-  switch (borderRadius) {
-    case 'sm':
-      return 'rounded-sm';
-    case 'md':
-      return 'rounded-md';
-    case 'lg':
-      return 'rounded-lg';
-    case 'full':
-      return 'rounded-full';
-    case 'none':
-    default:
-      return '';
-  }
-}
-
-/**
- * Get shadow classes
- */
-export function getShadowClasses(shadow?: ShadowSize | null): string {
-  switch (shadow) {
-    case 'sm':
-      return 'shadow-sm';
-    case 'md':
-      return 'shadow-md';
-    case 'lg':
-      return 'shadow-lg';
-    case 'xl':
-      return 'shadow-xl';
-    case 'none':
-    default:
-      return '';
-  }
-}
 

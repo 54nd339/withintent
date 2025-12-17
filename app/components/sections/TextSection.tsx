@@ -1,10 +1,9 @@
 'use client';
 
-import React from 'react';
 import { FadeInText, RichText } from '@/app/components';
 import { TextBlock } from '@/app/types';
 import { 
-  getSpacingClassesFromLayout, 
+  getSpacingClassesFromLayout,
   getContainerWidthClasses,
   getAlignmentClassesFromLayout,
   getThemeWithDefaults,
@@ -37,13 +36,17 @@ export function TextSection({ data }: TextSectionProps) {
 
   return (
     <section
-      className={`px-4 sm:px-5 md:px-6 lg:px-8 mx-auto ${spacingClasses} ${containerWidthClasses} ${alignmentClasses}`}
+      className={`px-4 sm:px-5 md:px-6 lg:px-8 mx-auto relative ${spacingClasses} ${alignmentClasses} ${containerWidthClasses}`}
       style={themeStyles}
     >
+      <div 
+        className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-20 bg-gradient-to-b from-current to-transparent"
+        style={{ opacity: 0.3, color: themeStyles.color || 'currentColor' }}
+      />
       <FadeInText>
         {text?.eyebrow && (
           <span 
-            className="block font-sans text-xs tracking-[0.3em] uppercase mb-3 sm:mb-4 md:mb-5"
+            className="block font-sans text-xs tracking-[0.3em] uppercase mb-6 sm:mb-7 md:mb-8 lg:mb-10"
             style={{ opacity: 0.7, color: themeStyles.color || 'inherit' }}
           >
             {text.eyebrow}
@@ -65,16 +68,27 @@ export function TextSection({ data }: TextSectionProps) {
             {text.subheading}
           </p>
         )}
+        {data?.quote && (
+          <h2 
+            className="font-serif text-3xl md:text-5xl leading-tight mb-6 sm:mb-7 md:mb-8 lg:mb-10"
+            style={{ color: themeStyles.color || 'inherit' }}
+          >
+            &ldquo;{data.quote}&rdquo;
+          </h2>
+        )}
         {text?.body && (
           <div 
-            className="font-sans leading-relaxed"
+            className="font-sans text-lg leading-relaxed max-w-xl mx-auto"
             style={{ opacity: 0.8, color: themeStyles.color || 'inherit' }}
           >
             <RichText content={text.body} />
           </div>
         )}
       </FadeInText>
+      <div 
+        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[1px] h-20 bg-gradient-to-t from-current to-transparent"
+        style={{ opacity: 0.3, color: themeStyles.color || 'currentColor' }}
+      />
     </section>
   );
 }
-

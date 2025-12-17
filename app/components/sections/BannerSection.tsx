@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import Image from 'next/image';
 import { FadeInText, RichText, Cta } from '@/app/components';
 import { BannerBlock } from '@/app/types';

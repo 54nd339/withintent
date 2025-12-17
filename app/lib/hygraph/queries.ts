@@ -265,7 +265,7 @@ export const GET_PAGE_BY_SLUG = gql`
           scrollIndicatorText
           emphasisText
         }
-        ... on PhilosophyBlock {
+        ... on TextBlock {
           text {
             ...TextGroupFields
           }
@@ -333,17 +333,6 @@ export const GET_PAGE_BY_SLUG = gql`
             ...ButtonFields
           }
         }
-        ... on TextBlock {
-          text {
-            ...TextGroupFields
-          }
-          layout {
-            ...LayoutSettingFields
-          }
-          theme {
-            ...ThemeSettingFields
-          }
-        }
         ... on CategoryGridBlock {
           header {
             ...TextGroupFields
@@ -373,26 +362,6 @@ export const GET_PAGE_BY_SLUG = gql`
             ...CardFields
           }
           enableLightbox
-          layout {
-            ...LayoutSettingFields
-          }
-          theme {
-            ...ThemeSettingFields
-          }
-        }
-        ... on TeamBlock {
-          header {
-            ...TextGroupFields
-          }
-          grid {
-            kind
-            columns
-            gapSize
-            limit
-          }
-          cards {
-            ...CardFields
-          }
           layout {
             ...LayoutSettingFields
           }
@@ -430,6 +399,9 @@ export const GET_PAGE_BY_SLUG = gql`
 export const GET_PRODUCTS_BY_COLLECTION = gql`
   query GetProductsByCollection($slug: String!, $limit: Int) {
     collections(where: { slug: $slug }) {
+      title
+      slug
+      showInBanner
       products(first: $limit) {
         title
         slug
@@ -581,6 +553,7 @@ export const GET_COLLECTION_BY_SLUG = gql`
         width
         height
       }
+      showInBanner
       products {
         title
         slug
@@ -695,6 +668,7 @@ export const GET_ALL_COLLECTIONS = gql`
         width
         height
       }
+      showInBanner
     }
   }
 `;
