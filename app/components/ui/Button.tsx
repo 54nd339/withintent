@@ -1,12 +1,12 @@
 import Link from 'next/link';
-import { Cta as CtaType } from '@/app/types';
+import { Cta as ButtonType } from '@/app/types';
 
-interface CtaProps {
-  cta: CtaType;
+interface ButtonProps {
+  cta: ButtonType;
   className?: string;
 }
 
-export function Cta({ cta, className = '' }: CtaProps) {
+export function Button({ cta, className = '' }: ButtonProps) {
   if (!cta?.label) {
     return null;
   }

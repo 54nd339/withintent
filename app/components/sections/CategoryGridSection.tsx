@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
-import { FadeInText, RichText, Cta } from '@/app/components';
+import { FadeInText, RichText, Button } from '@/app/components';
 import { CategoryGridBlock, Category } from '@/app/types';
 import {
   getSpacingClassesFromLayout,
@@ -111,7 +111,7 @@ export function CategoryGridSection({ data, categories = [] }: CategoryGridSecti
         {grid?.showViewAll && grid.viewAllButton && (
           <FadeInText delay={0.2} className="hidden md:block">
             <div className="group flex items-center font-sans text-xs tracking-widest uppercase transition-colors">
-              <Cta cta={grid.viewAllButton} />
+              <Button cta={grid.viewAllButton} />
               <ArrowRight size={14} className="ml-2 group-hover:translate-x-2 transition-transform" />
             </div>
           </FadeInText>

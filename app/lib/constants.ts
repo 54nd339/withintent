@@ -1,6 +1,33 @@
 import { ThemeSetting, LayoutSetting } from '@/app/types';
 
 /**
+ * Animation durations (in ms for JS, class suffix for Tailwind)
+ */
+export const ANIMATION = {
+  DURATION_FAST: 300,
+  DURATION_NORMAL: 500,
+  DURATION_SLOW: 700,
+} as const;
+
+/**
+ * API constants
+ */
+export const API = {
+  PRODUCTS_LIMIT: 50,
+  DEFAULT_WHATSAPP: '919876543210',
+} as const;
+
+/**
+ * Scroll animation ranges
+ */
+export const SCROLL_ANIMATION = {
+  PARALLAX_INPUT: [0, 500] as [number, number],
+  PARALLAX_OUTPUT: [0, 150] as [number, number],
+  OPACITY_INPUT: [0, 300] as [number, number],
+  OPACITY_OUTPUT: [1, 0.3] as [number, number],
+};
+
+/**
  * Default theme values from globals.css
  */
 export const DEFAULT_THEME_LIGHT: ThemeSetting = {

@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { FadeInText, RichText, Cta } from '@/app/components';
+import { FadeInText, RichText, Button } from '@/app/components';
 import { BannerBlock } from '@/app/types';
 import {
   getSpacingClassesFromLayout,
@@ -104,7 +104,7 @@ export function BannerSection({ data }: BannerSectionProps) {
           {data.buttons && data.buttons.length > 0 && (
             <div className="flex flex-col md:flex-row items-center gap-4">
               {data.buttons.map((button, index) => (
-                <Cta key={index} cta={button} />
+                <Button key={index} cta={button} />
               ))}
             </div>
           )}

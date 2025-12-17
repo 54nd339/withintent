@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { FadeInText, RichText, Cta } from '@/app/components';
+import { FadeInText, RichText, Button } from '@/app/components';
 import { StoryBlock } from '@/app/types';
 import {
   getSpacingClassesFromLayout,
@@ -94,7 +94,7 @@ export function StorySection({ data }: StorySectionProps) {
                 <RichText content={text.body} />
               </div>
             )}
-            {data.primaryButton && <Cta cta={data.primaryButton} />}
+            {data.primaryButton && <Button cta={data.primaryButton} />}
           </FadeInText>
         </div>
       </div>

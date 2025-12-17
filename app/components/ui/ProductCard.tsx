@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Product } from '@/app/types';
-import { formatINR, formatWhatsAppUrl } from '@/app/lib/utils';
+import { formatINR, createWhatsAppInquiryLink } from '@/app/lib/utils';
 
 type Props = {
   product: Product;
@@ -23,10 +23,7 @@ export function ProductCard({ product, index, whatsAppNumber = '919876543210', s
   const hasHoverImage = hoverImage !== null;
   const status = product.productStatus?.toUpperCase();
 
-  const whatsappLink = (title: string) => {
-    const url = formatWhatsAppUrl(whatsAppNumber);
-    return `${url}?text=${encodeURIComponent(`I am interested in ${title}`)}`;
-  };
+  const whatsappLink = (title: string) => createWhatsAppInquiryLink(whatsAppNumber, title);
 
   const handleClick = () => {
     if (onProductClick) {

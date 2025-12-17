@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Navbar, Footer, CollectionBanner, CollectionsGrid, ProductGridWithFilters, ProductModal } from '@/app/components';
+import { Navbar, Footer, CollectionBanner, CollectionsGrid, ProductGridWithFilters, ProductModal, LoadingSpinner, ErrorMessage, PageWrapper } from '@/app/components';
 import { hygraphClient, GET_GLOBAL_SETTINGS, GET_ALL_PRODUCTS, GET_ALL_CATEGORIES, GET_ALL_COLLECTIONS } from '@/app/lib/hygraph';
 import { GlobalSetting, Product, Category, Collection } from '@/app/types';
 import { useTheme } from '@/app/providers';
@@ -87,24 +87,11 @@ function ShopPageContent() {
   const otherCollections = collections.filter((col) => col.slug !== bannerCollection?.slug);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neutral-900 dark:border-white mx-auto mb-4"></div>
-          <p className="text-neutral-600 dark:text-neutral-400">Loading...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 dark:text-red-400 mb-4">Error: {error}</p>
-        </div>
-      </div>
-    );
+    return <ErrorMessage error={error} />;
   }
 
   if (!globalSettings) {
@@ -112,7 +99,7 @@ function ShopPageContent() {
   }
 
   return (
-    <div className="min-h-screen transition-colors duration-700 ease-in-out bg-[var(--background)] text-[var(--foreground)] dark:bg-[#121212] dark:text-[#f8f5ef]">
+    <PageWrapper>
       {globalSettings.mainNavigation && (
         <Navbar
           isMenuOpen={isMenuOpen}
@@ -202,7 +189,7 @@ function ShopPageContent() {
         onClose={handleCloseModal}
         whatsAppNumber={globalSettings.whatsAppNumber}
       />
-    </div>
+    </PageWrapper>
   );
 }
 

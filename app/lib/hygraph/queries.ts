@@ -1,233 +1,105 @@
 import { gql } from 'graphql-request';
 
-// Get Global Settings
-export const GET_GLOBAL_SETTINGS = gql`
-  query GetGlobalSettings($id: ID!) {
-    globalSetting(where: {id: $id}) {
-      siteName
-      contactEmail
-      contactWhatsApp
-      whatsAppNumber
-      logo {
-        url
-        fileName
-        width
-        height
-      }
-      defaultSeo {
-        metaTitle
-        metaDescription
-        ogImage {
-          url
-        }
-      }
-      mainNavigation {
-        label
-        url
-      }
-      footer {
-        text {
-          heading
-          body {
-            raw
-          }
-          textSize
-          fontWeight
-        }
-        shopButtons {
-          label
-          url
-          type
-          style
-          role
-          icon
-          openInNewTab
-        }
-        socialButtons {
-          label
-          url
-          type
-          style
-          role
-          icon
-          openInNewTab
-        }
-        companyButtons {
-          label
-          url
-          type
-          style
-          role
-          icon
-          openInNewTab
-        }
-        copyrightText
-        layout {
-          paddingTop
-          paddingBottom
-          paddingLeft
-          paddingRight
-          marginTop
-          marginBottom
-          marginLeft
-          marginRight
-          textAlign
-          verticalAlign
-          containerWidth
-          minHeight
-          layoutType
-          dividerHeight
-        }
-        theme {
-          backgroundColor {
-            hex
-          }
-          darkBackgroundColor {
-            hex
-          }
-          textColor {
-            hex
-          }
-          darkTextColor {
-            hex
-          }
-          accentColor {
-            hex
-          }
-          darkAccentColor {
-            hex
-          }
-          overlayColor {
-            hex
-          }
-          darkOverlayColor {
-            hex
-          }
-          overlayOpacity
-          darkOverlayOpacity
-          shadow
-        }
-      }
-    }
+
+const BUTTON_FIELDS = gql`
+  fragment ButtonFields on Button {
+    label
+    url
+    type
+    style
+    icon
+    openInNewTab
   }
 `;
 
-// Get Page by Slug (using fragments to reduce query size)
-export const GET_PAGE_BY_SLUG = gql`
-  fragment LayoutSettingFields on LayoutSetting {
+const LAYOUT_FIELDS = gql`
+  fragment LayoutFields on LayoutSetting {
     paddingTop
     paddingBottom
     paddingLeft
     paddingRight
     marginTop
     marginBottom
-    marginLeft
-    marginRight
     textAlign
-    verticalAlign
     containerWidth
-    minHeight
     layoutType
-    dividerHeight
   }
+`;
 
-  fragment ThemeSettingFields on ThemeSetting {
-    backgroundColor {
-      hex
-    }
-    darkBackgroundColor {
-      hex
-    }
-    textColor {
-      hex
-    }
-    darkTextColor {
-      hex
-    }
-    accentColor {
-      hex
-    }
-    darkAccentColor {
-      hex
-    }
-    overlayColor {
-      hex
-    }
-    darkOverlayColor {
-      hex
-    }
+const THEME_FIELDS = gql`
+  fragment ThemeFields on ThemeSetting {
+    backgroundColor { hex }
+    darkBackgroundColor { hex }
+    textColor { hex }
+    darkTextColor { hex }
+    accentColor { hex }
+    darkAccentColor { hex }
     overlayOpacity
     darkOverlayOpacity
-    borderRadius
     shadow
   }
+`;
 
+const TEXT_GROUP_FIELDS = gql`
   fragment TextGroupFields on TextGroup {
     eyebrow
     heading
     subheading
-    body {
-      raw
-    }
+    body { raw }
     textSize
     fontWeight
   }
+`;
 
+const MEDIA_FIELDS = gql`
   fragment MediaFields on Media {
     type
-    asset {
-      url
-      fileName
-      width
-      height
-    }
+    asset { url fileName width height }
     alt
-    thumbnail {
-      url
-      fileName
-      width
-      height
-    }
   }
+`;
 
-  fragment ButtonFields on Button {
-    label
-    url
-    type
-    style
-    role
-    icon
-    openInNewTab
+// Get Global Settings
+export const GET_GLOBAL_SETTINGS = gql`
+  query GetGlobalSettings($id: ID!) {
+    globalSetting(where: {id: $id}) {
+      siteName
+      whatsAppNumber
+      logo { url fileName width height }
+      mainNavigation { label url }
+      footer {
+        text {
+          heading
+          body { raw }
+        }
+        shopButtons { label url type icon openInNewTab }
+        socialButtons { label url type icon openInNewTab }
+        companyButtons { label url type icon openInNewTab }
+        copyrightText
+        layout {
+          paddingTop
+          paddingBottom
+          textAlign
+          containerWidth
+        }
+        theme {
+          backgroundColor { hex }
+          darkBackgroundColor { hex }
+          textColor { hex }
+          darkTextColor { hex }
+        }
+      }
+    }
   }
+`;
 
-  fragment GridFields on Grid {
-    kind
-    columns
-    gapSize
-    limit
-    showViewAll
-    viewAllButton {
-      ...ButtonFields
-    }
-    cardThemeOverride {
-      ...ThemeSettingFields
-    }
-  }
-
-  fragment CardFields on Card {
-    media {
-      ...MediaFields
-    }
-    title
-    subtitle
-    body {
-      raw
-    }
-    buttons {
-      ...ButtonFields
-    }
-    badge
-  }
+// Get Page by Slug
+export const GET_PAGE_BY_SLUG = gql`
+  ${TEXT_GROUP_FIELDS}
+  ${MEDIA_FIELDS}
+  ${LAYOUT_FIELDS}
+  ${THEME_FIELDS}
+  ${BUTTON_FIELDS}
 
   query PageBySlug($slug: String!) {
     page(where: { slug: $slug }) {
@@ -237,158 +109,87 @@ export const GET_PAGE_BY_SLUG = gql`
       showFooter
       whatsAppLink
       whatsAppEnabled
-      seo {
-        metaTitle
-        metaDescription
-        ogImage {
-          url
-        }
-      }
+      seo { metaTitle metaDescription ogImage { url } }
       sections {
         ... on HeroBlock {
-          text {
-            ...TextGroupFields
-          }
-          media {
-            ...MediaFields
-          }
-          layout {
-            ...LayoutSettingFields
-          }
-          theme {
-            ...ThemeSettingFields
-          }
-          buttons {
-            ...ButtonFields
-          }
+          text { ...TextGroupFields }
+          media { ...MediaFields }
+          layout { ...LayoutFields }
+          theme { ...ThemeFields }
+          buttons { ...ButtonFields }
           showScrollIndicator
           scrollIndicatorText
           emphasisText
         }
         ... on TextBlock {
-          text {
-            ...TextGroupFields
-          }
+          text { ...TextGroupFields }
           quote
-          layout {
-            ...LayoutSettingFields
-          }
-          theme {
-            ...ThemeSettingFields
-          }
+          layout { ...LayoutFields }
+          theme { ...ThemeFields }
         }
         ... on ProductGridBlock {
-          header {
-            ...TextGroupFields
-          }
+          header { ...TextGroupFields }
           grid {
-            ...GridFields
-          }
-          showPrice
-          showStatus
-          filterCollection {
-            slug
-          }
-          filterCategory {
-            slug
-          }
-          layout {
-            ...LayoutSettingFields
-          }
-          theme {
-            ...ThemeSettingFields
-          }
-        }
-        ... on StoryBlock {
-          text {
-            ...TextGroupFields
-          }
-          media {
-            ...MediaFields
-          }
-          layout {
-            ...LayoutSettingFields
-          }
-          theme {
-            ...ThemeSettingFields
-          }
-          primaryButton {
-            ...ButtonFields
-          }
-        }
-        ... on BannerBlock {
-          text {
-            ...TextGroupFields
-          }
-          backgroundMedia {
-            ...MediaFields
-          }
-          layout {
-            ...LayoutSettingFields
-          }
-          theme {
-            ...ThemeSettingFields
-          }
-          buttons {
-            ...ButtonFields
-          }
-        }
-        ... on CategoryGridBlock {
-          header {
-            ...TextGroupFields
-          }
-          grid {
-            ...GridFields
-          }
-          layout {
-            ...LayoutSettingFields
-          }
-          theme {
-            ...ThemeSettingFields
-          }
-        }
-        ... on GalleryBlock {
-          header {
-            ...TextGroupFields
-          }
-          grid {
-            kind
             columns
             gapSize
             limit
             showViewAll
+            viewAllButton { ...ButtonFields }
           }
+          showPrice
+          showStatus
+          filterCollection { slug }
+          filterCategory { slug }
+          layout { ...LayoutFields }
+          theme { ...ThemeFields }
+        }
+        ... on StoryBlock {
+          text { ...TextGroupFields }
+          media { ...MediaFields }
+          layout { ...LayoutFields }
+          theme { ...ThemeFields }
+          primaryButton { ...ButtonFields }
+        }
+        ... on BannerBlock {
+          text { ...TextGroupFields }
+          backgroundMedia { ...MediaFields }
+          layout { ...LayoutFields }
+          theme { ...ThemeFields }
+          buttons { ...ButtonFields }
+        }
+        ... on CategoryGridBlock {
+          header { ...TextGroupFields }
+          grid {
+            columns
+            gapSize
+            limit
+            showViewAll
+            viewAllButton { ...ButtonFields }
+          }
+          layout { ...LayoutFields }
+          theme { ...ThemeFields }
+        }
+        ... on GalleryBlock {
+          header { ...TextGroupFields }
+          grid { columns gapSize }
           cards {
-            ...CardFields
+            media { ...MediaFields }
+            title
+            subtitle
+            body { raw }
           }
           enableLightbox
-          layout {
-            ...LayoutSettingFields
-          }
-          theme {
-            ...ThemeSettingFields
-          }
+          layout { ...LayoutFields }
+          theme { ...ThemeFields }
         }
         ... on FaqBlock {
-          header {
-            ...TextGroupFields
-          }
+          header { ...TextGroupFields }
           accordion {
             style
-            items {
-              label
-              content {
-                raw
-              }
-              defaultOpen
-            }
+            items { label content { raw } defaultOpen }
           }
-          layout {
-            ...LayoutSettingFields
-          }
-          theme {
-            ...ThemeSettingFields
-          }
+          layout { ...LayoutFields }
+          theme { ...ThemeFields }
         }
       }
     }
@@ -401,42 +202,15 @@ export const GET_PRODUCTS_BY_COLLECTION = gql`
     collections(where: { slug: $slug }) {
       title
       slug
-      showInBanner
       products(first: $limit) {
         title
         slug
         price
         productStatus
-        description {
-          raw
-        }
-        mainImage {
-          url
-          fileName
-          width
-          height
-        }
-        galleryImages {
-          url
-          fileName
-          width
-          height
-        }
-        categories {
-          name
-          slug
-        }
-        collections {
-          title
-          slug
-        }
-        seo {
-          metaTitle
-          metaDescription
-          ogImage {
-            url
-          }
-        }
+        mainImage { url }
+        galleryImages { url }
+        categories { name slug }
+        collections { title slug }
       }
     }
   }
@@ -451,90 +225,11 @@ export const GET_ALL_PRODUCTS = gql`
       price
       productStatus
       createdAt
-      description {
-        raw
-      }
-      mainImage {
-        url
-        fileName
-        width
-        height
-      }
-      galleryImages {
-        url
-        fileName
-        width
-        height
-      }
-      categories {
-        name
-        slug
-      }
-      collections {
-        title
-        slug
-      }
-      seo {
-        metaTitle
-        metaDescription
-        ogImage {
-          url
-        }
-      }
-    }
-  }
-`;
-
-// Get Product by Slug
-export const GET_PRODUCT_BY_SLUG = gql`
-  query GetProduct($slug: String!) {
-    product(where: { slug: $slug }) {
-      title
-      slug
-      price
-      productStatus
-      description {
-        raw
-      }
-      mainImage {
-        url
-        fileName
-        width
-        height
-      }
-      galleryImages {
-        url
-        fileName
-        width
-        height
-      }
-      categories {
-        name
-        slug
-      }
-      collections {
-        title
-        slug
-      }
-      seo {
-        metaTitle
-        metaDescription
-        ogImage {
-          url
-        }
-      }
-      relatedProducts {
-        title
-        slug
-        price
-        productStatus
-        mainImage {
-          url
-          fileName
-          width
-          height
-        }
-      }
+      description { raw }
+      mainImage { url }
+      galleryImages { url }
+      categories { name slug }
+      collections { title slug }
     }
   }
 `;
@@ -545,58 +240,18 @@ export const GET_COLLECTION_BY_SLUG = gql`
     collection(where: { slug: $slug }) {
       title
       slug
-      description {
-        raw
-      }
-      coverImage {
-        url
-        fileName
-        width
-        height
-      }
+      description { raw }
+      coverImage { url width height }
       showInBanner
       products {
         title
         slug
         price
         productStatus
-        description {
-          raw
-        }
-        mainImage {
-          url
-          fileName
-          width
-          height
-        }
-        galleryImages {
-          url
-          fileName
-          width
-          height
-        }
-        categories {
-          name
-          slug
-        }
-        collections {
-          title
-          slug
-        }
-        seo {
-          metaTitle
-          metaDescription
-          ogImage {
-            url
-          }
-        }
-      }
-      seo {
-        metaTitle
-        metaDescription
-        ogImage {
-          url
-        }
+        mainImage { url }
+        galleryImages { url }
+        categories { name slug }
+        collections { title slug }
       }
     }
   }
@@ -608,47 +263,16 @@ export const GET_CATEGORY_BY_SLUG = gql`
     category(where: { slug: $slug }) {
       name
       slug
-      coverImage {
-        url
-        fileName
-        width
-        height
-      }
+      coverImage { url width height }
       products {
         title
         slug
         price
         productStatus
-        description {
-          raw
-        }
-        mainImage {
-          url
-          fileName
-          width
-          height
-        }
-        galleryImages {
-          url
-          fileName
-          width
-          height
-        }
-        categories {
-          name
-          slug
-        }
-        collections {
-          title
-          slug
-        }
-        seo {
-          metaTitle
-          metaDescription
-          ogImage {
-            url
-          }
-        }
+        mainImage { url }
+        galleryImages { url }
+        categories { name slug }
+        collections { title slug }
       }
     }
   }
@@ -660,15 +284,8 @@ export const GET_ALL_COLLECTIONS = gql`
     collections {
       title
       slug
-      description {
-        raw
-      }
-      coverImage {
-        url
-        fileName
-        width
-        height
-      }
+      description { raw }
+      coverImage { url }
       showInBanner
     }
   }
@@ -680,12 +297,7 @@ export const GET_ALL_CATEGORIES = gql`
     categories {
       name
       slug
-      coverImage {
-        url
-        fileName
-        width
-        height
-      }
+      coverImage { url }
     }
   }
 `;

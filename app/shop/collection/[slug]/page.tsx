@@ -3,19 +3,21 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Navbar, Footer, ProductGridWithFilters, ProductModal } from '@/app/components';
+import { Navbar, Footer, ProductGridWithFilters, ProductModal, LoadingSpinner, ErrorMessage, PageWrapper } from '@/app/components';
 import { hygraphClient, GET_GLOBAL_SETTINGS, GET_COLLECTION_BY_SLUG, GET_ALL_CATEGORIES, GET_ALL_COLLECTIONS } from '@/app/lib/hygraph';
 import { GlobalSetting, Collection, Category, Product } from '@/app/types';
 import { useTheme } from '@/app/providers';
+import { useProductModal } from '@/app/hooks';
 import { RichText } from '@/app/components/ui/RichText';
+import { SCROLL_ANIMATION } from '@/app/lib/constants';
 
 export default function CollectionPage() {
   useTheme();
   const params = useParams();
   const slug = params?.slug as string;
   const { scrollY } = useScroll();
-  const y = useTransform(scrollY, [0, 500], [0, 150]);
-  const opacity = useTransform(scrollY, [0, 300], [1, 0.3]);
+  const y = useTransform(scrollY, SCROLL_ANIMATION.PARALLAX_INPUT, SCROLL_ANIMATION.PARALLAX_OUTPUT);
+  const opacity = useTransform(scrollY, SCROLL_ANIMATION.OPACITY_INPUT, SCROLL_ANIMATION.OPACITY_OUTPUT);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [globalSettings, setGlobalSettings] = useState<GlobalSetting | null>(null);
@@ -23,8 +25,7 @@ export default function CollectionPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { selectedProduct, isModalOpen, handleProductClick, handleCloseModal } = useProductModal();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -67,37 +68,12 @@ export default function CollectionPage() {
     fetchData();
   }, [slug]);
 
-  const handleProductClick = (product: Product) => {
-    setSelectedProduct(product);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedProduct(null);
-  };
-
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neutral-900 dark:border-white mx-auto mb-4"></div>
-          <p className="text-neutral-600 dark:text-neutral-400">Loading...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (error || !collection) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 dark:text-red-400 mb-4">
-            {error || 'Collection not found'}
-          </p>
-        </div>
-      </div>
-    );
+    return <ErrorMessage error={error || 'Collection not found'} />;
   }
 
   if (!globalSettings) {
@@ -105,7 +81,7 @@ export default function CollectionPage() {
   }
 
   return (
-    <div className="min-h-screen transition-colors duration-700 ease-in-out bg-[var(--background)] text-[var(--foreground)] dark:bg-[#121212] dark:text-[#f8f5ef]">
+    <PageWrapper>
       {globalSettings.mainNavigation && (
         <Navbar
           isMenuOpen={isMenuOpen}
@@ -192,6 +168,6 @@ export default function CollectionPage() {
         onClose={handleCloseModal}
         whatsAppNumber={globalSettings.whatsAppNumber}
       />
-    </div>
+    </PageWrapper>
   );
 }

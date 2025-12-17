@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { FadeInText, RichText, Cta } from '@/app/components';
+import { FadeInText, RichText } from '@/app/components';
 import { GalleryBlock, Card } from '@/app/types';
 import {
   getSpacingClassesFromLayout,

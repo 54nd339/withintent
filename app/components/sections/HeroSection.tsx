@@ -12,7 +12,7 @@ import {
   getLayoutWithDefaults
 } from '@/app/lib/utils';
 import { useTheme } from '@/app/providers';
-import { RichText, Cta } from '@/app/components';
+import { RichText, Button } from '@/app/components';
 
 interface HeroSectionProps {
   data?: HeroBlock;
@@ -173,7 +173,7 @@ export function HeroSection({ data }: HeroSectionProps) {
             className="flex flex-col md:flex-row items-center gap-3 sm:gap-4 md:gap-6 lg:gap-8 mt-6 sm:mt-7 md:mt-8 lg:mt-10"
           >
             {data.buttons.map((button, index) => (
-              <Cta key={index} cta={button} />
+              <Button key={index} cta={button} />
             ))}
           </motion.div>
         )}

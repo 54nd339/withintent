@@ -14,7 +14,9 @@ import {
   CategoryGridSection,
   GallerySection,
   FaqSection,
-  ProductModal
+  ProductModal,
+  LoadingSpinner,
+  ErrorMessage
 } from '@/app/components';
 import { useTheme } from '@/app/providers';
 import { hygraphClient, GET_GLOBAL_SETTINGS, GET_PAGE_BY_SLUG, GET_PRODUCTS_BY_COLLECTION, GET_ALL_PRODUCTS, GET_ALL_CATEGORIES } from '@/app/lib/hygraph';
@@ -142,27 +144,11 @@ export default function App() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neutral-900 dark:border-white mx-auto mb-4"></div>
-          <p className="text-neutral-600 dark:text-neutral-400">Loading...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 dark:text-red-400 mb-4">Error: {error}</p>
-          <p className="text-neutral-600 dark:text-neutral-400 text-sm">
-            Please check your environment variables and API configuration.
-          </p>
-        </div>
-      </div>
-    );
+    return <ErrorMessage error={error} />;
   }
 
   if (!page || !globalSettings) {

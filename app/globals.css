@@ -61,3 +61,12 @@ html {
   background: #888;
   border-radius: 4px;
 }
+
+/* Common utility classes */
+.container-padding {
+  @apply px-4 sm:px-5 md:px-6 lg:px-8;
+}
+
+.section-spacing {
+  @apply mb-12 sm:mb-16 md:mb-20 lg:mb-24;
+}

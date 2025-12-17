@@ -5,7 +5,7 @@ import { DEFAULT_THEME_LIGHT, DEFAULT_THEME_DARK, DEFAULT_LAYOUT } from './const
 /**
  * Convert SpacingSize enum to Tailwind CSS classes
  */
-export function getSpacingClasses(
+function getSpacingClasses(
   paddingTop?: SpacingSize | null,
   paddingBottom?: SpacingSize | null,
   paddingLeft?: SpacingSize | null,
@@ -158,6 +158,14 @@ export function formatWhatsAppUrl(number: string): string {
 }
 
 /**
+ * Create WhatsApp inquiry link with message
+ */
+export function createWhatsAppInquiryLink(whatsAppNumber: string, productTitle: string): string {
+  const url = formatWhatsAppUrl(whatsAppNumber);
+  return `${url}?text=${encodeURIComponent(`I am interested in ${productTitle}`)}`;
+}
+
+/**
  * Format INR currency
  */
 export const formatINR = (value: number) => `₹${value.toLocaleString("en-IN")}`;
@@ -165,7 +173,7 @@ export const formatINR = (value: number) => `₹${value.toLocaleString("en-IN")}
 /**
  * Get alignment classes
  */
-export function getAlignmentClasses(alignment?: string | null): string {
+function getAlignmentClasses(alignment?: string | null): string {
   switch (alignment) {
     case 'left':
       return 'text-left';

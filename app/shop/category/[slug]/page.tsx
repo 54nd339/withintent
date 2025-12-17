@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Image from 'next/image';
-import { Navbar, Footer, ProductGridWithFilters, ProductModal } from '@/app/components';
+import { Navbar, Footer, ProductGridWithFilters, ProductModal, LoadingSpinner, ErrorMessage, PageWrapper } from '@/app/components';
 import { hygraphClient, GET_GLOBAL_SETTINGS, GET_CATEGORY_BY_SLUG, GET_ALL_CATEGORIES, GET_ALL_COLLECTIONS } from '@/app/lib/hygraph';
 import { GlobalSetting, Category, Collection, Product } from '@/app/types';
 import { useTheme } from '@/app/providers';
+import { useProductModal } from '@/app/hooks';
 
 export default function CategoryPage() {
   useTheme();
@@ -18,8 +19,7 @@ export default function CategoryPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { selectedProduct, isModalOpen, handleProductClick, handleCloseModal } = useProductModal();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,37 +62,12 @@ export default function CategoryPage() {
     fetchData();
   }, [slug]);
 
-  const handleProductClick = (product: Product) => {
-    setSelectedProduct(product);
-    setIsModalOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedProduct(null);
-  };
-
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neutral-900 dark:border-white mx-auto mb-4"></div>
-          <p className="text-neutral-600 dark:text-neutral-400">Loading...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (error || !category) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 dark:text-red-400 mb-4">
-            {error || 'Category not found'}
-          </p>
-        </div>
-      </div>
-    );
+    return <ErrorMessage error={error || 'Category not found'} />;
   }
 
   if (!globalSettings) {
@@ -100,7 +75,7 @@ export default function CategoryPage() {
   }
 
   return (
-    <div className="min-h-screen transition-colors duration-700 ease-in-out bg-[var(--background)] text-[var(--foreground)] dark:bg-[#121212] dark:text-[#f8f5ef]">
+    <PageWrapper>
       {globalSettings.mainNavigation && (
         <Navbar
           isMenuOpen={isMenuOpen}
@@ -154,6 +129,6 @@ export default function CategoryPage() {
         onClose={handleCloseModal}
         whatsAppNumber={globalSettings.whatsAppNumber}
       />
-    </div>
+    </PageWrapper>
   );
 }

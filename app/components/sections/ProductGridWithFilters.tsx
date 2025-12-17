@@ -201,7 +201,7 @@ export function ProductGridWithFilters({
                   onClick={() => setDisplayCount((prev) => Math.min(prev + LOAD_MORE_COUNT, filteredProducts.length))}
                   className="px-6 py-3 border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-sm uppercase tracking-widest"
                 >
-                  Show More ({Math.min(LOAD_MORE_COUNT, filteredProducts.length - displayCount)} more)
+                  Show More
                 </button>
               </div>
             )}

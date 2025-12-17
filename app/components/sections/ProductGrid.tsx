@@ -1,7 +1,7 @@
 'use client';
 
 import { ArrowRight } from 'lucide-react';
-import { FadeInText, ProductCard, Cta, RichText } from '@/app/components';
+import { FadeInText, ProductCard, Button, RichText } from '@/app/components';
 import { ProductGridBlock, Product } from '@/app/types';
 import {
   getSpacingClassesFromLayout,
@@ -85,7 +85,7 @@ export function ProductGrid({ data, products = [], whatsAppNumber, onProductClic
         {grid?.showViewAll && grid.viewAllButton && (
           <FadeInText delay={0.2} className="hidden md:block">
             <div className="group flex items-center font-sans text-xs tracking-widest uppercase transition-colors">
-              <Cta cta={grid.viewAllButton} />
+              <Button cta={grid.viewAllButton} />
               <ArrowRight size={14} className="ml-2 group-hover:translate-x-2 transition-transform" />
             </div>
           </FadeInText>

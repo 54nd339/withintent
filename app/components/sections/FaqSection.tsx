@@ -1,10 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { ChevronDown } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FadeInText, RichText } from '@/app/components';
-import { FaqBlock, AccordionItem } from '@/app/types';
+import { FadeInText, AccordionItem, RichText } from '@/app/components';
+import { FaqBlock } from '@/app/types';
 import {
   getSpacingClassesFromLayout,
   getContainerWidthClasses,
@@ -16,54 +14,6 @@ import { useTheme } from '@/app/providers';
 
 interface FaqSectionProps {
   data?: FaqBlock;
-}
-
-function AccordionItemComponent({
-  item,
-  isOpen,
-  onToggle,
-  themeStyles
-}: {
-  item: AccordionItem;
-  isOpen: boolean;
-  onToggle: () => void;
-  themeStyles: React.CSSProperties;
-}) {
-  return (
-    <div className="border-b" style={{ borderColor: themeStyles.color || 'currentColor', borderBottomWidth: '1px', opacity: 0.7 }}>
-      <button
-        onClick={onToggle}
-        className="w-full py-6 flex justify-between items-center text-left hover:opacity-80 transition-opacity"
-        style={{ color: themeStyles.color || 'inherit', opacity: 1 }}
-      >
-        <span className="font-sans text-lg font-medium pr-8" style={{ opacity: 1 }}>{item.label}</span>
-        <motion.div
-          animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          <ChevronDown size={20} />
-        </motion.div>
-      </button>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="overflow-hidden"
-          >
-            <div
-              className="pb-6 font-sans leading-relaxed"
-              style={{ opacity: 0.9, color: themeStyles.color || 'inherit' }}
-            >
-              <RichText content={item.content} />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
 }
 
 export function FaqSection({ data }: FaqSectionProps) {
@@ -151,7 +101,7 @@ export function FaqSection({ data }: FaqSectionProps) {
       {items.length > 0 ? (
         <div className="max-w-3xl mx-auto">
           {items.map((item, index) => (
-            <AccordionItemComponent
+            <AccordionItem
               key={index}
               item={item}
               isOpen={openItems.has(index)}

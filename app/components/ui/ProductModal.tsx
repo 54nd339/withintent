@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, Share2, Check } from 'lucide-react';
 import { Product } from '@/app/types';
-import { formatINR, formatWhatsAppUrl } from '@/app/lib/utils';
+import { formatINR, createWhatsAppInquiryLink } from '@/app/lib/utils';
 import { RichText } from './RichText';
 
 interface ProductModalProps {
@@ -62,10 +62,7 @@ export function ProductModal({ product, isOpen, onClose, whatsAppNumber = '91987
   const currentImage = allImages[currentImageIndex];
   const status = product.productStatus?.toUpperCase();
 
-  const whatsappLink = () => {
-    const url = formatWhatsAppUrl(whatsAppNumber);
-    return `${url}?text=${encodeURIComponent(`I am interested in ${product.title}`)}`;
-  };
+  const whatsappLink = () => createWhatsAppInquiryLink(whatsAppNumber, product.title);
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % allImages.length);

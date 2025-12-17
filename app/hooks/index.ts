@@ -1,1 +1,2 @@
-// Hooks exports - currently empty
+export { useProductModal } from './useProductModal';
+

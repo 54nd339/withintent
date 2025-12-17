@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Navbar, Footer, StorySection, FaqSection } from '@/app/components';
+import { Navbar, Footer, StorySection, FaqSection, LoadingSpinner, ErrorMessage, PageWrapper } from '@/app/components';
 import { hygraphClient, GET_GLOBAL_SETTINGS, GET_PAGE_BY_SLUG } from '@/app/lib/hygraph';
 import { GlobalSetting, Page, StoryBlock, FaqBlock } from '@/app/types';
 import { useTheme } from '@/app/providers';
@@ -47,24 +47,11 @@ export default function AboutPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neutral-900 dark:border-white mx-auto mb-4"></div>
-          <p className="text-neutral-600 dark:text-neutral-400">Loading...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 dark:text-red-400 mb-4">Error: {error}</p>
-        </div>
-      </div>
-    );
+    return <ErrorMessage error={error} />;
   }
 
   if (!page || !globalSettings) {
@@ -86,7 +73,7 @@ export default function AboutPage() {
   }
 
   return (
-    <div className="min-h-screen transition-colors duration-700 ease-in-out bg-[var(--background)] text-[var(--foreground)] dark:bg-neutral-900 dark:text-neutral-100">
+    <PageWrapper>
       {page.showNavigation && globalSettings.mainNavigation && (
         <Navbar
           isMenuOpen={isMenuOpen}
@@ -109,6 +96,6 @@ export default function AboutPage() {
       {page.showFooter && globalSettings.footer && (
         <Footer data={globalSettings.footer} />
       )}
-    </div>
+    </PageWrapper>
   );
 }
