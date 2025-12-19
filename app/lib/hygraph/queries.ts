@@ -192,6 +192,17 @@ export const GET_PAGE_BY_SLUG = gql`
           layout { ...LayoutFields }
           theme { ...ThemeFields }
         }
+        ... on TestimonialBlock {
+          header { ...TextGroupFields }
+          testimonials {
+            review { ...TextGroupFields }
+            rating
+            image { url fileName width height }
+            name
+          }
+          layout { ...LayoutFields }
+          theme { ...ThemeFields }
+        }
       }
     }
   }
@@ -295,6 +306,216 @@ export const GET_ALL_COLLECTIONS = gql`
 // Get All Categories
 export const GET_ALL_CATEGORIES = gql`
   query GetAllCategories {
+    categories {
+      name
+      slug
+      coverImage { url }
+    }
+  }
+`;
+
+// Bulk query: Get multiple collections by slugs
+export const GET_COLLECTIONS_BY_SLUGS = gql`
+  query GetCollectionsBySlugs($slugs: [String!]!) {
+    collections(where: { slug_in: $slugs }) {
+      title
+      slug
+      products(first: 50) {
+        title
+        slug
+        price
+        productStatus
+        mainImage { url }
+        galleryImages { url }
+        categories { name slug }
+        collections { title slug }
+      }
+    }
+  }
+`;
+
+// Bulk query: Get all data needed for shop pages (products, categories, collections)
+export const GET_SHOP_DATA = gql`
+  query GetShopData($productLimit: Int) {
+    products(first: $productLimit, orderBy: createdAt_DESC) {
+      title
+      slug
+      price
+      productStatus
+      createdAt
+      description { raw }
+      mainImage { url }
+      galleryImages { url }
+      categories { name slug }
+      collections { title slug }
+    }
+    categories {
+      name
+      slug
+      coverImage { url }
+    }
+    collections {
+      title
+      slug
+      description { raw }
+      coverImage { url }
+      showInBanner
+    }
+  }
+`;
+
+// Bulk query: Get global settings, page, and all shop data in one request
+export const GET_HOME_PAGE_DATA = gql`
+  ${TEXT_GROUP_FIELDS}
+  ${MEDIA_FIELDS}
+  ${LAYOUT_FIELDS}
+  ${THEME_FIELDS}
+  ${BUTTON_FIELDS}
+
+  query GetHomePageData($globalSettingId: ID!, $pageSlug: String!, $productLimit: Int) {
+    globalSetting(where: {id: $globalSettingId}) {
+      siteName
+      whatsAppNumber
+      logo { url fileName width height }
+      mainNavigation { label url }
+      footer {
+        text {
+          heading
+          body { raw }
+        }
+        shopButtons { label url type icon openInNewTab }
+        socialButtons { label url type icon openInNewTab }
+        companyButtons { label url type icon openInNewTab }
+        copyrightText
+        layout {
+          paddingTop
+          paddingBottom
+          textAlign
+          containerWidth
+        }
+        theme {
+          backgroundColor { hex }
+          darkBackgroundColor { hex }
+          textColor { hex }
+          darkTextColor { hex }
+        }
+      }
+    }
+    page(where: { slug: $pageSlug }) {
+      title
+      slug
+      showNavigation
+      showFooter
+      whatsAppLink
+      whatsAppEnabled
+      seo { metaTitle metaDescription ogImage { url } }
+      sections {
+        __typename
+        ... on HeroBlock {
+          text { ...TextGroupFields }
+          media { ...MediaFields }
+          layout { ...LayoutFields }
+          theme { ...ThemeFields }
+          buttons { ...ButtonFields }
+          showScrollIndicator
+          scrollIndicatorText
+          emphasisText
+        }
+        ... on TextBlock {
+          text { ...TextGroupFields }
+          quote
+          layout { ...LayoutFields }
+          theme { ...ThemeFields }
+        }
+        ... on ProductGridBlock {
+          header { ...TextGroupFields }
+          grid {
+            columns
+            gapSize
+            limit
+            showViewAll
+            viewAllButton { ...ButtonFields }
+          }
+          showPrice
+          showStatus
+          filterCollection { slug }
+          filterCategory { slug }
+          layout { ...LayoutFields }
+          theme { ...ThemeFields }
+        }
+        ... on StoryBlock {
+          text { ...TextGroupFields }
+          media { ...MediaFields }
+          layout { ...LayoutFields }
+          theme { ...ThemeFields }
+          primaryButton { ...ButtonFields }
+        }
+        ... on BannerBlock {
+          text { ...TextGroupFields }
+          backgroundMedia { ...MediaFields }
+          layout { ...LayoutFields }
+          theme { ...ThemeFields }
+          buttons { ...ButtonFields }
+        }
+        ... on CategoryGridBlock {
+          header { ...TextGroupFields }
+          grid {
+            columns
+            gapSize
+            limit
+            showViewAll
+            viewAllButton { ...ButtonFields }
+          }
+          layout { ...LayoutFields }
+          theme { ...ThemeFields }
+        }
+        ... on GalleryBlock {
+          header { ...TextGroupFields }
+          grid { columns gapSize }
+          cards {
+            media { ...MediaFields }
+            title
+            subtitle
+            body { raw }
+          }
+          enableLightbox
+          layout { ...LayoutFields }
+          theme { ...ThemeFields }
+        }
+        ... on FaqBlock {
+          header { ...TextGroupFields }
+          accordion {
+            style
+            items { label content { raw } defaultOpen }
+          }
+          layout { ...LayoutFields }
+          theme { ...ThemeFields }
+        }
+        ... on TestimonialBlock {
+          header { ...TextGroupFields }
+          testimonials {
+            review { ...TextGroupFields }
+            rating
+            image { url fileName width height }
+            name
+          }
+          layout { ...LayoutFields }
+          theme { ...ThemeFields }
+        }
+      }
+    }
+    products(first: $productLimit, orderBy: createdAt_DESC) {
+      title
+      slug
+      price
+      productStatus
+      createdAt
+      description { raw }
+      mainImage { url }
+      galleryImages { url }
+      categories { name slug }
+      collections { title slug }
+    }
     categories {
       name
       slug

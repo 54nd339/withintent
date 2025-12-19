@@ -1,6 +1,9 @@
 import { Metadata } from 'next';
-import { hygraphClient, GET_GLOBAL_SETTINGS, GET_COLLECTION_BY_SLUG, GET_ALL_CATEGORIES, GET_ALL_COLLECTIONS } from '@/app/lib/hygraph';
-import { GlobalSetting, Collection, Category } from '@/app/types';
+import {
+  getGlobalSettings,
+  getCollectionBySlug,
+  getShopData,
+} from '@/app/lib/hygraph';
 import CollectionPageClient from './CollectionPageClient';
 
 interface PageProps {
@@ -8,29 +11,19 @@ interface PageProps {
 }
 
 async function fetchCollectionData(slug: string) {
-  const globalSettingId = process.env.NEXT_PUBLIC_HYGRAPH_GLOBAL_SETTING_ID;
-
-  if (!globalSettingId) {
-    throw new Error('HYGRAPH_GLOBAL_SETTING_ID is not defined');
-  }
-
-  const [globalSettingsData, collectionData, categoriesData, collectionsData] = await Promise.all([
-    hygraphClient.request<{ globalSetting: GlobalSetting }>(GET_GLOBAL_SETTINGS, {
-      id: globalSettingId,
-    }),
-    hygraphClient.request<{ collection: Collection }>(GET_COLLECTION_BY_SLUG, {
-      slug,
-    }),
-    hygraphClient.request<{ categories: Category[] }>(GET_ALL_CATEGORIES),
-    hygraphClient.request<{ collections: Collection[] }>(GET_ALL_COLLECTIONS),
+  // Use cached fetchers - React cache will deduplicate requests
+  const [globalSettings, collection, shopData] = await Promise.all([
+    getGlobalSettings(),
+    getCollectionBySlug(slug),
+    getShopData(50),
   ]);
 
   return {
-    globalSettings: globalSettingsData.globalSetting,
-    collection: collectionData.collection,
-    products: collectionData.collection?.products || [],
-    categories: categoriesData.categories || [],
-    collections: collectionsData.collections || [],
+    globalSettings,
+    collection,
+    products: collection?.products || [],
+    categories: shopData.categories,
+    collections: shopData.collections,
   };
 }
 

@@ -33,6 +33,7 @@ export enum SectionType {
   CategoryGridBlock = 'CategoryGridBlock',
   GalleryBlock = 'GalleryBlock',
   FaqBlock = 'FaqBlock',
+  TestimonialBlock = 'TestimonialBlock',
 }
 
 // Base interface for all sections with __typename
@@ -277,6 +278,22 @@ export interface FaqBlock extends BaseSection {
   theme?: ThemeSetting;
 }
 
+// Testimonial
+export interface Testimonial {
+  review: TextGroup;
+  rating: number;
+  image?: Asset;
+  name: string;
+}
+
+// TestimonialBlock
+export interface TestimonialBlock extends BaseSection {
+  header?: TextGroup;
+  testimonials?: Testimonial[];
+  layout?: LayoutSetting;
+  theme?: ThemeSetting;
+}
+
 // Union type for all page sections
 export type PageSection =
   | HeroBlock
@@ -286,7 +303,8 @@ export type PageSection =
   | TextBlock
   | CategoryGridBlock
   | GalleryBlock
-  | FaqBlock;
+  | FaqBlock
+  | TestimonialBlock;
 
 // FooterBlock model
 export interface FooterBlock {

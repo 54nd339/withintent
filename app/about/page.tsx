@@ -1,27 +1,17 @@
 import { Metadata } from 'next';
-import { hygraphClient, GET_GLOBAL_SETTINGS, GET_PAGE_BY_SLUG } from '@/app/lib/hygraph';
-import { GlobalSetting, Page } from '@/app/types';
+import { getGlobalSettings, getPageBySlug } from '@/app/lib/hygraph';
 import AboutPageClient from './AboutPageClient';
 
 async function fetchAboutData() {
-  const globalSettingId = process.env.NEXT_PUBLIC_HYGRAPH_GLOBAL_SETTING_ID;
-
-  if (!globalSettingId) {
-    throw new Error('HYGRAPH_GLOBAL_SETTING_ID is not defined');
-  }
-
-  const [globalSettingsData, pageData] = await Promise.all([
-    hygraphClient.request<{ globalSetting: GlobalSetting }>(GET_GLOBAL_SETTINGS, {
-      id: globalSettingId,
-    }),
-    hygraphClient.request<{ page: Page }>(GET_PAGE_BY_SLUG, {
-      slug: 'about',
-    }),
+  // Use cached fetchers - React cache will deduplicate requests
+  const [globalSettings, page] = await Promise.all([
+    getGlobalSettings(),
+    getPageBySlug('about'),
   ]);
 
   return {
-    globalSettings: globalSettingsData.globalSetting,
-    page: pageData.page,
+    globalSettings,
+    page,
   };
 }
 

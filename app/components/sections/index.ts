@@ -7,5 +7,6 @@ export { TextSection } from './TextSection';
 export { CategoryGridSection } from './CategoryGridSection';
 export { GallerySection } from './GallerySection';
 export { FaqSection } from './FaqSection';
+export { TestimonialSection } from './TestimonialSection';
 export { CollectionBanner } from './CollectionBanner';
 export { CollectionsGrid } from './CollectionsGrid';

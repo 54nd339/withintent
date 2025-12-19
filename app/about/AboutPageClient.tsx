@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Navbar, Footer, StorySection, FaqSection, PageWrapper } from '@/app/components';
-import { GlobalSetting, Page, StoryBlock, FaqBlock, SectionType } from '@/app/types';
+import { Navbar, Footer, StorySection, FaqSection, TestimonialSection, PageWrapper } from '@/app/components';
+import { GlobalSetting, Page, StoryBlock, FaqBlock, TestimonialBlock, SectionType } from '@/app/types';
 import { useTheme } from '@/app/providers';
 
 interface AboutPageClientProps {
@@ -14,9 +14,10 @@ export default function AboutPageClient({ globalSettings, page }: AboutPageClien
   useTheme();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Separate StoryBlocks and FaqBlock from sections
+  // Separate StoryBlocks, FaqBlock, and TestimonialBlocks from sections
   const storyBlocks: StoryBlock[] = [];
   let faqBlock: FaqBlock | null = null;
+  const testimonialBlocks: TestimonialBlock[] = [];
 
   if (page.sections) {
     page.sections.forEach((section) => {
@@ -26,6 +27,9 @@ export default function AboutPageClient({ globalSettings, page }: AboutPageClien
           break;
         case SectionType.FaqBlock:
           faqBlock = section;
+          break;
+        case SectionType.TestimonialBlock:
+          testimonialBlocks.push(section);
           break;
       }
     });
@@ -45,6 +49,10 @@ export default function AboutPageClient({ globalSettings, page }: AboutPageClien
       <main className="pt-16 sm:pt-20">
         {storyBlocks.map((storyBlock, index) => (
           <StorySection key={index} data={storyBlock} />
+        ))}
+
+        {testimonialBlocks.map((testimonialBlock, index) => (
+          <TestimonialSection key={index} data={testimonialBlock} />
         ))}
 
         {faqBlock && <FaqSection data={faqBlock} />}

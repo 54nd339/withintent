@@ -1,94 +1,37 @@
 import { Metadata } from 'next';
-import { hygraphClient, GET_GLOBAL_SETTINGS, GET_PAGE_BY_SLUG, GET_PRODUCTS_BY_COLLECTION, GET_ALL_PRODUCTS, GET_ALL_CATEGORIES } from '@/app/lib/hygraph';
 import {
-  GlobalSetting,
-  Page,
-  Product,
-  ProductGridBlock,
-  Category
-} from '@/app/types';
+  getHomePageData,
+  getCollectionsBySlugs,
+  processProductsForSections,
+} from '@/app/lib/hygraph';
+import { Product, ProductGridBlock } from '@/app/types';
 import HomePageClient from './HomePageClient';
 
 async function fetchPageData() {
-  const globalSettingId = process.env.NEXT_PUBLIC_HYGRAPH_GLOBAL_SETTING_ID;
+  // Use bulk query to fetch global settings, page, products, and categories in one request
+  const { globalSettings, page, allProducts, categories } = await getHomePageData('home');
 
-  if (!globalSettingId) {
-    throw new Error('HYGRAPH_GLOBAL_SETTING_ID is not defined');
-  }
-
-  const [globalSettingsData, pageData] = await Promise.all([
-    hygraphClient.request<{ globalSetting: GlobalSetting }>(GET_GLOBAL_SETTINGS, {
-      id: globalSettingId,
-    }),
-    hygraphClient.request<{ page: Page }>(GET_PAGE_BY_SLUG, {
-      slug: 'home',
-    }),
-  ]);
-
-  const page = pageData.page;
-  const globalSettings = globalSettingsData.globalSetting;
-
-  // Fetch products for each ProductGridBlock
   let products: Record<string, Product[]> = {};
-  let categories: Category[] = [];
 
-  if (page.sections) {
-    const productPromises = page.sections
-      .filter((section): section is ProductGridBlock => 'filterCollection' in section || 'filterCategory' in section)
-      .map(async (section) => {
-        if (section.filterCollection?.slug) {
-          const collectionData = await hygraphClient.request<{
-            collections: Array<{ products: Product[] }>;
-          }>(GET_PRODUCTS_BY_COLLECTION, {
-            slug: section.filterCollection.slug,
-            limit: section.grid?.limit,
-          });
+  if (page?.sections) {
+    // Collect all unique collection slugs that need to be fetched
+    const collectionSlugs = page.sections
+      .filter((section): section is ProductGridBlock => 'filterCollection' in section)
+      .map((section) => section.filterCollection?.slug)
+      .filter((slug): slug is string => !!slug);
 
-          return {
-            key: section.filterCollection.slug,
-            products: collectionData.collections[0]?.products || [],
-          };
-        } else if (section.filterCategory?.slug) {
-          const allProductsData = await hygraphClient.request<{
-            products: Product[];
-          }>(GET_ALL_PRODUCTS, {
-            limit: section.grid?.limit,
-          });
-
-          return {
-            key: section.filterCategory.slug,
-            products: allProductsData.products || [],
-          };
-        } else {
-          const allProductsData = await hygraphClient.request<{
-            products: Product[];
-          }>(GET_ALL_PRODUCTS, {
-            limit: section.grid?.limit,
-          });
-
-          return {
-            key: 'all',
-            products: allProductsData.products || [],
-          };
-        }
-      });
-
-    const productResults = await Promise.all(productPromises);
-    productResults.forEach((result) => {
-      products[result.key] = result.products;
-    });
-
-    // Fetch categories if any CategoryGridBlock exists
-    const hasCategoryGrid = page.sections.some(
-      (section): section is ProductGridBlock => 'grid' in section && (section as ProductGridBlock).grid?.kind === 'categories'
+    // Bulk fetch all needed collections in one request
+    const collections = await getCollectionsBySlugs(collectionSlugs);
+    const collectionsBySlug = new Map(
+      collections.map((col) => [col.slug, col])
     );
 
-    if (hasCategoryGrid) {
-      const categoriesData = await hygraphClient.request<{
-        categories: Category[];
-      }>(GET_ALL_CATEGORIES);
-      categories = categoriesData.categories || [];
-    }
+    // Process products for each section using the bulk fetched data
+    products = processProductsForSections(
+      page.sections,
+      allProducts,
+      collectionsBySlug
+    );
   }
 
   return { page, globalSettings, products, categories };
@@ -117,6 +60,14 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function HomePage() {
   const { page, globalSettings, products, categories } = await fetchPageData();
+
+  if (!page) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-lg text-neutral-600 dark:text-neutral-400">Page not found</p>
+      </div>
+    );
+  }
 
   return (
     <HomePageClient
