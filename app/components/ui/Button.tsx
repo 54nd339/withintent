@@ -68,4 +68,3 @@ export function Button({ cta, className = '' }: ButtonProps) {
   // Fallback if no URL is provided
   return null;
 }
-

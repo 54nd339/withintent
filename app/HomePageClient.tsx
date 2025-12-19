@@ -22,14 +22,8 @@ import {
   Page,
   Product,
   ProductGridBlock,
-  HeroBlock,
-  StoryBlock,
-  BannerBlock,
-  TextBlock,
-  CategoryGridBlock,
-  GalleryBlock,
-  FaqBlock,
-  Category
+  Category,
+  SectionType,
 } from '@/app/types';
 import { formatWhatsAppUrl } from '@/app/lib/utils';
 
@@ -66,58 +60,46 @@ export default function HomePageClient({ page, globalSettings, products, categor
 
       <main>
         {page.sections?.map((section, index) => {
-          // HeroBlock
-          if ('showScrollIndicator' in section || ('text' in section && 'media' in section && 'buttons' in section)) {
-            return <HeroSection key={index} data={section as HeroBlock} />;
-          }
+          switch (section.__typename) {
+            case SectionType.HeroBlock:
+              return <HeroSection key={index} data={section} />;
 
-          // ProductGridBlock
-          if ('filterCollection' in section || 'filterCategory' in section || ('grid' in section && (section as ProductGridBlock).grid?.kind === 'products')) {
-            const gridSection = section as ProductGridBlock;
-            const collectionSlug = gridSection.filterCollection?.slug || gridSection.filterCategory?.slug || 'all';
-            const sectionProducts = products[collectionSlug] || [];
-            return (
-              <ProductGrid
-                key={index}
-                data={gridSection}
-                products={sectionProducts}
-                whatsAppNumber={whatsAppNumber}
-                onProductClick={setSelectedProduct}
-              />
-            );
-          }
+            case SectionType.ProductGridBlock: {
+              const gridSection = section as ProductGridBlock;
+              const collectionSlug = gridSection.filterCollection?.slug || gridSection.filterCategory?.slug || 'all';
+              const sectionProducts = products[collectionSlug] || [];
+              return (
+                <ProductGrid
+                  key={index}
+                  data={section}
+                  products={sectionProducts}
+                  whatsAppNumber={whatsAppNumber}
+                  onProductClick={setSelectedProduct}
+                />
+              );
+            }
 
-          // StoryBlock
-          if ('primaryButton' in section && 'text' in section && 'media' in section) {
-            return <StorySection key={index} data={section as StoryBlock} />;
-          }
+            case SectionType.StoryBlock:
+              return <StorySection key={index} data={section} />;
 
-          // BannerBlock
-          if ('backgroundMedia' in section && 'buttons' in section) {
-            return <BannerSection key={index} data={section as BannerBlock} />;
-          }
+            case SectionType.BannerBlock:
+              return <BannerSection key={index} data={section} />;
 
-          // TextBlock
-          if ('text' in section && !('media' in section) && !('primaryButton' in section) && !('grid' in section) && !('backgroundMedia' in section)) {
-            return <TextSection id="philosophy" key={index} data={section as TextBlock} />;
-          }
+            case SectionType.TextBlock:
+              return <TextSection id="philosophy" key={index} data={section} />;
 
-          // CategoryGridBlock
-          if ('grid' in section && (section as CategoryGridBlock).grid?.kind === 'categories') {
-            return <CategoryGridSection key={index} data={section as CategoryGridBlock} categories={categories} />;
-          }
+            case SectionType.CategoryGridBlock:
+              return <CategoryGridSection key={index} data={section} categories={categories} />;
 
-          // GalleryBlock
-          if ('cards' in section && 'enableLightbox' in section) {
-            return <GallerySection key={index} data={section as GalleryBlock} />;
-          }
+            case SectionType.GalleryBlock:
+              return <GallerySection key={index} data={section} />;
 
-          // FaqBlock
-          if ('accordion' in section) {
-            return <FaqSection key={index} data={section as FaqBlock} />;
-          }
+            case SectionType.FaqBlock:
+              return <FaqSection key={index} data={section} />;
 
-          return null;
+            default:
+              return null;
+          }
         })}
       </main>
 
@@ -148,4 +130,3 @@ export default function HomePageClient({ page, globalSettings, products, categor
     </div>
   );
 }
-

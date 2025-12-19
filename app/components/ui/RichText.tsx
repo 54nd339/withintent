@@ -44,4 +44,3 @@ export function RichText({ content, className }: RichTextProps) {
     </div>
   );
 }
-

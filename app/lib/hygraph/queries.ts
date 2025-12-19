@@ -111,6 +111,7 @@ export const GET_PAGE_BY_SLUG = gql`
       whatsAppEnabled
       seo { metaTitle metaDescription ogImage { url } }
       sections {
+        __typename
         ... on HeroBlock {
           text { ...TextGroupFields }
           media { ...MediaFields }

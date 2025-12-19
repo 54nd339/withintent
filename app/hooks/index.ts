@@ -1,2 +1,2 @@
-export { useProductModal } from './useProductModal';
 
+export { useProductModal } from './useProductModal';

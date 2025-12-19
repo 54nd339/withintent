@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Navbar, Footer, StorySection, FaqSection, PageWrapper } from '@/app/components';
-import { GlobalSetting, Page, StoryBlock, FaqBlock } from '@/app/types';
+import { GlobalSetting, Page, StoryBlock, FaqBlock, SectionType } from '@/app/types';
 import { useTheme } from '@/app/providers';
 
 interface AboutPageClientProps {
@@ -20,10 +20,13 @@ export default function AboutPageClient({ globalSettings, page }: AboutPageClien
 
   if (page.sections) {
     page.sections.forEach((section) => {
-      if ('primaryButton' in section && 'text' in section && 'media' in section) {
-        storyBlocks.push(section as StoryBlock);
-      } else if ('accordion' in section) {
-        faqBlock = section as FaqBlock;
+      switch (section.__typename) {
+        case SectionType.StoryBlock:
+          storyBlocks.push(section);
+          break;
+        case SectionType.FaqBlock:
+          faqBlock = section;
+          break;
       }
     });
   }
@@ -53,4 +56,3 @@ export default function AboutPageClient({ globalSettings, page }: AboutPageClien
     </PageWrapper>
   );
 }
-

@@ -23,6 +23,23 @@ export type AccordionStyle = 'single' | 'multiple';
 export type ProductStatus = 'available' | 'reserved' | 'sold';
 export type SocialPlatform = 'instagram' | 'facebook' | 'whatsapp' | 'email' | 'pinterest' | 'tiktok';
 
+// Section types enum for page sections
+export enum SectionType {
+  HeroBlock = 'HeroBlock',
+  ProductGridBlock = 'ProductGridBlock',
+  StoryBlock = 'StoryBlock',
+  BannerBlock = 'BannerBlock',
+  TextBlock = 'TextBlock',
+  CategoryGridBlock = 'CategoryGridBlock',
+  GalleryBlock = 'GalleryBlock',
+  FaqBlock = 'FaqBlock',
+}
+
+// Base interface for all sections with __typename
+export interface BaseSection {
+  __typename: SectionType;
+}
+
 // Asset
 export interface Asset {
   url: string;
@@ -190,7 +207,7 @@ export interface Collection {
 }
 
 // HeroBlock
-export interface HeroBlock {
+export interface HeroBlock extends BaseSection {
   text?: TextGroup;
   media?: Media;
   layout?: LayoutSetting;
@@ -202,7 +219,7 @@ export interface HeroBlock {
 }
 
 // ProductGridBlock
-export interface ProductGridBlock {
+export interface ProductGridBlock extends BaseSection {
   header?: TextGroup;
   grid?: Grid;
   showPrice?: boolean;
@@ -214,7 +231,7 @@ export interface ProductGridBlock {
 }
 
 // StoryBlock
-export interface StoryBlock {
+export interface StoryBlock extends BaseSection {
   text?: TextGroup;
   media?: Media;
   layout?: LayoutSetting;
@@ -222,7 +239,7 @@ export interface StoryBlock {
   primaryButton?: Button;
 }
 
-export interface BannerBlock {
+export interface BannerBlock extends BaseSection {
   text?: TextGroup;
   backgroundMedia?: Media;
   layout?: LayoutSetting;
@@ -230,21 +247,21 @@ export interface BannerBlock {
   buttons?: Button[];
 }
 
-export interface TextBlock {
+export interface TextBlock extends BaseSection {
   text?: TextGroup;
   quote?: string;
   layout?: LayoutSetting;
   theme?: ThemeSetting;
 }
 
-export interface CategoryGridBlock {
+export interface CategoryGridBlock extends BaseSection {
   header?: TextGroup;
   grid?: Grid;
   layout?: LayoutSetting;
   theme?: ThemeSetting;
 }
 
-export interface GalleryBlock {
+export interface GalleryBlock extends BaseSection {
   header?: TextGroup;
   grid?: Grid;
   cards?: Card[];
@@ -253,12 +270,23 @@ export interface GalleryBlock {
   theme?: ThemeSetting;
 }
 
-export interface FaqBlock {
+export interface FaqBlock extends BaseSection {
   header?: TextGroup;
   accordion?: Accordion;
   layout?: LayoutSetting;
   theme?: ThemeSetting;
 }
+
+// Union type for all page sections
+export type PageSection =
+  | HeroBlock
+  | ProductGridBlock
+  | StoryBlock
+  | BannerBlock
+  | TextBlock
+  | CategoryGridBlock
+  | GalleryBlock
+  | FaqBlock;
 
 // FooterBlock model
 export interface FooterBlock {
@@ -293,13 +321,5 @@ export interface Page {
   whatsAppLink?: string;
   whatsAppEnabled?: boolean;
   seo?: Seo;
-  sections?:
-    | HeroBlock[]
-    | StoryBlock[]
-    | BannerBlock[]
-    | TextBlock[]
-    | ProductGridBlock[]
-    | CategoryGridBlock[]
-    | GalleryBlock[]
-    | FaqBlock[];
+  sections?: PageSection[];
 }

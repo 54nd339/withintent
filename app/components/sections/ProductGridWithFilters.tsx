@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { SlidersHorizontal, X } from 'lucide-react';
-import { Product, Category, Collection, ProductStatus } from '@/app/types';
+import { Product, Category, Collection, ProductStatus, SpacingSize, GridColumns } from '@/app/types';
 import { ProductCard } from '@/app/components/ui/ProductCard';
 import { FilterBar } from '@/app/components/ui/FilterBar';
 
@@ -17,8 +17,8 @@ interface ProductGridWithFiltersProps {
   whatsAppNumber?: string;
   showPrice?: boolean;
   showStatus?: boolean;
-  gridColumns?: 'one' | 'two' | 'three' | 'four';
-  gapSize?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xl2';
+  gridColumns?: GridColumns;
+  gapSize?: SpacingSize;
   onProductClick?: (product: Product) => void;
   showCategoryFilter?: boolean;
   showCollectionFilter?: boolean;
