@@ -1,13 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { Navbar, Footer, ProductGridWithFilters, ProductModal, PageWrapper } from '@/app/components';
-import { GlobalSetting, Collection, Category, Product } from '@/app/types';
-import { useTheme } from '@/app/providers';
-import { useProductModal } from '@/app/hooks';
-import { RichText } from '@/app/components/ui/RichText';
-import { SCROLL_ANIMATION } from '@/app/lib/constants';
+import { ProductGridWithFilters, PageWrapper, RichText } from '@/components';
+import { GlobalSetting, Collection, Category, Product } from '@/lib/types';
+import { SCROLL_ANIMATION } from '@/lib/constants';
+import { useProductModalHandler } from '@/hooks';
 
 interface CollectionPageClientProps {
   globalSettings: GlobalSetting;
@@ -24,25 +21,18 @@ export default function CollectionPageClient({
   categories,
   collections,
 }: CollectionPageClientProps) {
-  useTheme();
   const { scrollY } = useScroll();
   const y = useTransform(scrollY, SCROLL_ANIMATION.PARALLAX_INPUT, SCROLL_ANIMATION.PARALLAX_OUTPUT);
   const opacity = useTransform(scrollY, SCROLL_ANIMATION.OPACITY_INPUT, SCROLL_ANIMATION.OPACITY_OUTPUT);
 
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { selectedProduct, isModalOpen, handleProductClick, handleCloseModal } = useProductModal();
+  const handleProductClick = useProductModalHandler();
 
   return (
-    <PageWrapper>
-      {globalSettings.mainNavigation && (
-        <Navbar
-          isMenuOpen={isMenuOpen}
-          setIsMenuOpen={setIsMenuOpen}
-          navigation={globalSettings.mainNavigation}
-          logo={globalSettings.logo}
-        />
-      )}
-
+    <PageWrapper 
+      globalSettings={globalSettings}
+      enableProductModal={true}
+      products={products}
+    >
       {/* Hero Section */}
       <div className="relative w-full min-h-[60vh] md:min-h-[70vh] overflow-hidden flex items-center justify-center">
         {collection.coverImage && (
@@ -98,26 +88,10 @@ export default function CollectionPageClient({
           products={products}
           categories={categories}
           collections={collections}
-          whatsAppNumber={globalSettings.whatsAppNumber}
-          showPrice={true}
-          showStatus={true}
-          gridColumns="three"
-          gapSize="md"
           onProductClick={handleProductClick}
           showCollectionFilter={false}
         />
       </main>
-
-      {globalSettings.footer && (
-        <Footer data={globalSettings.footer} />
-      )}
-
-      <ProductModal
-        product={selectedProduct}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        whatsAppNumber={globalSettings.whatsAppNumber}
-      />
     </PageWrapper>
   );
 }

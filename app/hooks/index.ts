@@ -1,2 +1,0 @@
-
-export { useProductModal } from './useProductModal';

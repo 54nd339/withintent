@@ -1,5 +1,6 @@
-import { Metadata } from 'next';
-import { getGlobalSettings, getPageBySlug } from '@/app/lib/hygraph';
+import { getGlobalSettings, getPageBySlug } from '@/lib/hygraph';
+import { generatePageMetadata } from '@/lib/metadata';
+import { NotFoundMessage } from '@/components';
 import AboutPageClient from './AboutPageClient';
 
 async function fetchAboutData() {
@@ -15,24 +16,12 @@ async function fetchAboutData() {
   };
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata() {
   try {
     const { page, globalSettings } = await fetchAboutData();
-
-    const title = page?.seo?.metaTitle || page?.title || 'About';
-    const description = page?.seo?.metaDescription || (globalSettings?.siteName ? `Learn more about ${globalSettings.siteName}` : undefined);
-
-    return {
-      title,
-      description,
-      openGraph: page?.seo?.ogImage?.url ? {
-        title,
-        description,
-        images: [page.seo.ogImage.url],
-      } : undefined,
-    };
+    return generatePageMetadata(page, globalSettings);
   } catch {
-    return { title: 'About' };
+    return generatePageMetadata(null, undefined);
   }
 }
 
@@ -40,11 +29,7 @@ export default async function AboutPage() {
   const { globalSettings, page } = await fetchAboutData();
 
   if (!page) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-lg text-neutral-600 dark:text-neutral-400">Page not found</p>
-      </div>
-    );
+    return <NotFoundMessage message="Page not found" />;
   }
 
   return (

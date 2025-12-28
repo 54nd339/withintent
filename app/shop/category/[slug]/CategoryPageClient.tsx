@@ -1,11 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
 import Image from 'next/image';
-import { Navbar, Footer, ProductGridWithFilters, ProductModal, PageWrapper } from '@/app/components';
-import { GlobalSetting, Category, Collection, Product } from '@/app/types';
-import { useTheme } from '@/app/providers';
-import { useProductModal } from '@/app/hooks';
+import { ProductGridWithFilters, PageWrapper } from '@/components';
+import { GlobalSetting, Category, Collection, Product } from '@/lib/types';
+import { useProductModalHandler } from '@/hooks';
 
 interface CategoryPageClientProps {
   globalSettings: GlobalSetting;
@@ -22,21 +20,14 @@ export default function CategoryPageClient({
   categories,
   collections,
 }: CategoryPageClientProps) {
-  useTheme();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { selectedProduct, isModalOpen, handleProductClick, handleCloseModal } = useProductModal();
+  const handleProductClick = useProductModalHandler();
 
   return (
-    <PageWrapper>
-      {globalSettings.mainNavigation && (
-        <Navbar
-          isMenuOpen={isMenuOpen}
-          setIsMenuOpen={setIsMenuOpen}
-          navigation={globalSettings.mainNavigation}
-          logo={globalSettings.logo}
-        />
-      )}
-
+    <PageWrapper 
+      globalSettings={globalSettings}
+      enableProductModal={true}
+      products={products}
+    >
       <main className="px-4 sm:px-5 md:px-6 lg:px-8 pt-20 sm:pt-24 md:pt-28 pb-8 sm:pb-10 md:pb-12 lg:pb-16">
         <div className="mb-8 sm:mb-10 md:mb-12">
           <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl mb-4 text-neutral-900 dark:text-neutral-100">
@@ -58,26 +49,10 @@ export default function CategoryPageClient({
           products={products}
           categories={categories}
           collections={collections}
-          whatsAppNumber={globalSettings.whatsAppNumber}
-          showPrice={true}
-          showStatus={true}
-          gridColumns="three"
-          gapSize="md"
           onProductClick={handleProductClick}
           showCategoryFilter={false}
         />
       </main>
-
-      {globalSettings.footer && (
-        <Footer data={globalSettings.footer} />
-      )}
-
-      <ProductModal
-        product={selectedProduct}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        whatsAppNumber={globalSettings.whatsAppNumber}
-      />
     </PageWrapper>
   );
 }

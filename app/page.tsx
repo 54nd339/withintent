@@ -1,10 +1,11 @@
-import { Metadata } from 'next';
 import {
   getHomePageData,
   getCollectionsBySlugs,
   processProductsForSections,
-} from '@/app/lib/hygraph';
-import { Product, ProductGridBlock } from '@/app/types';
+} from '@/lib/hygraph';
+import { generatePageMetadata } from '@/lib/metadata';
+import { Product, ProductGridBlock } from '@/lib/types';
+import { NotFoundMessage } from '@/components';
 import HomePageClient from './HomePageClient';
 
 async function fetchPageData() {
@@ -37,24 +38,12 @@ async function fetchPageData() {
   return { page, globalSettings, products, categories };
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata() {
   try {
     const { page, globalSettings } = await fetchPageData();
-
-    const title = page?.seo?.metaTitle || page?.title || undefined;
-    const description = page?.seo?.metaDescription || (globalSettings?.siteName ? `Welcome to ${globalSettings.siteName}` : undefined);
-
-    return {
-      title,
-      description,
-      openGraph: page?.seo?.ogImage?.url ? {
-        title,
-        description,
-        images: [page.seo.ogImage.url],
-      } : undefined,
-    };
+    return generatePageMetadata(page, globalSettings);
   } catch {
-    return {};
+    return generatePageMetadata(null);
   }
 }
 
@@ -62,11 +51,7 @@ export default async function HomePage() {
   const { page, globalSettings, products, categories } = await fetchPageData();
 
   if (!page) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-lg text-neutral-600 dark:text-neutral-400">Page not found</p>
-      </div>
-    );
+    return <NotFoundMessage message="Page not found" />;
   }
 
   return (

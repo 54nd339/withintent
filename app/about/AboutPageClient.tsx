@@ -1,9 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Navbar, Footer, StorySection, FaqSection, TestimonialSection, PageWrapper } from '@/app/components';
-import { GlobalSetting, Page, StoryBlock, FaqBlock, TestimonialBlock, SectionType } from '@/app/types';
-import { useTheme } from '@/app/providers';
+import { StorySection, FaqSection, TestimonialSection, PageWrapper } from '@/components';
+import { GlobalSetting, Page, StoryBlock, FaqBlock, TestimonialBlock, SectionType } from '@/lib/types';
 
 interface AboutPageClientProps {
   globalSettings: GlobalSetting;
@@ -11,41 +9,20 @@ interface AboutPageClientProps {
 }
 
 export default function AboutPageClient({ globalSettings, page }: AboutPageClientProps) {
-  useTheme();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const storyBlocks = page.sections?.filter(
+    (section): section is StoryBlock => section.__typename === SectionType.StoryBlock
+  ) || [];
 
-  // Separate StoryBlocks, FaqBlock, and TestimonialBlocks from sections
-  const storyBlocks: StoryBlock[] = [];
-  let faqBlock: FaqBlock | null = null;
-  const testimonialBlocks: TestimonialBlock[] = [];
+  const faqBlock = page.sections?.find(
+    (section): section is FaqBlock => section.__typename === SectionType.FaqBlock
+  ) || null;
 
-  if (page.sections) {
-    page.sections.forEach((section) => {
-      switch (section.__typename) {
-        case SectionType.StoryBlock:
-          storyBlocks.push(section);
-          break;
-        case SectionType.FaqBlock:
-          faqBlock = section;
-          break;
-        case SectionType.TestimonialBlock:
-          testimonialBlocks.push(section);
-          break;
-      }
-    });
-  }
+  const testimonialBlocks = page.sections?.filter(
+    (section): section is TestimonialBlock => section.__typename === SectionType.TestimonialBlock
+  ) || [];
 
   return (
-    <PageWrapper>
-      {page.showNavigation && globalSettings.mainNavigation && (
-        <Navbar
-          isMenuOpen={isMenuOpen}
-          setIsMenuOpen={setIsMenuOpen}
-          navigation={globalSettings.mainNavigation}
-          logo={globalSettings.logo}
-        />
-      )}
-
+    <PageWrapper globalSettings={globalSettings} showNavigation={page.showNavigation} showFooter={page.showFooter}>
       <main className="pt-16 sm:pt-20">
         {storyBlocks.map((storyBlock, index) => (
           <StorySection key={index} data={storyBlock} />
@@ -57,10 +34,6 @@ export default function AboutPageClient({ globalSettings, page }: AboutPageClien
 
         {faqBlock && <FaqSection data={faqBlock} />}
       </main>
-
-      {page.showFooter && globalSettings.footer && (
-        <Footer data={globalSettings.footer} />
-      )}
     </PageWrapper>
   );
 }

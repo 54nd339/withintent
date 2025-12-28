@@ -1,9 +1,10 @@
-import { Metadata } from 'next';
 import {
   getGlobalSettings,
   getCategoryBySlug,
   getShopData,
-} from '@/app/lib/hygraph';
+} from '@/lib/hygraph';
+import { generateMetadata as generatePageMetadata } from '@/lib/metadata';
+import { NotFoundMessage } from '@/components';
 import CategoryPageClient from './CategoryPageClient';
 
 interface PageProps {
@@ -27,27 +28,21 @@ async function fetchCategoryData(slug: string) {
   };
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps) {
   try {
     const { slug } = await params;
     const { category, globalSettings } = await fetchCategoryData(slug);
 
-    if (!category) return {};
+    if (!category) return generatePageMetadata({});
 
-    const title = category.name;
-    const description = globalSettings?.siteName ? `Browse ${category.name} at ${globalSettings.siteName}` : undefined;
-
-    return {
-      title,
-      description,
-      openGraph: category.coverImage?.url ? {
-        title,
-        description,
-        images: [category.coverImage.url],
-      } : undefined,
-    };
+    return generatePageMetadata({
+      title: category.name,
+      description: globalSettings?.siteName ? `Browse ${category.name} at ${globalSettings.siteName}` : undefined,
+      ogImage: category.coverImage?.url,
+      globalSettings,
+    });
   } catch {
-    return {};
+    return generatePageMetadata({});
   }
 }
 
@@ -56,11 +51,7 @@ export default async function CategoryPage({ params }: PageProps) {
   const { globalSettings, category, products, categories, collections } = await fetchCategoryData(slug);
 
   if (!category) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-lg text-neutral-600 dark:text-neutral-400">Category not found</p>
-      </div>
-    );
+    return <NotFoundMessage message="Category not found" />;
   }
 
   return (

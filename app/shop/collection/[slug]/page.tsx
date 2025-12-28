@@ -1,9 +1,10 @@
-import { Metadata } from 'next';
 import {
   getGlobalSettings,
   getCollectionBySlug,
   getShopData,
-} from '@/app/lib/hygraph';
+} from '@/lib/hygraph';
+import { generateMetadata as generatePageMetadata } from '@/lib/metadata';
+import { NotFoundMessage } from '@/components';
 import CollectionPageClient from './CollectionPageClient';
 
 interface PageProps {
@@ -27,27 +28,21 @@ async function fetchCollectionData(slug: string) {
   };
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps) {
   try {
     const { slug } = await params;
     const { collection, globalSettings } = await fetchCollectionData(slug);
 
-    if (!collection) return {};
+    if (!collection) return generatePageMetadata({});
 
-    const title = collection.title;
-    const description = globalSettings?.siteName ? `Explore the ${collection.title} at ${globalSettings.siteName}` : undefined;
-
-    return {
-      title,
-      description,
-      openGraph: collection.coverImage?.url ? {
-        title,
-        description,
-        images: [collection.coverImage.url],
-      } : undefined,
-    };
+    return generatePageMetadata({
+      title: collection.title,
+      description: globalSettings?.siteName ? `Explore the ${collection.title} at ${globalSettings.siteName}` : undefined,
+      ogImage: collection.coverImage?.url,
+      globalSettings,
+    });
   } catch {
-    return {};
+    return generatePageMetadata({});
   }
 }
 
@@ -56,11 +51,7 @@ export default async function CollectionPage({ params }: PageProps) {
   const { globalSettings, collection, products, categories, collections } = await fetchCollectionData(slug);
 
   if (!collection) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-lg text-neutral-600 dark:text-neutral-400">Collection not found</p>
-      </div>
-    );
+    return <NotFoundMessage message="Collection not found" />;
   }
 
   return (

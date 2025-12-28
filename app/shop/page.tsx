@@ -1,5 +1,5 @@
-import { Metadata } from 'next';
-import { getGlobalSettings, getShopData } from '@/app/lib/hygraph';
+import { getGlobalSettings, getShopData } from '@/lib/hygraph';
+import { generateMetadata as generatePageMetadata } from '@/lib/metadata';
 import ShopPageClient from './ShopPageClient';
 
 async function fetchShopData() {
@@ -17,20 +17,16 @@ async function fetchShopData() {
   };
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata() {
   try {
     const { globalSettings } = await fetchShopData();
-
-    const title = globalSettings?.siteName ? `Shop | ${globalSettings.siteName}` : 'Shop';
-    const description = globalSettings?.siteName ? `Browse our collection of products at ${globalSettings.siteName}` : undefined;
-
-    return {
-      title,
-      description,
-      openGraph: { title, description },
-    };
+    return generatePageMetadata({
+      title: 'Shop',
+      description: globalSettings?.siteName ? `Browse our collection of products at ${globalSettings.siteName}` : undefined,
+      globalSettings,
+    });
   } catch {
-    return { title: 'Shop' };
+    return generatePageMetadata({ title: 'Shop' });
   }
 }
 

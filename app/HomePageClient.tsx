@@ -1,11 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { ShoppingBag } from 'lucide-react';
 import {
-  Navbar,
-  Footer,
   HeroSection,
   ProductGrid,
   StorySection,
@@ -14,9 +9,8 @@ import {
   CategoryGridSection,
   GallerySection,
   FaqSection,
-  ProductModal,
-} from '@/app/components';
-import { useTheme } from '@/app/providers';
+  PageWrapper,
+} from '@/components';
 import {
   GlobalSetting,
   Page,
@@ -24,8 +18,8 @@ import {
   ProductGridBlock,
   Category,
   SectionType,
-} from '@/app/types';
-import { formatWhatsAppUrl } from '@/app/lib/utils';
+} from '@/lib/types';
+import { useProductModalHandler } from '@/hooks';
 
 interface HomePageClientProps {
   page: Page;
@@ -35,29 +29,17 @@ interface HomePageClientProps {
 }
 
 export default function HomePageClient({ page, globalSettings, products, categories }: HomePageClientProps) {
-  useTheme();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-
-  const whatsAppNumber = page.whatsAppLink
-    ? page.whatsAppLink.replace(/[^\d]/g, '')
-    : globalSettings.whatsAppNumber || '919876543210';
-
-  const whatsAppUrl = formatWhatsAppUrl(whatsAppNumber);
+  const allProducts = Object.values(products).flat();
+  const handleProductClick = useProductModalHandler();
 
   return (
-    <div
-      className={`min-h-screen transition-colors duration-700 ease-in-out bg-[var(--background)] text-[var(--foreground)] dark:bg-neutral-900 dark:text-neutral-100`}
+    <PageWrapper 
+      globalSettings={globalSettings} 
+      showNavigation={page.showNavigation} 
+      showFooter={page.showFooter}
+      enableProductModal={true}
+      products={allProducts}
     >
-      {page.showNavigation && (
-        <Navbar
-          isMenuOpen={isMenuOpen}
-          setIsMenuOpen={setIsMenuOpen}
-          navigation={globalSettings.mainNavigation}
-          logo={globalSettings.logo}
-        />
-      )}
-
       <main>
         {page.sections?.map((section, index) => {
           switch (section.__typename) {
@@ -73,8 +55,7 @@ export default function HomePageClient({ page, globalSettings, products, categor
                   key={index}
                   data={section}
                   products={sectionProducts}
-                  whatsAppNumber={whatsAppNumber}
-                  onProductClick={setSelectedProduct}
+                  onProductClick={handleProductClick}
                 />
               );
             }
@@ -102,31 +83,6 @@ export default function HomePageClient({ page, globalSettings, products, categor
           }
         })}
       </main>
-
-      {page.showFooter && globalSettings.footer && (
-        <Footer data={globalSettings.footer} />
-      )}
-
-      {page.whatsAppEnabled && (
-        <motion.a
-          href={whatsAppUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          whileHover={{ scale: 1.1 }}
-          className="fixed bottom-6 right-6 md:hidden z-50 bg-green-600 text-white p-4 rounded-full shadow-xl"
-        >
-          <ShoppingBag size={24} />
-        </motion.a>
-      )}
-
-      <ProductModal
-        isOpen={!!selectedProduct}
-        product={selectedProduct}
-        whatsAppNumber={whatsAppNumber}
-        onClose={() => setSelectedProduct(null)}
-      />
-    </div>
+    </PageWrapper>
   );
 }
