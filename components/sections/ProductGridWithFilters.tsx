@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { SlidersHorizontal, X } from 'lucide-react';
-import { ProductCard, FilterBar } from '@/components';
+import { FilterBar } from '@/components';
+import { ProductGridBase } from './ProductGridBase';
 import { Product, Category, Collection, SpacingSize, GridColumns } from '@/lib/types';
-import { useProductFilters, useProductModalHandler } from '@/hooks';
+import { useProductFilters } from '@/hooks';
 
 const LOAD_MORE_COUNT = 5;
 
@@ -16,7 +17,6 @@ interface ProductGridWithFiltersProps {
   showStatus?: boolean;
   gridColumns?: GridColumns;
   gapSize?: SpacingSize;
-  onProductClick?: (product: Product) => void;
   showCategoryFilter?: boolean;
   showCollectionFilter?: boolean;
 }
@@ -27,13 +27,10 @@ export function ProductGridWithFilters({
   collections,
   showPrice = true,
   showStatus = true,
-  onProductClick,
   showCategoryFilter = true,
   showCollectionFilter = true,
 }: ProductGridWithFiltersProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const contextHandler = useProductModalHandler();
-  const handleProductClick = onProductClick || contextHandler;
 
   const {
     searchText,
@@ -121,18 +118,12 @@ export function ProductGridWithFilters({
         {/* Product Grid */}
         {displayedProducts.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 md:gap-6">
-              {displayedProducts.map((product, index) => (
-                <ProductCard
-                  key={product.slug}
-                  product={product}
-                  index={index}
-                  showPrice={showPrice}
-                  showStatus={showStatus}
-                  onProductClick={handleProductClick}
-                />
-              ))}
-            </div>
+            <ProductGridBase
+              products={displayedProducts}
+              gridClassName="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 md:gap-6"
+              showPrice={showPrice}
+              showStatus={showStatus}
+            />
             {hasMoreProducts && (
               <div className="flex justify-center mt-8">
                 <button
@@ -145,9 +136,14 @@ export function ProductGridWithFilters({
             )}
           </>
         ) : (
-          <div className="text-center py-12 text-neutral-600 dark:text-neutral-400">
-            <p>No products found matching your filters.</p>
-          </div>
+          <ProductGridBase
+            products={[]}
+            gridClassName=""
+            showPrice={showPrice}
+            showStatus={showStatus}
+            emptyStateClassName="text-center py-12 text-neutral-600 dark:text-neutral-400"
+            emptyStateMessage="No products found matching your filters."
+          />
         )}
       </div>
     </div>

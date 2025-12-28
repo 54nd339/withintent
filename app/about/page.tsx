@@ -1,5 +1,5 @@
 import { getGlobalSettings, getPageBySlug } from '@/lib/hygraph';
-import { generatePageMetadata } from '@/lib/metadata';
+import { generatePageMetadata, generateMetadataWithFallback } from '@/lib/metadata';
 import { NotFoundMessage } from '@/components';
 import AboutPageClient from './AboutPageClient';
 
@@ -17,12 +17,13 @@ async function fetchAboutData() {
 }
 
 export async function generateMetadata() {
-  try {
-    const { page, globalSettings } = await fetchAboutData();
-    return generatePageMetadata(page, globalSettings);
-  } catch {
-    return generatePageMetadata(null, undefined);
-  }
+  return generateMetadataWithFallback(
+    async () => {
+      const { page, globalSettings } = await fetchAboutData();
+      return generatePageMetadata(page, globalSettings);
+    },
+    generatePageMetadata(null, undefined)
+  );
 }
 
 export default async function AboutPage() {

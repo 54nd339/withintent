@@ -1,17 +1,12 @@
 'use client';
 
 import Image from 'next/image';
-import { FadeInText, RichText, Button } from '@/components';
-import {
-  getSpacingClassesFromLayout,
-  getContainerWidthClasses,
-  getAlignmentClassesFromLayout,
-  getThemeWithDefaults,
-  getThemeStyles,
-  getLayoutWithDefaults
-} from '@/lib/utils';
+import { SectionHeader, Button } from '@/components';
+import { getOverlayStyles } from '@/lib/utils';
 import { BannerBlock } from '@/lib/types';
+import { useSectionLayout } from '@/hooks';
 import { useTheme } from '@/providers';
+import { RESPONSIVE_PADDING } from '@/lib/constants';
 
 interface BannerSectionProps {
   data?: BannerBlock;
@@ -24,24 +19,15 @@ export function BannerSection({ data }: BannerSectionProps) {
     return null;
   }
 
-  // Get layout and theme with defaults
-  const layout = getLayoutWithDefaults(data.layout);
-  const theme = getThemeWithDefaults(data.theme, darkMode);
-  const themeStyles = getThemeStyles(theme, darkMode);
-
-  const spacingClasses = getSpacingClassesFromLayout(layout);
-  const containerWidthClasses = getContainerWidthClasses(layout.containerWidth);
-  const alignmentClasses = getAlignmentClassesFromLayout(layout);
+  const { themeStyles, spacingClasses, containerWidthClasses, alignmentClasses, theme } = useSectionLayout({
+    layout: data.layout,
+    theme: data.theme,
+    includeAlignment: true,
+  });
 
   const backgroundMedia = data.backgroundMedia?.asset;
   const text = data.text;
-
-  const overlayOpacity = darkMode
-    ? (theme.darkOverlayOpacity ?? theme.overlayOpacity ?? 0.2)
-    : (theme.overlayOpacity ?? 0.2);
-  const overlayColor = darkMode
-    ? (theme.darkOverlayColor?.hex || theme.overlayColor?.hex || '#000000')
-    : (theme.overlayColor?.hex || '#000000');
+  const { opacity: overlayOpacity, color: overlayColor } = getOverlayStyles(theme, darkMode);
 
   return (
     <section
@@ -67,40 +53,16 @@ export function BannerSection({ data }: BannerSectionProps) {
         </div>
       )}
 
-      <div className={`relative z-20 px-4 sm:px-5 md:px-6 lg:px-8 w-full ${containerWidthClasses} ${alignmentClasses}`}>
-        <FadeInText>
-          {text?.eyebrow && (
-            <span
-              className="block font-sans text-xs tracking-[0.3em] uppercase mb-3 sm:mb-4 md:mb-5"
-              style={{ opacity: 0.7, color: themeStyles.color || 'inherit' }}
-            >
-              {text.eyebrow}
-            </span>
-          )}
-          {text?.heading && (
-            <h2
-              className="font-serif text-3xl md:text-5xl mb-4 sm:mb-5 md:mb-6 lg:mb-8"
-              style={{ color: themeStyles.color || 'inherit' }}
-            >
-              {text.heading}
-            </h2>
-          )}
-          {text?.subheading && (
-            <p
-              className="font-sans text-lg mb-4 sm:mb-5 md:mb-6 lg:mb-8"
-              style={{ opacity: 0.8, color: themeStyles.color || 'inherit' }}
-            >
-              {text.subheading}
-            </p>
-          )}
-          {text?.body && (
-            <div
-              className="font-sans mb-6 sm:mb-7 md:mb-8 lg:mb-10 leading-relaxed"
-              style={{ opacity: 0.8, color: themeStyles.color || 'inherit' }}
-            >
-              <RichText content={text.body} />
-            </div>
-          )}
+      <div className={`relative z-20 ${RESPONSIVE_PADDING} w-full ${containerWidthClasses} ${alignmentClasses}`}>
+        <SectionHeader
+          text={text}
+          themeStyles={themeStyles}
+          eyebrowElement="span"
+          eyebrowClassName="mb-3 sm:mb-4 md:mb-5"
+          headingClassName="text-3xl md:text-5xl mb-4 sm:mb-5 md:mb-6 lg:mb-8"
+          subheadingClassName="mb-4 sm:mb-5 md:mb-6 lg:mb-8"
+          bodyClassName="font-sans mb-6 sm:mb-7 md:mb-8 lg:mb-10 leading-relaxed"
+        >
           {data.buttons && data.buttons.length > 0 && (
             <div className="flex flex-col md:flex-row items-center gap-4">
               {data.buttons.map((button, index) => (
@@ -108,7 +70,7 @@ export function BannerSection({ data }: BannerSectionProps) {
               ))}
             </div>
           )}
-        </FadeInText>
+        </SectionHeader>
       </div>
     </section>
   );

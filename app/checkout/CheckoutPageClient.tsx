@@ -2,35 +2,38 @@
 
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { Plus, Minus, Trash2, Heart, ShoppingBag } from 'lucide-react';
-import { PriceDisplay, PageHeader, EmptyState, PageWrapper } from '@/components';
+import { Trash2, Heart, ShoppingBag } from 'lucide-react';
+import { PriceDisplay, PageHeader, EmptyState, PageWrapper, QuantityCounter } from '@/components';
 import { formatINR, createWhatsAppCheckoutLink, getEffectivePrice } from '@/lib/utils';
 import { useCartStore, useWishlistStore } from '@/store';
-import { useCartTotalPrice } from '@/hooks';
+import { useCartTotalPrice, useHydrated } from '@/hooks';
 import { GlobalSetting } from '@/lib/types';
-import { API } from '@/lib/constants';
+import { API, RESPONSIVE_PADDING } from '@/lib/constants';
 
 interface CheckoutPageClientProps {
   globalSettings: GlobalSetting;
 }
 
 export function CheckoutPageClient({ globalSettings }: CheckoutPageClientProps) {
+  const hydrated = useHydrated();
   const items = useCartStore((state) => state.items);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
   const total = useCartTotalPrice();
 
   const addToWishlist = useWishlistStore((state) => state.addItem);
-  const isInWishlist = useWishlistStore((state) => state.isInWishlist);
+  const isInWishlistStore = useWishlistStore((state) => state.isInWishlist);
+  const isInWishlist = hydrated ? isInWishlistStore : () => false;
 
   const whatsAppNumber = globalSettings.whatsAppNumber || API.DEFAULT_WHATSAPP;
+  const displayItems = hydrated ? items : [];
 
   const handleCheckout = () => {
     const checkoutUrl = createWhatsAppCheckoutLink(whatsAppNumber, items);
     window.open(checkoutUrl, '_blank');
   };
 
-  if (items.length === 0) {
+  if (displayItems.length === 0) {
     return (
       <PageWrapper globalSettings={globalSettings}>
         <EmptyState
@@ -44,12 +47,12 @@ export function CheckoutPageClient({ globalSettings }: CheckoutPageClientProps) 
   return (
     <PageWrapper globalSettings={globalSettings}>
       <main className="pt-20 sm:pt-24 md:pt-28 pb-8 sm:pb-12 md:pb-16 lg:pb-20 min-h-screen">
-        <div className="max-w-4xl mx-auto px-4 sm:px-5 md:px-6 lg:px-8">
+        <div className={`max-w-4xl mx-auto ${RESPONSIVE_PADDING}`}>
           <PageHeader title="Your Cart" />
 
           {/* Cart Items */}
           <div className="space-y-4 sm:space-y-6 mb-6 sm:mb-8">
-            {items.map((item, index) => {
+            {displayItems.map((item, index) => {
               const price = getEffectivePrice(item.product);
               const itemTotal = price * item.quantity;
 
@@ -90,25 +93,18 @@ export function CheckoutPageClient({ globalSettings }: CheckoutPageClientProps) 
 
                     {/* Quantity Controls and Actions */}
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
-                      <div className="flex items-center gap-3">
-                        <button
-                          onClick={() => updateQuantity(item.product.slug, item.quantity - 1)}
-                          className="p-1.5 sm:p-1 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-                          aria-label="Decrease quantity"
-                        >
-                          <Minus size={16} />
-                        </button>
-                        <span className="font-sans text-sm w-8 text-center text-neutral-900 dark:text-neutral-100">
-                          {item.quantity}
-                        </span>
-                        <button
-                          onClick={() => updateQuantity(item.product.slug, item.quantity + 1)}
-                          className="p-1.5 sm:p-1 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-                          aria-label="Increase quantity"
-                        >
-                          <Plus size={16} />
-                        </button>
-                      </div>
+                      <QuantityCounter
+                        quantity={item.quantity}
+                        onIncrease={(e) => {
+                          e.stopPropagation();
+                          updateQuantity(item.product.slug, item.quantity + 1);
+                        }}
+                        onDecrease={(e) => {
+                          e.stopPropagation();
+                          updateQuantity(item.product.slug, item.quantity - 1);
+                        }}
+                        variant="checkout"
+                      />
 
                       <div className="flex items-center gap-3 sm:gap-4 w-full sm:w-auto justify-between sm:justify-end">
                         <span className="font-serif text-base sm:text-lg font-medium text-neutral-900 dark:text-neutral-100">

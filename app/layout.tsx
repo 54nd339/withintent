@@ -16,6 +16,9 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
+  metadataBase: process.env.NEXT_PUBLIC_SITE_URL
+    ? new URL(process.env.NEXT_PUBLIC_SITE_URL)
+    : new URL('https://withintent.in'),
   title: {
     default: 'WITH INTENT',
     template: '%s • WITH INTENT',
@@ -31,6 +34,12 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.ico',
     apple: '/apple-touch-icon.png',
+  },
+  openGraph: {
+    title: 'WITH INTENT',
+    description: 'Thoughtful goods designed with intent.',
+    siteName: 'WITH INTENT',
+    images: [{ url: '/og.png' }],
   },
 };
 

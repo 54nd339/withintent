@@ -51,6 +51,11 @@ export const DEFAULT_THEME_DARK: ThemeSetting = {
 };
 
 /**
+ * Cache revalidation time (in seconds)
+ */
+export const CACHE_REVALIDATE = 3600; // 1 hour
+
+/**
  * Default layout values
  */
 export const DEFAULT_LAYOUT: LayoutSetting = {
@@ -69,3 +74,9 @@ export const DEFAULT_LAYOUT: LayoutSetting = {
   layoutType: 'fullWidth',
   dividerHeight: 'none',
 };
+
+/**
+ * Common responsive class patterns
+ */
+export const RESPONSIVE_PADDING = 'px-4 sm:px-5 md:px-6 lg:px-8';
+export const SECTION_HEADER_MARGIN = 'mb-6 sm:mb-8 md:mb-12 lg:mb-16 xl:mb-20';

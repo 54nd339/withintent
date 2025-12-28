@@ -1,14 +1,15 @@
 'use client';
 
-import React from 'react';
+import type { ReactNode } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Moon, Sun, Menu, X, ShoppingBag, Heart } from 'lucide-react';
 import { useTheme } from '@/providers';
 import { useWishlistStore } from '@/store';
-import { useCartTotalItems } from '@/hooks';
+import { useCartTotalItems, useHydrated } from '@/hooks';
 import { NavigationItem, Asset } from '@/lib/types';
 import { getHrefFromNavigationItem } from '@/lib/utils';
+import { RESPONSIVE_PADDING } from '@/lib/constants';
 
 type Props = {
   isMenuOpen: boolean;
@@ -17,11 +18,57 @@ type Props = {
   logo?: Asset;
 };
 
+type NavigationLinksProps = {
+  navigation: NavigationItem[];
+  variant: 'desktop' | 'mobile';
+  onMobileLinkClick?: () => void;
+};
+
+function NavigationLinks({ navigation, variant, onMobileLinkClick }: NavigationLinksProps) {
+  const items = navigation.map((item, index) => {
+    const href = getHrefFromNavigationItem(item);
+
+    if (variant === 'desktop') {
+      return (
+        <NavLink key={index} href={href}>
+          {item.label}
+        </NavLink>
+      );
+    }
+
+    return (
+      <Link
+        key={index}
+        href={href}
+        onClick={onMobileLinkClick}
+        className="hover:opacity-70 transition-opacity"
+      >
+        {item.label}
+      </Link>
+    );
+  });
+
+  if (variant === 'desktop') {
+    return (
+      <div className="hidden md:flex items-center space-x-12 font-sans text-xs tracking-[0.2em] uppercase text-neutral-900 dark:text-neutral-50">
+        {items}
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center space-y-8 font-serif text-3xl">
+      {items}
+    </div>
+  );
+}
+
 export function Navbar({ isMenuOpen, setIsMenuOpen, navigation, logo }: Props) {
   const { darkMode, mounted, toggleTheme } = useTheme();
+  const hydrated = useHydrated();
   const totalItems = useCartTotalItems();
   const wishlistItems = useWishlistStore((state) => state.items);
-  const wishlistCount = wishlistItems.length;
+  const wishlistCount = hydrated ? wishlistItems.length : 0;
 
   const logoUrl = logo?.url || '/logo.svg';
   const logoAlt = logo?.fileName || 'WITH INTENT Logo';
@@ -33,7 +80,7 @@ export function Navbar({ isMenuOpen, setIsMenuOpen, navigation, logo }: Props) {
         : 'backdrop-blur-md border-b border-black/5 dark:border-white/10 bg-[var(--background)]/70 dark:bg-neutral-900/40'
         }`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-5 md:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div className={`max-w-7xl mx-auto ${RESPONSIVE_PADDING} h-20 flex items-center justify-between`}>
         <Link href="/">
           <Image
             src={logoUrl}
@@ -46,17 +93,7 @@ export function Navbar({ isMenuOpen, setIsMenuOpen, navigation, logo }: Props) {
 
         {/* Desktop Links */}
         {navigation && navigation.length > 0 && (
-          <div className="hidden md:flex items-center space-x-12 font-sans text-xs tracking-[0.2em] uppercase text-neutral-900 dark:text-neutral-50">
-            {navigation.map((item, index) => {
-              const href = getHrefFromNavigationItem(item);
-
-              return (
-                <NavLink key={index} href={href}>
-                  {item.label}
-                </NavLink>
-              );
-            })}
-          </div>
+          <NavigationLinks navigation={navigation} variant="desktop" />
         )}
 
         {/* Actions */}
@@ -93,22 +130,11 @@ export function Navbar({ isMenuOpen, setIsMenuOpen, navigation, logo }: Props) {
             }`}
         >
           {navigation && navigation.length > 0 && (
-            <div className="flex flex-col items-center space-y-8 font-serif text-3xl">
-              {navigation.map((item, index) => {
-                const href = getHrefFromNavigationItem(item);
-
-                return (
-                  <Link
-                    key={index}
-                    href={href}
-                    onClick={() => setIsMenuOpen(false)}
-                    className="hover:opacity-70 transition-opacity"
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
+            <NavigationLinks
+              navigation={navigation}
+              variant="mobile"
+              onMobileLinkClick={() => setIsMenuOpen(false)}
+            />
           )}
         </div>
       </div>
@@ -116,7 +142,7 @@ export function Navbar({ isMenuOpen, setIsMenuOpen, navigation, logo }: Props) {
   );
 }
 
-function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
+function NavLink({ href, children }: { href: string; children: ReactNode }) {
   return (
     <Link href={href} className="relative group py-2">
       {children}

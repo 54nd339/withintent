@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import type { CSSProperties } from 'react';
 import { ChevronDown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { RichText } from '@/components';
@@ -10,7 +10,7 @@ interface AccordionItemProps {
   item: AccordionItemType;
   isOpen: boolean;
   onToggle: () => void;
-  themeStyles: React.CSSProperties;
+  themeStyles: CSSProperties;
 }
 
 export function AccordionItem({

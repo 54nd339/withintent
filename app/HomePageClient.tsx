@@ -19,7 +19,6 @@ import {
   Category,
   SectionType,
 } from '@/lib/types';
-import { useProductModalHandler } from '@/hooks';
 
 interface HomePageClientProps {
   page: Page;
@@ -29,16 +28,11 @@ interface HomePageClientProps {
 }
 
 export default function HomePageClient({ page, globalSettings, products, categories }: HomePageClientProps) {
-  const allProducts = Object.values(products).flat();
-  const handleProductClick = useProductModalHandler();
-
   return (
     <PageWrapper 
       globalSettings={globalSettings} 
       showNavigation={page.showNavigation} 
       showFooter={page.showFooter}
-      enableProductModal={true}
-      products={allProducts}
     >
       <main>
         {page.sections?.map((section, index) => {
@@ -50,12 +44,14 @@ export default function HomePageClient({ page, globalSettings, products, categor
               const gridSection = section as ProductGridBlock;
               const collectionSlug = gridSection.filterCollection?.slug || gridSection.filterCategory?.slug || 'all';
               const sectionProducts = products[collectionSlug] || [];
+              const availableProducts = sectionProducts.filter(
+                (product) => product.productStatus === 'available'
+              );
               return (
                 <ProductGrid
                   key={index}
                   data={section}
-                  products={sectionProducts}
-                  onProductClick={handleProductClick}
+                  products={availableProducts}
                 />
               );
             }

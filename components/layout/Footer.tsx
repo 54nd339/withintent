@@ -1,7 +1,8 @@
 'use client';
 
-import React from 'react';
+import type { ReactNode } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { RichText } from '@/components';
 import {
   getSpacingClassesFromLayout,
@@ -13,6 +14,7 @@ import {
   getButtonIcon,
   getButtonHref
 } from '@/lib/utils';
+import { RESPONSIVE_PADDING } from '@/lib/constants';
 import { FooterBlock } from '@/lib/types';
 import { useTheme } from '@/providers';
 
@@ -38,7 +40,7 @@ export function Footer({ data }: FooterProps) {
   const text = data.text;
 
   // Footer link component with hover underline (like NavLink)
-  const FooterLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
+  const FooterLink = ({ href, children }: { href: string; children: ReactNode }) => {
     return (
       <Link
         href={href}
@@ -53,11 +55,22 @@ export function Footer({ data }: FooterProps) {
 
   return (
     <footer
-      className={`py-8 sm:py-12 md:py-16 lg:py-20 xl:py-24 px-4 sm:px-5 md:px-6 lg:px-8 font-sans text-sm ${spacingClasses} ${containerWidthClasses}`}
+      className={`py-8 sm:py-12 md:py-16 lg:py-20 xl:py-24 ${RESPONSIVE_PADDING} font-sans text-sm ${spacingClasses} ${containerWidthClasses}`}
       style={themeStyles}
     >
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 sm:gap-8 md:gap-10 lg:gap-12 xl:gap-16">
         <div className="md:col-span-1">
+          {data.logo?.asset?.url && (
+            <div className="mb-6">
+              <Image
+                src={data.logo.asset.url}
+                alt={data.logo.alt || 'Logo'}
+                width={data.logo.asset.width || 60}
+                height={data.logo.asset.height || 60}
+                className="object-contain"
+              />
+            </div>
+          )}
           {text?.heading && (
             <h4
               className="font-serif text-2xl mb-6 tracking-widest"

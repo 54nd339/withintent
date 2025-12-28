@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { ProductGridWithFilters, PageWrapper } from '@/components';
 import { GlobalSetting, Category, Collection, Product } from '@/lib/types';
-import { useProductModalHandler } from '@/hooks';
+import { RESPONSIVE_PADDING } from '@/lib/constants';
 
 interface CategoryPageClientProps {
   globalSettings: GlobalSetting;
@@ -20,15 +20,9 @@ export default function CategoryPageClient({
   categories,
   collections,
 }: CategoryPageClientProps) {
-  const handleProductClick = useProductModalHandler();
-
   return (
-    <PageWrapper 
-      globalSettings={globalSettings}
-      enableProductModal={true}
-      products={products}
-    >
-      <main className="px-4 sm:px-5 md:px-6 lg:px-8 pt-20 sm:pt-24 md:pt-28 pb-8 sm:pb-10 md:pb-12 lg:pb-16">
+    <PageWrapper globalSettings={globalSettings} >
+      <main className={`${RESPONSIVE_PADDING} pt-20 sm:pt-24 md:pt-28 pb-8 sm:pb-10 md:pb-12 lg:pb-16`}>
         <div className="mb-8 sm:mb-10 md:mb-12">
           <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl mb-4 text-neutral-900 dark:text-neutral-100">
             {category.name}
@@ -49,7 +43,6 @@ export default function CategoryPageClient({
           products={products}
           categories={categories}
           collections={collections}
-          onProductClick={handleProductClick}
           showCategoryFilter={false}
         />
       </main>

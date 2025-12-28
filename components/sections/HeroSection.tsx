@@ -4,15 +4,10 @@ import { useRef } from 'react';
 import Image from 'next/image';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { RichText, Button } from '@/components';
-import {
-  getSpacingClassesFromLayout,
-  getAlignmentClassesFromLayout,
-  getThemeWithDefaults,
-  getThemeStyles,
-  getLayoutWithDefaults
-} from '@/lib/utils';
+import { getOverlayStyles } from '@/lib/utils';
 import { HeroBlock } from '@/lib/types';
-import { useTheme } from '@/providers';
+import { useSectionLayout } from '@/hooks';
+import { RESPONSIVE_PADDING } from '@/lib/constants';
 
 interface HeroSectionProps {
   data?: HeroBlock;
@@ -24,8 +19,6 @@ export function HeroSection({ data }: HeroSectionProps) {
     target: ref,
     offset: ['start start', 'end start'],
   });
-  const { darkMode } = useTheme();
-
   // Intensified parallax for more dramatic effect
   const y = useTransform(scrollYProgress, [0, 1], ['0%', '30%'], {
     clamp: true,
@@ -35,21 +28,14 @@ export function HeroSection({ data }: HeroSectionProps) {
     return null;
   }
 
-  // Get layout and theme with defaults
-  const layout = getLayoutWithDefaults(data.layout);
-  const theme = getThemeWithDefaults(data.theme, darkMode);
-  const themeStyles = getThemeStyles(theme, darkMode);
+  const { themeStyles, spacingClasses, alignmentClasses, theme, darkMode, layout } = useSectionLayout({
+    layout: data.layout,
+    theme: data.theme,
+    includeAlignment: true,
+  });
 
-  const spacingClasses = getSpacingClassesFromLayout(layout);
-  const alignmentClasses = getAlignmentClassesFromLayout(layout);
   const minHeight = layout.minHeight || '100vh';
-
-  const overlayOpacity = darkMode
-    ? (theme.darkOverlayOpacity ?? theme.overlayOpacity ?? 0.2)
-    : (theme.overlayOpacity ?? 0.2);
-  const overlayColor = darkMode
-    ? (theme.darkOverlayColor?.hex || theme.overlayColor?.hex || '#000000')
-    : (theme.overlayColor?.hex || '#000000');
+  const { opacity: overlayOpacity, color: overlayColor } = getOverlayStyles(theme, darkMode);
 
   const mediaAsset = data.media?.asset;
   const text = data.text;
@@ -97,7 +83,7 @@ export function HeroSection({ data }: HeroSectionProps) {
         </motion.div>
       )}
 
-      <div className={`relative z-20 flex flex-col items-center justify-center h-full px-4 sm:px-5 md:px-6 lg:px-8 w-full mt-6 sm:mt-8 md:mt-10 lg:mt-12 ${alignmentClasses}`}>
+      <div className={`relative z-20 flex flex-col items-center justify-center h-full ${RESPONSIVE_PADDING} w-full mt-6 sm:mt-8 md:mt-10 lg:mt-12 ${alignmentClasses}`}>
         {text?.eyebrow && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}

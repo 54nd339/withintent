@@ -1,53 +1,97 @@
 'use client';
 
+import type { CSSProperties, ReactNode } from 'react';
 import { FadeInText, RichText } from '@/components';
-import { TextGroup } from '@/lib/types';
+import type { TextGroup } from '@/lib/types';
 
 interface SectionHeaderProps {
-  header?: TextGroup;
-  themeStyles: React.CSSProperties;
+  text?: TextGroup | null;
+  themeStyles?: CSSProperties;
   className?: string;
-  alignment?: 'left' | 'center' | 'right';
+  wrapperClassName?: string;
+  eyebrowClassName?: string;
+  headingClassName?: string;
+  subheadingClassName?: string;
+  bodyClassName?: string;
+  eyebrowElement?: 'h3' | 'span';
+  showFadeIn?: boolean;
+  fadeInDelay?: number;
+  children?: ReactNode;
 }
 
-export function SectionHeader({ header, themeStyles, className = '', alignment = 'center' }: SectionHeaderProps) {
-  if (!header) return null;
+export function SectionHeader({
+  text,
+  themeStyles,
+  className = '',
+  wrapperClassName = '',
+  eyebrowClassName = '',
+  headingClassName = '',
+  subheadingClassName = '',
+  bodyClassName = '',
+  eyebrowElement = 'h3',
+  showFadeIn = true,
+  fadeInDelay = 0,
+  children,
+}: SectionHeaderProps) {
+  if (!text && !children) return null;
 
-  const alignmentClass = alignment === 'left' ? 'text-left' : alignment === 'right' ? 'text-right' : 'text-center';
-
-  return (
-    <div className={`mb-6 sm:mb-8 md:mb-12 lg:mb-16 xl:mb-20 ${alignmentClass} ${className}`}>
-      <FadeInText>
-        {header.eyebrow && (
+  const content = (
+    <>
+      {text?.eyebrow && (
+        eyebrowElement === 'h3' ? (
           <h3
-            className="font-sans text-xs tracking-[0.3em] uppercase mb-4"
-            style={{ opacity: 0.7, color: themeStyles.color || 'inherit' }}
+            className={`font-sans text-xs tracking-[0.3em] uppercase mb-4 ${eyebrowClassName}`}
+            style={{ opacity: 0.7, color: themeStyles?.color || 'inherit' }}
           >
-            {header.eyebrow}
+            {text.eyebrow}
           </h3>
-        )}
-        {header.heading && (
-          <h2
-            className="font-serif text-4xl mb-4"
-            style={{ color: themeStyles.color || 'inherit' }}
+        ) : (
+          <span
+            className={`block font-sans text-xs tracking-[0.3em] uppercase mb-4 sm:mb-5 md:mb-6 ${eyebrowClassName}`}
+            style={{ opacity: 0.7, color: themeStyles?.color || 'inherit' }}
           >
-            {header.heading}
-          </h2>
-        )}
-        {header.subheading && (
-          <p
-            className="font-sans text-lg mb-4"
-            style={{ opacity: 0.8, color: themeStyles.color || 'inherit' }}
-          >
-            {header.subheading}
-          </p>
-        )}
-        {header.body && (
-          <div className="mt-4">
-            <RichText content={header.body} />
-          </div>
-        )}
-      </FadeInText>
-    </div>
+            {text.eyebrow}
+          </span>
+        )
+      )}
+      {text?.heading && (
+        <h2
+          className={`font-serif text-4xl ${headingClassName}`}
+          style={{ color: themeStyles?.color || 'inherit' }}
+        >
+          {text.heading}
+        </h2>
+      )}
+      {text?.subheading && (
+        <p
+          className={`font-sans text-lg mt-2 ${subheadingClassName}`}
+          style={{ opacity: 0.8, color: themeStyles?.color || 'inherit' }}
+        >
+          {text.subheading}
+        </p>
+      )}
+      {text?.body && (
+        <div className={`mt-4 ${bodyClassName}`}>
+          <RichText content={text.body} />
+        </div>
+      )}
+      {children}
+    </>
   );
+
+  const wrappedContent = wrapperClassName ? (
+    <div className={wrapperClassName}>{content}</div>
+  ) : (
+    content
+  );
+
+  if (showFadeIn) {
+    return (
+      <FadeInText delay={fadeInDelay} className={className}>
+        {wrappedContent}
+      </FadeInText>
+    );
+  }
+
+  return <div className={className}>{wrappedContent}</div>;
 }

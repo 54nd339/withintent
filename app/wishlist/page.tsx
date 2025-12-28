@@ -1,18 +1,19 @@
 import { getGlobalSettings } from '@/lib/hygraph';
-import { generateMetadata as generatePageMetadata } from '@/lib/metadata';
+import { generateMetadata as generatePageMetadata, generateMetadataWithFallback } from '@/lib/metadata';
 import { WishlistPageClient } from './WishlistPageClient';
 
 export async function generateMetadata() {
-  try {
-    const globalSettings = await getGlobalSettings();
-    return generatePageMetadata({
-      title: 'Wishlist',
-      description: 'Your saved items',
-      globalSettings,
-    });
-  } catch {
-    return generatePageMetadata({ title: 'Wishlist', description: 'Your saved items' });
-  }
+  return generateMetadataWithFallback(
+    async () => {
+      const globalSettings = await getGlobalSettings();
+      return generatePageMetadata({
+        title: 'Wishlist',
+        description: 'Your saved items',
+        globalSettings,
+      });
+    },
+    generatePageMetadata({ title: 'Wishlist', description: 'Your saved items' })
+  );
 }
 
 export default async function WishlistPage() {

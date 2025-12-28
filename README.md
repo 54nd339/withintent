@@ -53,9 +53,9 @@ Open [http://localhost:3000](http://localhost:3000) to view the app.
 Create a `.env.local` file with your Hygraph endpoint:
 
 ```
-HYGRAPH_ENDPOINT=your_hygraph_endpoint
-NEXT_PUBLIC_HYGRAPH_API_TOKEN=your_hygraph_api_token
-NEXT_PUBLIC_HYGRAPH_GLOBAL_SETTING_ID=your_hygraph_global_setting_id
+HYGRAPH_API_URL=your_hygraph_endpoint
+HYGRAPH_API_TOKEN=your_hygraph_api_token
+HYGRAPH_GLOBAL_SETTING_ID=your_hygraph_global_setting_id
 ```
 
 _____

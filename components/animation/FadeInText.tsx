@@ -1,10 +1,10 @@
 'use client';
 
-import React from 'react';
+import type { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 
 type Props = {
-  children: React.ReactNode;
+  children: ReactNode;
   delay?: number;
   className?: string;
 };

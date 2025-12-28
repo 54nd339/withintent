@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { CollectionBanner, CollectionsGrid, ProductGridWithFilters, PageWrapper } from '@/components';
 import { GlobalSetting, Product, Category, Collection } from '@/lib/types';
+import { RESPONSIVE_PADDING } from '@/lib/constants';
 
 interface ShopPageClientProps {
   globalSettings: GlobalSetting;
@@ -17,28 +18,22 @@ export default function ShopPageClient({ globalSettings, products, categories, c
   const otherCollections = collections.filter((col) => col.slug !== bannerCollection?.slug);
 
   return (
-    <PageWrapper 
-      globalSettings={globalSettings}
-      enableProductModal={true}
-      products={products}
-      enableUrlSync={true}
-      basePath="/shop"
-    >
+    <PageWrapper globalSettings={globalSettings} >
       <main className="pt-20 sm:pt-24 md:pt-28 pb-8 sm:pb-10 md:pb-12 lg:pb-16">
         {bannerCollection && (
-          <div className="mb-12 sm:mb-16 md:mb-20 lg:mb-24 px-4 sm:px-5 md:px-6 lg:px-8">
+          <div className={`mb-12 sm:mb-16 md:mb-20 lg:mb-24 ${RESPONSIVE_PADDING}`}>
             <CollectionBanner collection={bannerCollection} />
           </div>
         )}
 
         {otherCollections.length > 0 && (
-          <div className="mb-12 sm:mb-16 md:mb-20 lg:mb-24 px-4 sm:px-5 md:px-6 lg:px-8">
+          <div className={`mb-12 sm:mb-16 md:mb-20 lg:mb-24 ${RESPONSIVE_PADDING}`}>
             <CollectionsGrid collections={otherCollections} />
           </div>
         )}
 
         {categories.length > 0 && (
-          <div className="mb-12 sm:mb-16 md:mb-20 lg:mb-24 px-4 sm:px-5 md:px-6 lg:px-8 py-12 sm:py-16 md:py-20 bg-neutral-50 dark:bg-[#1a1a1a]">
+          <div className={`mb-12 sm:mb-16 md:mb-20 lg:mb-24 ${RESPONSIVE_PADDING} py-12 sm:py-16 md:py-20 bg-neutral-50 dark:bg-[#1a1a1a]`}>
             <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl mb-8 sm:mb-10 md:mb-14 text-neutral-900 dark:text-neutral-50 tracking-tight">
               Shop by Category
             </h2>
@@ -71,7 +66,7 @@ export default function ShopPageClient({ globalSettings, products, categories, c
           </div>
         )}
 
-        <div className="px-4 sm:px-5 md:px-6 lg:px-8">
+        <div className={RESPONSIVE_PADDING}>
           <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl mb-8 sm:mb-10 md:mb-14 text-neutral-900 dark:text-neutral-100 tracking-tight">
             All Products
           </h2>

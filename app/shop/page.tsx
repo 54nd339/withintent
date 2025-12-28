@@ -1,5 +1,5 @@
 import { getGlobalSettings, getShopData } from '@/lib/hygraph';
-import { generateMetadata as generatePageMetadata } from '@/lib/metadata';
+import { generateMetadata as generatePageMetadata, generateMetadataWithFallback } from '@/lib/metadata';
 import ShopPageClient from './ShopPageClient';
 
 async function fetchShopData() {
@@ -18,16 +18,17 @@ async function fetchShopData() {
 }
 
 export async function generateMetadata() {
-  try {
-    const { globalSettings } = await fetchShopData();
-    return generatePageMetadata({
-      title: 'Shop',
-      description: globalSettings?.siteName ? `Browse our collection of products at ${globalSettings.siteName}` : undefined,
-      globalSettings,
-    });
-  } catch {
-    return generatePageMetadata({ title: 'Shop' });
-  }
+  return generateMetadataWithFallback(
+    async () => {
+      const { globalSettings } = await fetchShopData();
+      return generatePageMetadata({
+        title: 'Shop',
+        description: globalSettings?.siteName ? `Browse our collection of products at ${globalSettings.siteName}` : undefined,
+        globalSettings,
+      });
+    },
+    generatePageMetadata({ title: 'Shop' })
+  );
 }
 
 export default async function ShopPage() {

@@ -309,6 +309,7 @@ export type PageSection =
 
 // FooterBlock model
 export interface FooterBlock {
+  logo?: Media;
   text?: TextGroup;
   shopButtons?: Button[];
   companyButtons?: Button[];
@@ -341,4 +342,9 @@ export interface Page {
   whatsAppEnabled?: boolean;
   seo?: Seo;
   sections?: PageSection[];
+}
+
+// Next.js page props types
+export interface SlugPageProps {
+  params: Promise<{ slug: string }>;
 }

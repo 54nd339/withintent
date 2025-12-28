@@ -1,15 +1,17 @@
-import { cache } from 'react';
-import { unstable_cache } from 'next/cache';
 import { hygraphClient } from './hygraph';
+import { createCachedFetcher } from './cache-wrapper';
 import {
   GET_GLOBAL_SETTINGS,
   GET_PAGE_BY_SLUG,
   GET_SHOP_DATA,
-  GET_HOME_PAGE_DATA,
+  GET_SHOP_FILTERS,
+  GET_HOME_PAGE_DATA_OPTIMIZED,
   GET_COLLECTIONS_BY_SLUGS,
+  GET_CATEGORIES_BY_SLUGS,
   GET_COLLECTION_BY_SLUG,
   GET_CATEGORY_BY_SLUG,
   GET_ALL_PRODUCTS,
+  GET_PRODUCT_BY_SLUG,
 } from './queries';
 import {
   GlobalSetting,
@@ -21,10 +23,10 @@ import {
   BaseSection,
 } from '@/lib/types';
 
-const globalSettingId = process.env.NEXT_PUBLIC_HYGRAPH_GLOBAL_SETTING_ID;
+const globalSettingId = process.env.HYGRAPH_GLOBAL_SETTING_ID;
 
 if (!globalSettingId) {
-  throw new Error('NEXT_PUBLIC_HYGRAPH_GLOBAL_SETTING_ID is not defined');
+  throw new Error('HYGRAPH_GLOBAL_SETTING_ID is not defined');
 }
 
 // Cache configuration
@@ -33,7 +35,6 @@ const CACHE_TAG_PAGES = 'hygraph:pages';
 const CACHE_TAG_SHOP_DATA = 'hygraph:shop-data';
 const CACHE_TAG_COLLECTIONS = 'hygraph:collections';
 const CACHE_TAG_CATEGORIES = 'hygraph:categories';
-const CACHE_REVALIDATE = 3600; // 1 hour
 
 /**
  * Cached global settings fetcher
@@ -48,15 +49,12 @@ const _getGlobalSettingsUncached = async (): Promise<GlobalSetting> => {
   return data.globalSetting;
 };
 
-export const getGlobalSettings = cache(
-  unstable_cache(
-    _getGlobalSettingsUncached,
-    ['global-settings'],
-    {
-      tags: [CACHE_TAG_GLOBAL_SETTINGS],
-      revalidate: CACHE_REVALIDATE,
-    }
-  )
+export const getGlobalSettings = createCachedFetcher(
+  _getGlobalSettingsUncached,
+  () => ({
+    key: 'global-settings',
+    tags: [CACHE_TAG_GLOBAL_SETTINGS],
+  })
 );
 
 /**
@@ -69,17 +67,12 @@ const _getPageBySlugUncached = async (slug: string): Promise<Page | null> => {
   return data.page;
 };
 
-export const getPageBySlug = cache(
-  (slug: string) => {
-    return unstable_cache(
-      async () => _getPageBySlugUncached(slug),
-      [`page-${slug}`],
-      {
-        tags: [CACHE_TAG_PAGES, `page-${slug}`],
-        revalidate: CACHE_REVALIDATE,
-      }
-    )();
-  }
+export const getPageBySlug = createCachedFetcher(
+  _getPageBySlugUncached,
+  (slug: string) => ({
+    key: `page-${slug}`,
+    tags: [CACHE_TAG_PAGES, `page-${slug}`],
+  })
 );
 
 /**
@@ -105,17 +98,39 @@ const _getShopDataUncached = async (
   };
 };
 
-export const getShopData = cache(
-  (productLimit: number = 50) => {
-    return unstable_cache(
-      async () => _getShopDataUncached(productLimit),
-      [`shop-data-${productLimit}`],
-      {
-        tags: [CACHE_TAG_SHOP_DATA, CACHE_TAG_COLLECTIONS, CACHE_TAG_CATEGORIES],
-        revalidate: CACHE_REVALIDATE,
-      }
-    )();
-  }
+export const getShopData = createCachedFetcher(
+  _getShopDataUncached,
+  (productLimit: number = 50) => ({
+    key: `shop-data-${productLimit}`,
+    tags: [CACHE_TAG_SHOP_DATA, CACHE_TAG_COLLECTIONS, CACHE_TAG_CATEGORIES],
+  })
+);
+
+/**
+ * Optimized shop filters fetcher - only categories and collections, no products
+ * Use this when you only need filter options, not product data
+ */
+const _getShopFiltersUncached = async (): Promise<{
+  categories: Category[];
+  collections: Collection[];
+}> => {
+  const data = await hygraphClient.request<{
+    categories: Category[];
+    collections: Collection[];
+  }>(GET_SHOP_FILTERS);
+
+  return {
+    categories: data.categories || [],
+    collections: data.collections || [],
+  };
+};
+
+export const getShopFilters = createCachedFetcher(
+  _getShopFiltersUncached,
+  () => ({
+    key: 'shop-filters',
+    tags: [CACHE_TAG_COLLECTIONS, CACHE_TAG_CATEGORIES],
+  })
 );
 
 /**
@@ -131,17 +146,12 @@ const _getCollectionBySlugUncached = async (
   return data.collection;
 };
 
-export const getCollectionBySlug = cache(
-  (slug: string) => {
-    return unstable_cache(
-      async () => _getCollectionBySlugUncached(slug),
-      [`collection-${slug}`],
-      {
-        tags: [CACHE_TAG_COLLECTIONS, `collection-${slug}`],
-        revalidate: CACHE_REVALIDATE,
-      }
-    )();
-  }
+export const getCollectionBySlug = createCachedFetcher(
+  _getCollectionBySlugUncached,
+  (slug: string) => ({
+    key: `collection-${slug}`,
+    tags: [CACHE_TAG_COLLECTIONS, `collection-${slug}`],
+  })
 );
 
 /**
@@ -157,17 +167,12 @@ const _getCategoryBySlugUncached = async (
   return data.category;
 };
 
-export const getCategoryBySlug = cache(
-  (slug: string) => {
-    return unstable_cache(
-      async () => _getCategoryBySlugUncached(slug),
-      [`category-${slug}`],
-      {
-        tags: [CACHE_TAG_CATEGORIES, `category-${slug}`],
-        revalidate: CACHE_REVALIDATE,
-      }
-    )();
-  }
+export const getCategoryBySlug = createCachedFetcher(
+  _getCategoryBySlugUncached,
+  (slug: string) => ({
+    key: `category-${slug}`,
+    tags: [CACHE_TAG_CATEGORIES, `category-${slug}`],
+  })
 );
 
 /**
@@ -185,17 +190,40 @@ const _getCollectionsBySlugsUncached = async (
   return data.collections || [];
 };
 
-export const getCollectionsBySlugs = cache(
+export const getCollectionsBySlugs = createCachedFetcher(
+  _getCollectionsBySlugsUncached,
   (slugs: string[]) => {
     const sortedSlugs = [...slugs].sort().join(',');
-    return unstable_cache(
-      async () => _getCollectionsBySlugsUncached(slugs),
-      [`collections-${sortedSlugs}`],
-      {
-        tags: [CACHE_TAG_COLLECTIONS, ...slugs.map((s) => `collection-${s}`)],
-        revalidate: CACHE_REVALIDATE,
-      }
-    )();
+    return {
+      key: `collections-${sortedSlugs}`,
+      tags: [CACHE_TAG_COLLECTIONS, ...slugs.map((s) => `collection-${s}`)],
+    };
+  }
+);
+
+/**
+ * Bulk fetch categories by slugs with products
+ */
+const _getCategoriesBySlugsUncached = async (
+  slugs: string[]
+): Promise<Category[]> => {
+  if (slugs.length === 0) return [];
+
+  const data = await hygraphClient.request<{ categories: Category[] }>(
+    GET_CATEGORIES_BY_SLUGS,
+    { slugs }
+  );
+  return data.categories || [];
+};
+
+export const getCategoriesBySlugs = createCachedFetcher(
+  _getCategoriesBySlugsUncached,
+  (slugs: string[]) => {
+    const sortedSlugs = [...slugs].sort().join(',');
+    return {
+      key: `categories-${sortedSlugs}`,
+      tags: [CACHE_TAG_CATEGORIES, ...slugs.map((s) => `category-${s}`)],
+    };
   }
 );
 
@@ -212,76 +240,125 @@ const _getAllProductsUncached = async (
   return data.products || [];
 };
 
-export const getAllProducts = cache(
-  (limit?: number) => {
-    return unstable_cache(
-      async () => _getAllProductsUncached(limit),
-      [`products-${limit ?? 'all'}`],
-      {
-        tags: [CACHE_TAG_SHOP_DATA],
-        revalidate: CACHE_REVALIDATE,
-      }
-    )();
-  }
+export const getAllProducts = createCachedFetcher(
+  _getAllProductsUncached,
+  (limit?: number) => ({
+    key: `products-${limit ?? 'all'}`,
+    tags: [CACHE_TAG_SHOP_DATA],
+  })
 );
 
 /**
- * Fetch home page data with bulk query and caching
- * This fetches global settings, page, products, and categories in one request
+ * Fetch product by slug with caching
  */
-const _getHomePageDataUncached = async (
+const _getProductBySlugUncached = async (slug: string): Promise<Product | null> => {
+  const data = await hygraphClient.request<{ product: Product | null }>(
+    GET_PRODUCT_BY_SLUG,
+    { slug }
+  );
+  return data.product;
+};
+
+export const getProductBySlug = createCachedFetcher(
+  _getProductBySlugUncached,
+  (slug: string) => ({
+    key: `product-${slug}`,
+    tags: [CACHE_TAG_SHOP_DATA],
+  })
+);
+
+
+/**
+ * Optimized home page data fetcher - only fetches products for specific sections
+ * This avoids fetching all products upfront, improving performance as inventory grows
+ */
+const _getHomePageDataOptimizedUncached = async (
   pageSlug: string = 'home'
 ): Promise<{
   globalSettings: GlobalSetting;
   page: Page | null;
-  allProducts: Product[];
   categories: Category[];
 }> => {
   const data = await hygraphClient.request<{
     globalSetting: GlobalSetting;
     page: Page;
-    products: Product[];
     categories: Category[];
-  }>(GET_HOME_PAGE_DATA, {
+  }>(GET_HOME_PAGE_DATA_OPTIMIZED, {
     globalSettingId,
     pageSlug,
-    productLimit: 100, // Fetch more products upfront for filtering
   });
 
   return {
     globalSettings: data.globalSetting,
     page: data.page || null,
-    allProducts: data.products || [],
     categories: data.categories || [],
   };
 };
 
-export const getHomePageData = cache(
-  (pageSlug: string = 'home') => {
-    return unstable_cache(
-      async () => _getHomePageDataUncached(pageSlug),
-      [`home-page-${pageSlug}`],
-      {
-        tags: [
-          CACHE_TAG_GLOBAL_SETTINGS,
-          CACHE_TAG_PAGES,
-          `page-${pageSlug}`,
-          CACHE_TAG_SHOP_DATA,
-          CACHE_TAG_CATEGORIES,
-        ],
-        revalidate: CACHE_REVALIDATE,
-      }
-    )();
-  }
+export const getHomePageDataOptimized = createCachedFetcher(
+  _getHomePageDataOptimizedUncached,
+  (pageSlug: string = 'home') => ({
+    key: `home-page-optimized-${pageSlug}`,
+    tags: [
+      CACHE_TAG_GLOBAL_SETTINGS,
+      CACHE_TAG_PAGES,
+      `page-${pageSlug}`,
+      CACHE_TAG_CATEGORIES,
+    ],
+  })
 );
 
+
 /**
- * Process products for ProductGridBlocks from bulk fetched data
+ * Get products for a ProductGridBlock section from collections/categories maps
  */
-export function processProductsForSections(
+function getProductsForSection(
+  section: ProductGridBlock,
+  collectionsBySlug: Map<string, Collection>,
+  categoriesBySlug: Map<string, Category>
+): Product[] {
+  if (section.filterCollection?.slug) {
+    const collection = collectionsBySlug.get(section.filterCollection.slug);
+    return collection?.products || [];
+  }
+
+  if (section.filterCategory?.slug) {
+    const category = categoriesBySlug.get(section.filterCategory.slug);
+    return category?.products || [];
+  }
+
+  // For "all products" sections, we'd need to fetch products separately
+  // For now, return empty array - can be enhanced if needed
+  return [];
+}
+
+/**
+ * Apply product limit if specified
+ */
+function applyProductLimit(products: Product[], limit?: number | null): Product[] {
+  if (limit && limit > 0) {
+    return products.slice(0, limit);
+  }
+  return products;
+}
+
+/**
+ * Generate cache key for products based on section filters
+ */
+function getProductSectionKey(section: ProductGridBlock): string {
+  return section.filterCollection?.slug ||
+    section.filterCategory?.slug ||
+    'all';
+}
+
+/**
+ * Optimized: Process products for ProductGridBlocks from on-demand fetched data
+ * Only fetches products for specific collections/categories, not all products
+ */
+export function processProductsForSectionsOptimized(
   sections: BaseSection[],
-  allProducts: Product[],
-  collectionsBySlug: Map<string, Collection>
+  collectionsBySlug: Map<string, Collection>,
+  categoriesBySlug: Map<string, Category>
 ): Record<string, Product[]> {
   const products: Record<string, Product[]> = {};
 
@@ -291,32 +368,11 @@ export function processProductsForSections(
   );
 
   for (const section of productGridBlocks) {
-    const limit = section.grid?.limit;
-    let sectionProducts: Product[] = [];
-
-    if (section.filterCollection?.slug) {
-      const collection = collectionsBySlug.get(section.filterCollection.slug);
-      sectionProducts = collection?.products || [];
-    } else if (section.filterCategory?.slug) {
-      sectionProducts = allProducts.filter((product) =>
-        product.categories?.some((cat) => cat.slug === section.filterCategory?.slug)
-      );
-    } else {
-      sectionProducts = allProducts;
-    }
-
-    // Apply limit
-    if (limit && limit > 0) {
-      sectionProducts = sectionProducts.slice(0, limit);
-    }
-
-    const key =
-      section.filterCollection?.slug ||
-      section.filterCategory?.slug ||
-      'all';
-    products[key] = sectionProducts;
+    const sectionProducts = getProductsForSection(section, collectionsBySlug, categoriesBySlug);
+    const limitedProducts = applyProductLimit(sectionProducts, section.grid?.limit);
+    const key = getProductSectionKey(section);
+    products[key] = limitedProducts;
   }
 
   return products;
 }
-

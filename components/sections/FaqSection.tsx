@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { AccordionItem, SectionHeader } from '@/components';
+import { AccordionItem, SectionHeader, EmptyState } from '@/components';
 import { useSectionLayout } from '@/hooks';
 import { FaqBlock } from '@/lib/types';
+import { RESPONSIVE_PADDING } from '@/lib/constants';
 
 interface FaqSectionProps {
   data?: FaqBlock;
@@ -48,10 +49,10 @@ export function FaqSection({ data }: FaqSectionProps) {
 
   return (
     <section
-      className={`px-4 sm:px-5 md:px-6 lg:px-8 mx-auto ${spacingClasses} ${containerWidthClasses}`}
+      className={`${RESPONSIVE_PADDING} mx-auto ${spacingClasses} ${containerWidthClasses}`}
       style={themeStyles}
     >
-      <SectionHeader header={data.header} themeStyles={themeStyles} />
+      <SectionHeader text={data.header} themeStyles={themeStyles} />
 
       {items.length > 0 ? (
         <div className="max-w-3xl mx-auto">
@@ -66,9 +67,10 @@ export function FaqSection({ data }: FaqSectionProps) {
           ))}
         </div>
       ) : (
-        <div className="text-center py-8 sm:py-10 md:py-12 lg:py-16" style={{ opacity: 0.6, color: themeStyles.color || 'inherit' }}>
-          <p>No FAQ items available at the moment.</p>
-        </div>
+        <EmptyState
+          message="No FAQ items available at the moment."
+          themeStyles={themeStyles}
+        />
       )}
     </section>
   );

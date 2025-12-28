@@ -3,19 +3,13 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const MotionImage = motion.create(Image);
 import { X } from 'lucide-react';
-import { FadeInText, RichText } from '@/components';
-import {
-  getSpacingClassesFromLayout,
-  getContainerWidthClasses,
-  getGridColumnsClasses,
-  getGapSizeClasses,
-  getThemeWithDefaults,
-  getThemeStyles,
-  getLayoutWithDefaults
-} from '@/lib/utils';
+import { SectionHeader, EmptyState } from '@/components';
 import { GalleryBlock, Card } from '@/lib/types';
-import { useTheme } from '@/providers';
+import { useSectionLayout, useGridConfig } from '@/hooks';
+import { RESPONSIVE_PADDING, SECTION_HEADER_MARGIN } from '@/lib/constants';
 
 interface GallerySectionProps {
   data?: GalleryBlock;
@@ -35,10 +29,14 @@ function GalleryCard({ card, index, onOpen }: { card: Card; index: number; onOpe
     >
       <div className="relative aspect-square overflow-hidden bg-neutral-100 dark:bg-neutral-800 mb-4">
         {mediaAsset && (
-          <motion.img
+          <MotionImage
             src={mediaAsset.url}
             alt={card.media?.alt || card.title || `Gallery image ${index + 1}`}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-105"
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+            whileHover={{ scale: 1.05 }}
+            transition={{ duration: 0.7, ease: 'easeInOut' }}
           />
         )}
         {card.badge && (
@@ -62,25 +60,18 @@ function GalleryCard({ card, index, onOpen }: { card: Card; index: number; onOpe
 }
 
 export function GallerySection({ data }: GallerySectionProps) {
-  const { darkMode } = useTheme();
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
 
   if (!data) {
     return null;
   }
 
-  // Get layout and theme with defaults
-  const layout = getLayoutWithDefaults(data.layout);
-  const theme = getThemeWithDefaults(data.theme, darkMode);
-  const themeStyles = getThemeStyles(theme, darkMode);
+  const { themeStyles, spacingClasses, containerWidthClasses } = useSectionLayout({
+    layout: data.layout,
+    theme: data.theme,
+  });
 
-  const spacingClasses = getSpacingClassesFromLayout(layout);
-  const containerWidthClasses = getContainerWidthClasses(layout.containerWidth);
-
-  const grid = data.grid;
-  const gridColumns = getGridColumnsClasses(grid?.columns);
-  const gapSize = getGapSizeClasses(grid?.gapSize);
-  const limit = grid?.limit;
+  const { gridClassName, limit } = useGridConfig({ grid: data.grid });
   const displayCards = limit && data.cards ? data.cards.slice(0, limit) : (data.cards || []);
 
   const header = data.header;
@@ -88,45 +79,19 @@ export function GallerySection({ data }: GallerySectionProps) {
   return (
     <>
       <section
-        className={`px-4 sm:px-5 md:px-6 lg:px-8 mx-auto ${spacingClasses} ${containerWidthClasses}`}
-        style={themeStyles}
-      >
-        <div className="flex justify-between items-end mb-6 sm:mb-8 md:mb-12 lg:mb-16 xl:mb-20">
-          <FadeInText className="text-left">
-            {header?.eyebrow && (
-              <h3
-                className="font-sans text-xs tracking-[0.3em] uppercase mb-4"
-                style={{ opacity: 0.7, color: themeStyles.color || 'inherit' }}
-              >
-                {header.eyebrow}
-              </h3>
-            )}
-            {header?.heading && (
-              <h2
-                className="font-serif text-4xl"
-                style={{ color: themeStyles.color || 'inherit' }}
-              >
-                {header.heading}
-              </h2>
-            )}
-            {header?.subheading && (
-              <p
-                className="font-sans text-lg mt-2"
-                style={{ opacity: 0.8, color: themeStyles.color || 'inherit' }}
-              >
-                {header.subheading}
-              </p>
-            )}
-            {header?.body && (
-              <div className="mt-4">
-                <RichText content={header.body} />
-              </div>
-            )}
-          </FadeInText>
+        className={`${RESPONSIVE_PADDING} mx-auto ${spacingClasses} ${containerWidthClasses}`}
+      style={themeStyles}
+    >
+      <div className={`flex justify-between items-end ${SECTION_HEADER_MARGIN}`}>
+          <SectionHeader
+            text={header}
+            themeStyles={themeStyles}
+            className="text-left"
+          />
         </div>
 
         {displayCards.length > 0 ? (
-          <div className={`grid ${gridColumns} ${gapSize}`}>
+          <div className={gridClassName}>
             {displayCards.map((card, index) => (
               <GalleryCard
                 key={index}
@@ -137,9 +102,10 @@ export function GallerySection({ data }: GallerySectionProps) {
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 sm:py-10 md:py-12 lg:py-16" style={{ opacity: 0.6, color: themeStyles.color || 'inherit' }}>
-            <p>No gallery items available at the moment.</p>
-          </div>
+          <EmptyState
+            message="No gallery items available at the moment."
+            themeStyles={themeStyles}
+          />
         )}
       </section>
 

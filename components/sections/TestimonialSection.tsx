@@ -2,16 +2,10 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
-  import { FadeInText, RichText } from '@/components';
-import {
-  getSpacingClassesFromLayout,
-  getContainerWidthClasses,
-  getThemeWithDefaults,
-  getThemeStyles,
-  getLayoutWithDefaults
-} from '@/lib/utils';
+import { SectionHeader, RichText, EmptyState } from '@/components';
 import { TestimonialBlock } from '@/lib/types';
-import { useTheme } from '@/providers';
+import { useSectionLayout } from '@/hooks';
+import { RESPONSIVE_PADDING, SECTION_HEADER_MARGIN } from '@/lib/constants';
 
 interface TestimonialSectionProps {
   data?: TestimonialBlock;
@@ -68,62 +62,31 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 export function TestimonialSection({ data }: TestimonialSectionProps) {
-  const { darkMode } = useTheme();
-
   if (!data) {
     return null;
   }
 
-  // Get layout and theme with defaults
-  const layout = getLayoutWithDefaults(data.layout);
-  const theme = getThemeWithDefaults(data.theme, darkMode);
-  const themeStyles = getThemeStyles(theme, darkMode);
-
-  const spacingClasses = getSpacingClassesFromLayout(layout);
-  const containerWidthClasses = getContainerWidthClasses(layout.containerWidth);
+  const { themeStyles, spacingClasses, containerWidthClasses, theme, darkMode } = useSectionLayout({
+    layout: data.layout,
+    theme: data.theme,
+  });
 
   const header = data.header;
   const testimonials = data.testimonials || [];
 
   return (
     <section
-      className={`px-4 sm:px-5 md:px-6 lg:px-8 mx-auto ${spacingClasses} ${containerWidthClasses}`}
+      className={`${RESPONSIVE_PADDING} mx-auto ${spacingClasses} ${containerWidthClasses}`}
       style={themeStyles}
     >
       {header && (
-        <div className="mb-6 sm:mb-8 md:mb-12 lg:mb-16 xl:mb-20 text-center">
-          <FadeInText>
-            {header.eyebrow && (
-              <h3
-                className="font-sans text-xs tracking-[0.3em] uppercase mb-4"
-                style={{ opacity: 0.7, color: themeStyles.color || 'inherit' }}
-              >
-                {header.eyebrow}
-              </h3>
-            )}
-            {header.heading && (
-              <h2
-                className="font-serif text-4xl mb-4"
-                style={{ color: themeStyles.color || 'inherit' }}
-              >
-                {header.heading}
-              </h2>
-            )}
-            {header.subheading && (
-              <p
-                className="font-sans text-lg mb-4"
-                style={{ opacity: 0.8, color: themeStyles.color || 'inherit' }}
-              >
-                {header.subheading}
-              </p>
-            )}
-            {header.body && (
-              <div className="mt-4">
-                <RichText content={header.body} />
-              </div>
-            )}
-          </FadeInText>
-        </div>
+        <SectionHeader
+          text={header}
+          themeStyles={themeStyles}
+          wrapperClassName={`${SECTION_HEADER_MARGIN} text-center`}
+          headingClassName="mb-4"
+          subheadingClassName="mb-4"
+        />
       )}
 
       {testimonials.length > 0 ? (
@@ -188,12 +151,10 @@ export function TestimonialSection({ data }: TestimonialSectionProps) {
           ))}
         </div>
       ) : (
-        <div
-          className="text-center py-8 sm:py-10 md:py-12 lg:py-16"
-          style={{ opacity: 0.6, color: themeStyles.color || 'inherit' }}
-        >
-          <p>No testimonials available at the moment.</p>
-        </div>
+        <EmptyState
+          message="No testimonials available at the moment."
+          themeStyles={themeStyles}
+        />
       )}
     </section>
   );

@@ -1,7 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
+
+const MotionImage = motion.create(Image);
 import { Collection } from '@/lib/types';
 
 interface CollectionsGridProps {
@@ -32,10 +35,12 @@ export function CollectionsGrid({ collections, className = '' }: CollectionsGrid
             >
               <div className="relative aspect-[4/5] overflow-hidden bg-neutral-100 dark:bg-neutral-800 mb-4">
                 {collection.coverImage && (
-                  <motion.img
+                  <MotionImage
                     src={collection.coverImage.url}
                     alt={collection.title}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                     whileHover={{ scale: 1.1 }}
                     transition={{ duration: 0.6 }}
                   />

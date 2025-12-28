@@ -81,3 +81,17 @@ export function getInitialPriceRange(products: Product[]): [number, number] {
   const initialMax = calculateMaxPrice(products);
   return [0, initialMax];
 }
+
+/**
+ * Get formatted product status (uppercase)
+ */
+export function getProductStatus(product: { productStatus?: string | null }): string | null {
+  return product.productStatus?.toUpperCase() || null;
+}
+
+/**
+ * Check if product is sold
+ */
+export function isProductSold(product: { productStatus?: string | null }): boolean {
+  return product.productStatus === 'sold';
+}

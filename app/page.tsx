@@ -1,37 +1,47 @@
 import {
-  getHomePageData,
+  getHomePageDataOptimized,
   getCollectionsBySlugs,
-  processProductsForSections,
+  getCategoriesBySlugs,
+  processProductsForSectionsOptimized,
 } from '@/lib/hygraph';
-import { generatePageMetadata } from '@/lib/metadata';
+import { generatePageMetadata, generateMetadataWithFallback } from '@/lib/metadata';
 import { Product, ProductGridBlock } from '@/lib/types';
+import { createMapByKey } from '@/lib/utils';
 import { NotFoundMessage } from '@/components';
 import HomePageClient from './HomePageClient';
 
 async function fetchPageData() {
-  // Use bulk query to fetch global settings, page, products, and categories in one request
-  const { globalSettings, page, allProducts, categories } = await getHomePageData('home');
+  // Optimized: Fetch page and global settings without all products
+  const { globalSettings, page, categories } = await getHomePageDataOptimized('home');
 
   let products: Record<string, Product[]> = {};
 
   if (page?.sections) {
-    // Collect all unique collection slugs that need to be fetched
+    // Collect all unique collection and category slugs that need to be fetched
     const collectionSlugs = page.sections
       .filter((section): section is ProductGridBlock => 'filterCollection' in section)
       .map((section) => section.filterCollection?.slug)
       .filter((slug): slug is string => !!slug);
 
-    // Bulk fetch all needed collections in one request
-    const collections = await getCollectionsBySlugs(collectionSlugs);
-    const collectionsBySlug = new Map(
-      collections.map((col) => [col.slug, col])
-    );
+    const categorySlugs = page.sections
+      .filter((section): section is ProductGridBlock => 'filterCategory' in section)
+      .map((section) => section.filterCategory?.slug)
+      .filter((slug): slug is string => !!slug);
 
-    // Process products for each section using the bulk fetched data
-    products = processProductsForSections(
+    // Bulk fetch only the collections and categories needed for ProductGridBlocks
+    const [collections, categoriesWithProducts] = await Promise.all([
+      getCollectionsBySlugs(collectionSlugs),
+      getCategoriesBySlugs(categorySlugs),
+    ]);
+
+    const collectionsBySlug = createMapByKey(collections, (col) => col.slug);
+    const categoriesBySlug = createMapByKey(categoriesWithProducts, (cat) => cat.slug);
+
+    // Process products for each section using the on-demand fetched data
+    products = processProductsForSectionsOptimized(
       page.sections,
-      allProducts,
-      collectionsBySlug
+      collectionsBySlug,
+      categoriesBySlug
     );
   }
 
@@ -39,12 +49,13 @@ async function fetchPageData() {
 }
 
 export async function generateMetadata() {
-  try {
-    const { page, globalSettings } = await fetchPageData();
-    return generatePageMetadata(page, globalSettings);
-  } catch {
-    return generatePageMetadata(null);
-  }
+  return generateMetadataWithFallback(
+    async () => {
+      const { page, globalSettings } = await fetchPageData();
+      return generatePageMetadata(page, globalSettings);
+    },
+    generatePageMetadata(null)
+  );
 }
 
 export default async function HomePage() {
