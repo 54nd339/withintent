@@ -1,5 +1,7 @@
 export { Button } from './Button';
 export { ProductCard } from './ProductCard';
+export { ProductCardSkeleton } from './ProductCardSkeleton';
+export { ProductQuickView } from './ProductQuickView';
 export { RichText } from './RichText';
 export { LoadingSpinner } from './LoadingSpinner';
 export { ErrorMessage } from './ErrorMessage';

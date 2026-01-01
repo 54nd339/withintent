@@ -1,7 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { useHydrated } from '@/hooks';
+import React, { createContext, useContext, useEffect, useLayoutEffect, useMemo, useState, startTransition } from 'react';
 
 type Theme = 'light' | 'dark';
 
@@ -16,14 +15,11 @@ type ThemeContextValue = {
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const hydrated = useHydrated();
   const [theme, setThemeState] = useState<Theme>('light');
   const [mounted, setMounted] = useState(false);
 
   // Hydrate theme from localStorage after mount to avoid SSR mismatch
   useLayoutEffect(() => {
-    if (!hydrated) return;
-    
     let initial: Theme = 'light';
     try {
       const saved = localStorage.getItem('theme');
@@ -34,9 +30,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       }
     } catch { }
     
-    setThemeState(initial);
-    setMounted(true);
-  }, [hydrated]);
+    startTransition(() => {
+      setThemeState(initial);
+      setMounted(true);
+    });
+  }, []);
 
   useEffect(() => {
     if (!mounted) return;

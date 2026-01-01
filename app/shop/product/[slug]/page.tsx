@@ -1,5 +1,5 @@
 import { getGlobalSettings, getProductBySlug } from '@/lib/hygraph';
-import { generatePageMetadata, generateMetadataWithFallback } from '@/lib/metadata';
+import { generatePageMetadata, generateMetadataWithFallback, generateProductMetadata } from '@/lib/metadata';
 import { NotFoundMessage } from '@/components';
 import { SlugPageProps } from '@/lib/types';
 import ProductPageClient from './ProductPageClient';
@@ -26,10 +26,10 @@ export async function generateMetadata({ params }: SlugPageProps) {
         return generatePageMetadata({ title: 'Product Not Found', globalSettings });
       }
 
-      return generatePageMetadata({
-        title: product.title,
-        description: product.description ? undefined : `View ${product.title} at ${globalSettings?.siteName || ''}`,
+      return generateProductMetadata({
+        product,
         globalSettings,
+        baseUrl: process.env.NEXT_PUBLIC_SITE_URL || 'https://withintent.in',
       });
     },
     generatePageMetadata({ title: 'Product' })

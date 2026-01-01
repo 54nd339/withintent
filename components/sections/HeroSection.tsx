@@ -23,16 +23,15 @@ export function HeroSection({ data }: HeroSectionProps) {
   const y = useTransform(scrollYProgress, [0, 1], ['0%', '30%'], {
     clamp: true,
   });
+  const { themeStyles, spacingClasses, alignmentClasses, theme, darkMode, layout } = useSectionLayout({
+    layout: data?.layout,
+    theme: data?.theme,
+    includeAlignment: true,
+  });
 
   if (!data) {
     return null;
   }
-
-  const { themeStyles, spacingClasses, alignmentClasses, theme, darkMode, layout } = useSectionLayout({
-    layout: data.layout,
-    theme: data.theme,
-    includeAlignment: true,
-  });
 
   const minHeight = layout.minHeight || '100vh';
   const { opacity: overlayOpacity, color: overlayColor } = getOverlayStyles(theme, darkMode);

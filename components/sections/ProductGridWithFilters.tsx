@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useInView } from 'react-intersection-observer';
 import { SlidersHorizontal, X } from 'lucide-react';
-import { FilterBar } from '@/components';
+import { FilterBar, ProductCardSkeleton } from '@/components';
 import { ProductGridBase } from './ProductGridBase';
 import { Product, Category, Collection, SpacingSize, GridColumns } from '@/lib/types';
-import { useProductFilters } from '@/hooks';
+import { FilterProvider, useFilterContext } from '@/providers';
 
-const LOAD_MORE_COUNT = 5;
+const LOAD_MORE_COUNT = 10;
 
 interface ProductGridWithFiltersProps {
   products: Product[];
@@ -21,35 +22,49 @@ interface ProductGridWithFiltersProps {
   showCollectionFilter?: boolean;
 }
 
-export function ProductGridWithFilters({
-  products,
+function ProductGridWithFiltersContent({
   categories,
   collections,
   showPrice = true,
   showStatus = true,
   showCategoryFilter = true,
   showCollectionFilter = true,
-}: ProductGridWithFiltersProps) {
+}: Omit<ProductGridWithFiltersProps, 'products'>) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const { computed } = useFilterContext();
+  const { filteredProducts, displayedProducts, hasMoreProducts, hasActiveFilters, setDisplayCount } = computed;
+  const loadingRef = useRef(false);
 
-  const {
-    searchText,
-    setSearchText,
-    selectedCategory,
-    setSelectedCategory,
-    selectedCollection,
-    setSelectedCollection,
-    selectedStatus,
-    setSelectedStatus,
-    priceRange,
-    setPriceRange,
-    maxPrice,
-    filteredProducts,
-    displayedProducts,
-    hasMoreProducts,
-    hasActiveFilters,
-    setDisplayCount,
-  } = useProductFilters({ products });
+  // Infinite scroll with intersection observer
+  const { ref, inView } = useInView({
+    threshold: 0,
+    rootMargin: '100px',
+    triggerOnce: false,
+  });
+
+  useEffect(() => {
+    if (inView && hasMoreProducts && !loadingRef.current) {
+      loadingRef.current = true;
+      
+      // Use setTimeout to avoid setState in effect warning
+      const loadTimer = setTimeout(() => {
+        setIsLoadingMore(true);
+      }, 0);
+      
+      // Simulate smooth loading (minimum 300ms)
+      const updateTimer = setTimeout(() => {
+        setDisplayCount((prev) => prev + LOAD_MORE_COUNT);
+        setIsLoadingMore(false);
+        loadingRef.current = false;
+      }, 300);
+
+      return () => {
+        clearTimeout(loadTimer);
+        clearTimeout(updateTimer);
+      };
+    }
+  }, [inView, hasMoreProducts, setDisplayCount]);
 
   return (
     <div>
@@ -91,17 +106,6 @@ export function ProductGridWithFilters({
           <FilterBar
             categories={categories}
             collections={collections}
-            selectedCategory={selectedCategory}
-            selectedCollection={selectedCollection}
-            selectedStatus={selectedStatus}
-            priceRange={priceRange}
-            maxPrice={maxPrice}
-            onCategoryChange={setSelectedCategory}
-            onCollectionChange={setSelectedCollection}
-            onStatusChange={setSelectedStatus}
-            onPriceRangeChange={setPriceRange}
-            searchText={searchText}
-            onSearchChange={setSearchText}
             showCategoryFilter={showCategoryFilter}
             showCollectionFilter={showCollectionFilter}
           />
@@ -120,18 +124,24 @@ export function ProductGridWithFilters({
           <>
             <ProductGridBase
               products={displayedProducts}
-              gridClassName="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 md:gap-6"
+              gridClassName="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 md:gap-6"
               showPrice={showPrice}
               showStatus={showStatus}
+              quickAnimation={true}
             />
             {hasMoreProducts && (
-              <div className="flex justify-center mt-8">
-                <button
-                  onClick={() => setDisplayCount((prev) => Math.min(prev + LOAD_MORE_COUNT, filteredProducts.length))}
-                  className="px-6 py-3 border border-neutral-300 dark:border-neutral-600 text-neutral-700 dark:text-neutral-300 rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-sm uppercase tracking-widest"
-                >
-                  Show More
-                </button>
+              <div ref={ref} className="mt-8">
+                {isLoadingMore ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-5 md:gap-6">
+                    {Array.from({ length: Math.min(LOAD_MORE_COUNT, filteredProducts.length - displayedProducts.length) }).map((_, i) => (
+                      <ProductCardSkeleton key={i} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="h-20 flex items-center justify-center">
+                    <div className="text-sm text-neutral-500 dark:text-neutral-400">Scroll to load more...</div>
+                  </div>
+                )}
               </div>
             )}
           </>
@@ -147,5 +157,28 @@ export function ProductGridWithFilters({
         )}
       </div>
     </div>
+  );
+}
+
+export function ProductGridWithFilters({
+  products,
+  categories,
+  collections,
+  showPrice = true,
+  showStatus = true,
+  showCategoryFilter = true,
+  showCollectionFilter = true,
+}: ProductGridWithFiltersProps) {
+  return (
+    <FilterProvider products={products}>
+      <ProductGridWithFiltersContent
+        categories={categories}
+        collections={collections}
+        showPrice={showPrice}
+        showStatus={showStatus}
+        showCategoryFilter={showCategoryFilter}
+        showCollectionFilter={showCollectionFilter}
+      />
+    </FilterProvider>
   );
 }

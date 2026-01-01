@@ -88,6 +88,7 @@ const PRODUCT_FULL_FIELDS = gql`
   fragment ProductFullFields on Product {
     ...ProductBaseFields
     createdAt
+    updatedAt
     relatedProducts {
       ...ProductBaseFields
     }

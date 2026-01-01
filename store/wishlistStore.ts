@@ -16,6 +16,7 @@ export const useWishlistStore = create<WishlistStore>()(
       items: [],
 
       addItem: (product) => {
+        if (!product) return;
         const items = get().items;
         const exists = items.some(item => item.slug === product.slug);
 
@@ -27,12 +28,14 @@ export const useWishlistStore = create<WishlistStore>()(
       },
 
       removeItem: (productSlug) => {
+        if (!productSlug) return;
         set({
           items: get().items.filter(item => item.slug !== productSlug),
         });
       },
 
       isInWishlist: (productSlug) => {
+        if (!productSlug) return false;
         return get().items.some(item => item.slug === productSlug);
       },
 

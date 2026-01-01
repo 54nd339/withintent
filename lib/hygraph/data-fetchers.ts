@@ -1,5 +1,6 @@
 import { hygraphClient } from './hygraph';
 import { createCachedFetcher } from './cache-wrapper';
+import { CACHE_REVALIDATE } from '@/lib/constants';
 import {
   GET_GLOBAL_SETTINGS,
   GET_PAGE_BY_SLUG,
@@ -12,6 +13,8 @@ import {
   GET_CATEGORY_BY_SLUG,
   GET_ALL_PRODUCTS,
   GET_PRODUCT_BY_SLUG,
+  GET_ALL_COLLECTIONS,
+  GET_ALL_CATEGORIES,
 } from './queries';
 import {
   GlobalSetting,
@@ -21,7 +24,90 @@ import {
   Collection,
   ProductGridBlock,
   BaseSection,
+  Asset,
 } from '@/lib/types';
+import { generateBlurPlaceholder } from '@/lib/utils';
+
+// -------- Blur helpers --------
+const blurCache = new Map<string, Promise<string>>();
+
+async function getBlur(url: string): Promise<string> {
+  if (blurCache.has(url)) return blurCache.get(url)!;
+  const promise = generateBlurPlaceholder(url);
+  blurCache.set(url, promise);
+  return promise;
+}
+
+async function addBlurToAsset(asset?: Asset | null): Promise<Asset | undefined> {
+  if (!asset?.url) return asset ?? undefined;
+  if (asset.blurDataURL) return asset;
+  const blurDataURL = await getBlur(asset.url);
+  return { ...asset, blurDataURL };
+}
+
+async function addBlurToAssets(
+  assets?: (Asset | null)[] | null,
+  options?: { firstOnly?: boolean }
+): Promise<Asset[] | undefined> {
+  if (!assets) return undefined;
+  const filtered = assets.filter((a): a is Asset => Boolean(a?.url));
+  if (filtered.length === 0) return [];
+
+  if (options?.firstOnly) {
+    const [first, ...rest] = filtered;
+    const firstWithBlur = (await addBlurToAsset(first)) ?? first;
+    return [firstWithBlur, ...rest];
+  }
+
+  return Promise.all(filtered.map(async (asset) => (await addBlurToAsset(asset)) ?? asset));
+}
+
+async function addBlurToProduct(product: Product | null): Promise<Product | null> {
+  if (!product) return null;
+  const mainImage = await addBlurToAsset(product.mainImage);
+  const galleryImages = await addBlurToAssets(product.galleryImages, { firstOnly: true });
+
+  const relatedProducts = product.relatedProducts
+    ? await Promise.all(
+        product.relatedProducts.map(async (p) => ({
+          ...p,
+          mainImage: await addBlurToAsset(p.mainImage),
+          galleryImages: await addBlurToAssets(p.galleryImages, { firstOnly: true }),
+        }))
+      )
+    : undefined;
+
+  return {
+    ...product,
+    mainImage,
+    galleryImages,
+    relatedProducts,
+  };
+}
+
+async function addBlurToProducts(products: Product[]): Promise<Product[]> {
+  return Promise.all(products.map((p) => addBlurToProduct(p))) as Promise<Product[]>;
+}
+
+async function addBlurToCategories(categories: Category[]): Promise<Category[]> {
+  return Promise.all(
+    categories.map(async (category) => ({
+      ...category,
+      coverImage: await addBlurToAsset(category.coverImage),
+      products: category.products ? await addBlurToProducts(category.products) : undefined,
+    }))
+  );
+}
+
+async function addBlurToCollections(collections: Collection[]): Promise<Collection[]> {
+  return Promise.all(
+    collections.map(async (collection) => ({
+      ...collection,
+      coverImage: await addBlurToAsset(collection.coverImage),
+      products: collection.products ? await addBlurToProducts(collection.products) : undefined,
+    }))
+  );
+}
 
 const globalSettingId = process.env.HYGRAPH_GLOBAL_SETTING_ID;
 
@@ -38,8 +124,6 @@ const CACHE_TAG_CATEGORIES = 'hygraph:categories';
 
 /**
  * Cached global settings fetcher
- * Uses React cache for request deduplication within a single request
- * and Next.js unstable_cache for persistent caching across requests
  */
 const _getGlobalSettingsUncached = async (): Promise<GlobalSetting> => {
   const data = await hygraphClient.request<{ globalSetting: GlobalSetting }>(
@@ -54,6 +138,7 @@ export const getGlobalSettings = createCachedFetcher(
   () => ({
     key: 'global-settings',
     tags: [CACHE_TAG_GLOBAL_SETTINGS],
+    revalidate: CACHE_REVALIDATE.GLOBAL_SETTINGS,
   })
 );
 
@@ -72,6 +157,7 @@ export const getPageBySlug = createCachedFetcher(
   (slug: string) => ({
     key: `page-${slug}`,
     tags: [CACHE_TAG_PAGES, `page-${slug}`],
+    revalidate: CACHE_REVALIDATE.PAGES,
   })
 );
 
@@ -92,9 +178,9 @@ const _getShopDataUncached = async (
   }>(GET_SHOP_DATA, { productLimit });
 
   return {
-    products: data.products || [],
-    categories: data.categories || [],
-    collections: data.collections || [],
+    products: await addBlurToProducts(data.products || []),
+    categories: await addBlurToCategories(data.categories || []),
+    collections: await addBlurToCollections(data.collections || []),
   };
 };
 
@@ -103,6 +189,7 @@ export const getShopData = createCachedFetcher(
   (productLimit: number = 50) => ({
     key: `shop-data-${productLimit}`,
     tags: [CACHE_TAG_SHOP_DATA, CACHE_TAG_COLLECTIONS, CACHE_TAG_CATEGORIES],
+    revalidate: CACHE_REVALIDATE.PRODUCTS,
   })
 );
 
@@ -130,6 +217,7 @@ export const getShopFilters = createCachedFetcher(
   () => ({
     key: 'shop-filters',
     tags: [CACHE_TAG_COLLECTIONS, CACHE_TAG_CATEGORIES],
+    revalidate: CACHE_REVALIDATE.CATEGORIES, // Categories/collections rarely change
   })
 );
 
@@ -143,7 +231,13 @@ const _getCollectionBySlugUncached = async (
     GET_COLLECTION_BY_SLUG,
     { slug }
   );
-  return data.collection;
+  const collection = data.collection;
+  if (!collection) return collection;
+  return {
+    ...collection,
+    coverImage: await addBlurToAsset(collection.coverImage),
+    products: collection.products ? await addBlurToProducts(collection.products) : undefined,
+  };
 };
 
 export const getCollectionBySlug = createCachedFetcher(
@@ -151,6 +245,7 @@ export const getCollectionBySlug = createCachedFetcher(
   (slug: string) => ({
     key: `collection-${slug}`,
     tags: [CACHE_TAG_COLLECTIONS, `collection-${slug}`],
+    revalidate: CACHE_REVALIDATE.COLLECTIONS,
   })
 );
 
@@ -164,7 +259,13 @@ const _getCategoryBySlugUncached = async (
     GET_CATEGORY_BY_SLUG,
     { slug }
   );
-  return data.category;
+  const category = data.category;
+  if (!category) return category;
+  return {
+    ...category,
+    coverImage: await addBlurToAsset(category.coverImage),
+    products: category.products ? await addBlurToProducts(category.products) : undefined,
+  };
 };
 
 export const getCategoryBySlug = createCachedFetcher(
@@ -172,6 +273,7 @@ export const getCategoryBySlug = createCachedFetcher(
   (slug: string) => ({
     key: `category-${slug}`,
     tags: [CACHE_TAG_CATEGORIES, `category-${slug}`],
+    revalidate: CACHE_REVALIDATE.CATEGORIES,
   })
 );
 
@@ -187,7 +289,7 @@ const _getCollectionsBySlugsUncached = async (
     GET_COLLECTIONS_BY_SLUGS,
     { slugs }
   );
-  return data.collections || [];
+  return addBlurToCollections(data.collections || []);
 };
 
 export const getCollectionsBySlugs = createCachedFetcher(
@@ -197,6 +299,7 @@ export const getCollectionsBySlugs = createCachedFetcher(
     return {
       key: `collections-${sortedSlugs}`,
       tags: [CACHE_TAG_COLLECTIONS, ...slugs.map((s) => `collection-${s}`)],
+      revalidate: CACHE_REVALIDATE.COLLECTIONS,
     };
   }
 );
@@ -213,7 +316,7 @@ const _getCategoriesBySlugsUncached = async (
     GET_CATEGORIES_BY_SLUGS,
     { slugs }
   );
-  return data.categories || [];
+  return addBlurToCategories(data.categories || []);
 };
 
 export const getCategoriesBySlugs = createCachedFetcher(
@@ -223,6 +326,7 @@ export const getCategoriesBySlugs = createCachedFetcher(
     return {
       key: `categories-${sortedSlugs}`,
       tags: [CACHE_TAG_CATEGORIES, ...slugs.map((s) => `category-${s}`)],
+      revalidate: CACHE_REVALIDATE.CATEGORIES,
     };
   }
 );
@@ -237,7 +341,7 @@ const _getAllProductsUncached = async (
     GET_ALL_PRODUCTS,
     { limit }
   );
-  return data.products || [];
+  return addBlurToProducts(data.products || []);
 };
 
 export const getAllProducts = createCachedFetcher(
@@ -245,6 +349,7 @@ export const getAllProducts = createCachedFetcher(
   (limit?: number) => ({
     key: `products-${limit ?? 'all'}`,
     tags: [CACHE_TAG_SHOP_DATA],
+    revalidate: CACHE_REVALIDATE.PRODUCTS,
   })
 );
 
@@ -256,7 +361,7 @@ const _getProductBySlugUncached = async (slug: string): Promise<Product | null> 
     GET_PRODUCT_BY_SLUG,
     { slug }
   );
-  return data.product;
+  return addBlurToProduct(data.product);
 };
 
 export const getProductBySlug = createCachedFetcher(
@@ -264,6 +369,45 @@ export const getProductBySlug = createCachedFetcher(
   (slug: string) => ({
     key: `product-${slug}`,
     tags: [CACHE_TAG_SHOP_DATA],
+    revalidate: CACHE_REVALIDATE.PRODUCTS,
+  })
+);
+
+/**
+ * Fetch all collections with caching
+ */
+const _getAllCollectionsUncached = async (): Promise<Collection[]> => {
+  const data = await hygraphClient.request<{ collections: Collection[] }>(
+    GET_ALL_COLLECTIONS
+  );
+  return data.collections || [];
+};
+
+export const getAllCollections = createCachedFetcher(
+  _getAllCollectionsUncached,
+  () => ({
+    key: 'all-collections',
+    tags: [CACHE_TAG_COLLECTIONS],
+    revalidate: CACHE_REVALIDATE.COLLECTIONS,
+  })
+);
+
+/**
+ * Fetch all categories with caching
+ */
+const _getAllCategoriesUncached = async (): Promise<Category[]> => {
+  const data = await hygraphClient.request<{ categories: Category[] }>(
+    GET_ALL_CATEGORIES
+  );
+  return data.categories || [];
+};
+
+export const getAllCategories = createCachedFetcher(
+  _getAllCategoriesUncached,
+  () => ({
+    key: 'all-categories',
+    tags: [CACHE_TAG_CATEGORIES],
+    revalidate: CACHE_REVALIDATE.CATEGORIES,
   })
 );
 
@@ -305,6 +449,7 @@ export const getHomePageDataOptimized = createCachedFetcher(
       `page-${pageSlug}`,
       CACHE_TAG_CATEGORIES,
     ],
+    revalidate: CACHE_REVALIDATE.PAGES,
   })
 );
 
@@ -352,7 +497,7 @@ function getProductSectionKey(section: ProductGridBlock): string {
 }
 
 /**
- * Optimized: Process products for ProductGridBlocks from on-demand fetched data
+ * Process products for ProductGridBlocks from on-demand fetched data
  * Only fetches products for specific collections/categories, not all products
  */
 export function processProductsForSectionsOptimized(

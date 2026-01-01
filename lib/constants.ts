@@ -51,9 +51,21 @@ export const DEFAULT_THEME_DARK: ThemeSetting = {
 };
 
 /**
- * Cache revalidation time (in seconds)
+ * Cache revalidation times (in seconds)
  */
-export const CACHE_REVALIDATE = 3600; // 1 hour
+export const CACHE_REVALIDATE = {
+  // Frequently changing data
+  PRODUCTS: 3600,
+  PAGES: 21600,
+  
+  // Rarely changing data
+  GLOBAL_SETTINGS: 86400,
+  CATEGORIES: 86400,
+  COLLECTIONS: 86400,
+  
+  // Default fallback
+  DEFAULT: 3600,
+} as const;
 
 /**
  * Default layout values

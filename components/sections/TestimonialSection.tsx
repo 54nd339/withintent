@@ -62,14 +62,14 @@ function StarRating({ rating }: { rating: number }) {
 }
 
 export function TestimonialSection({ data }: TestimonialSectionProps) {
+  const { themeStyles, spacingClasses, containerWidthClasses, theme, darkMode } = useSectionLayout({
+    layout: data?.layout,
+    theme: data?.theme,
+  });
+
   if (!data) {
     return null;
   }
-
-  const { themeStyles, spacingClasses, containerWidthClasses, theme, darkMode } = useSectionLayout({
-    layout: data.layout,
-    theme: data.theme,
-  });
 
   const header = data.header;
   const testimonials = data.testimonials || [];

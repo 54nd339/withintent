@@ -10,6 +10,7 @@ interface ProductGridBaseProps {
   emptyStateMessage?: string;
   emptyStateClassName?: string;
   emptyStateStyle?: CSSProperties;
+  quickAnimation?: boolean;
 }
 
 /**
@@ -24,6 +25,7 @@ export function ProductGridBase({
   emptyStateMessage = 'No products available at the moment.',
   emptyStateClassName = 'text-center py-8 sm:py-10 md:py-12 lg:py-16',
   emptyStateStyle,
+  quickAnimation = false,
 }: ProductGridBaseProps) {
   if (products.length === 0) {
     return (
@@ -42,6 +44,7 @@ export function ProductGridBase({
           index={index}
           showPrice={showPrice}
           showStatus={showStatus}
+          quickAnimation={quickAnimation}
         />
       ))}
     </div>

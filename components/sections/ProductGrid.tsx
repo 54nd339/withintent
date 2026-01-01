@@ -2,8 +2,9 @@
 
 import { SectionHeader, ViewAllButton } from '@/components';
 import { ProductGridBase } from './ProductGridBase';
+import { getGridConfig } from '@/lib/utils';
 import { ProductGridBlock, Product } from '@/lib/types';
-import { useSectionLayout, useGridConfig } from '@/hooks';
+import { useSectionLayout } from '@/hooks';
 import { RESPONSIVE_PADDING, SECTION_HEADER_MARGIN } from '@/lib/constants';
 
 interface ProductGridProps {
@@ -12,16 +13,16 @@ interface ProductGridProps {
 }
 
 export function ProductGrid({ data, products = [] }: ProductGridProps) {
+  const { themeStyles, spacingClasses, containerWidthClasses } = useSectionLayout({
+    layout: data?.layout,
+    theme: data?.theme,
+  });
+
   if (!data) {
     return null;
   }
 
-  const { themeStyles, spacingClasses, containerWidthClasses } = useSectionLayout({
-    layout: data.layout,
-    theme: data.theme,
-  });
-
-  const { gridClassName, limit } = useGridConfig({ grid: data.grid });
+  const { gridClassName, limit } = getGridConfig({ grid: data.grid });
   const displayProducts = limit ? products.slice(0, limit) : products;
 
   const header = data.header;

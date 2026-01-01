@@ -50,13 +50,25 @@ Open [http://localhost:3000](http://localhost:3000) to view the app.
 
 ## Environment Variables
 
-Create a `.env.local` file with your Hygraph endpoint:
+Create a `.env.local` file with the following variables:
 
+### Required
+- `HYGRAPH_API_URL` - Your Hygraph GraphQL endpoint URL
+- `HYGRAPH_API_TOKEN` - Your Hygraph API token
+- `HYGRAPH_GLOBAL_SETTING_ID` - Your global settings ID in Hygraph
+
+### Optional (Recommended)
+- `NEXT_PUBLIC_SITE_URL` - Your site URL (used for SEO, sitemap, OpenGraph)
+
+Example:
 ```
-HYGRAPH_API_URL=your_hygraph_endpoint
+HYGRAPH_API_URL=https://your-region.hygraph.com/v2/your-endpoint
 HYGRAPH_API_TOKEN=your_hygraph_api_token
 HYGRAPH_GLOBAL_SETTING_ID=your_hygraph_global_setting_id
+NEXT_PUBLIC_SITE_URL=https://withintent.in
 ```
+
+See `.env.example` for a template.
 
 _____
 

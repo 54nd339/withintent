@@ -14,16 +14,15 @@ interface BannerSectionProps {
 
 export function BannerSection({ data }: BannerSectionProps) {
   const { darkMode } = useTheme();
+  const { themeStyles, spacingClasses, containerWidthClasses, alignmentClasses, theme } = useSectionLayout({
+    layout: data?.layout,
+    theme: data?.theme,
+    includeAlignment: true,
+  });
 
   if (!data) {
     return null;
   }
-
-  const { themeStyles, spacingClasses, containerWidthClasses, alignmentClasses, theme } = useSectionLayout({
-    layout: data.layout,
-    theme: data.theme,
-    includeAlignment: true,
-  });
 
   const backgroundMedia = data.backgroundMedia?.asset;
   const text = data.text;

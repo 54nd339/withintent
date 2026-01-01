@@ -4,7 +4,7 @@ import { Heart } from 'lucide-react';
 import { ProductCard, PageHeader, EmptyState, PageWrapper } from '@/components';
 import { GlobalSetting } from '@/lib/types';
 import { useWishlistStore } from '@/store';
-import { useHydrated } from '@/hooks';
+import { useStore } from '@/hooks';
 import { RESPONSIVE_PADDING } from '@/lib/constants';
 
 interface WishlistPageClientProps {
@@ -12,11 +12,9 @@ interface WishlistPageClientProps {
 }
 
 export function WishlistPageClient({ globalSettings }: WishlistPageClientProps) {
-  const hydrated = useHydrated();
-  const wishlistItems = useWishlistStore((state) => state.items);
-  const displayItems = hydrated ? wishlistItems : [];
+  const wishlistItems = useStore(useWishlistStore, (state) => state.items);
 
-  if (displayItems.length === 0) {
+  if (!wishlistItems || wishlistItems.length === 0) {
     return (
       <PageWrapper globalSettings={globalSettings}>
         <EmptyState
@@ -36,7 +34,7 @@ export function WishlistPageClient({ globalSettings }: WishlistPageClientProps) 
 
           {/* Wishlist Items Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-            {displayItems.map((product, index) => (
+            {wishlistItems.map((product, index) => (
               <ProductCard
                 key={product.slug}
                 product={product}

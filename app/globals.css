@@ -70,3 +70,109 @@ html {
 .section-spacing {
   @apply mb-12 sm:mb-16 md:mb-20 lg:mb-24;
 }
+
+/* 404 Not Found page animations */
+@keyframes subtle-rotate {
+  0% { 
+    transform: rotate(45deg) scale(1); 
+    opacity: 0.3; 
+  }
+  50% { 
+    transform: rotate(45deg) scale(1.05); 
+    opacity: 0.5; 
+  }
+  100% { 
+    transform: rotate(45deg) scale(1); 
+    opacity: 0.3; 
+  }
+}
+
+@keyframes fade-up {
+  from { 
+    opacity: 0; 
+    transform: translateY(20px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+.diamond-bg {
+  animation: subtle-rotate 12s ease-in-out infinite;
+}
+
+.animate-fade-up {
+  animation: fade-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.delay-100 {
+  animation-delay: 0.1s;
+}
+
+.delay-200 {
+  animation-delay: 0.2s;
+}
+
+.delay-300 {
+  animation-delay: 0.3s;
+}
+
+/* Print styles for checkout/invoice */
+@media print {
+  nav,
+  footer,
+  button:not(.print-visible),
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: white;
+    color: black;
+  }
+
+  @page {
+    size: A4;
+    margin: 1cm;
+  }
+
+  .print-invoice {
+    max-width: 100%;
+    padding: 0;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    page-break-inside: avoid;
+  }
+
+  .print-section {
+    page-break-inside: avoid;
+  }
+
+  * {
+    color: black !important;
+    background: white !important;
+  }
+
+  .print-cart-item {
+    page-break-inside: avoid;
+    border-bottom: 1px solid #ccc;
+    padding: 0.5cm 0;
+  }
+
+  .print-summary {
+    border-top: 2px solid #000;
+    padding-top: 0.5cm;
+    margin-top: 1cm;
+  }
+
+  .dark {
+    --background: #ffffff;
+    --foreground: #000000;
+  }
+}

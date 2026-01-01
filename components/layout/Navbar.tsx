@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Moon, Sun, Menu, X, ShoppingBag, Heart } from 'lucide-react';
 import { useTheme } from '@/providers';
 import { useWishlistStore } from '@/store';
-import { useCartTotalItems, useHydrated } from '@/hooks';
+import { useCartTotalItems, useStore } from '@/hooks';
 import { NavigationItem, Asset } from '@/lib/types';
 import { getHrefFromNavigationItem } from '@/lib/utils';
 import { RESPONSIVE_PADDING } from '@/lib/constants';
@@ -65,10 +65,9 @@ function NavigationLinks({ navigation, variant, onMobileLinkClick }: NavigationL
 
 export function Navbar({ isMenuOpen, setIsMenuOpen, navigation, logo }: Props) {
   const { darkMode, mounted, toggleTheme } = useTheme();
-  const hydrated = useHydrated();
   const totalItems = useCartTotalItems();
-  const wishlistItems = useWishlistStore((state) => state.items);
-  const wishlistCount = hydrated ? wishlistItems.length : 0;
+  const wishlistItems = useStore(useWishlistStore, (state) => state.items);
+  const wishlistCount = wishlistItems?.length ?? 0;
 
   const logoUrl = logo?.url || '/logo.svg';
   const logoAlt = logo?.fileName || 'WITH INTENT Logo';

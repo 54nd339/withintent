@@ -1,8 +1,9 @@
 'use client';
 
+import { Suspense } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { CollectionBanner, CollectionsGrid, ProductGridWithFilters, PageWrapper } from '@/components';
+import { CollectionBanner, CollectionsGrid, ProductGridWithFilters, PageWrapper, LoadingSpinner } from '@/components';
 import { GlobalSetting, Product, Category, Collection } from '@/lib/types';
 import { RESPONSIVE_PADDING } from '@/lib/constants';
 
@@ -70,11 +71,13 @@ export default function ShopPageClient({ globalSettings, products, categories, c
           <h2 className="font-serif text-3xl md:text-4xl lg:text-5xl mb-8 sm:mb-10 md:mb-14 text-neutral-900 dark:text-neutral-100 tracking-tight">
             All Products
           </h2>
-          <ProductGridWithFilters
-            products={products}
-            categories={categories}
-            collections={collections}
-          />
+          <Suspense fallback={<div className="py-12"><LoadingSpinner /></div>}>
+            <ProductGridWithFilters
+              products={products}
+              categories={categories}
+              collections={collections}
+            />
+          </Suspense>
         </div>
       </main>
     </PageWrapper>

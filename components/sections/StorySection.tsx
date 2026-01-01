@@ -14,15 +14,15 @@ interface StorySectionProps {
 }
 
 export function StorySection({ data }: StorySectionProps) {
+  const { themeStyles, spacingClasses, containerWidthClasses, layoutTypeClasses, layout } = useSectionLayout({
+    layout: data?.layout,
+    theme: data?.theme,
+    includeLayoutType: true,
+  });
+
   if (!data) {
     return null;
   }
-
-  const { themeStyles, spacingClasses, containerWidthClasses, layoutTypeClasses, layout } = useSectionLayout({
-    layout: data.layout,
-    theme: data.theme,
-    includeLayoutType: true,
-  });
 
   const mediaAsset = data.media?.asset;
   const text = data.text;

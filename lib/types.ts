@@ -47,6 +47,7 @@ export interface Asset {
   fileName?: string;
   width?: number;
   height?: number;
+  blurDataURL?: string;
 }
 
 // LayoutSetting
@@ -187,6 +188,7 @@ export interface Product {
   seo?: Seo;
   relatedProducts?: Product[];
   createdAt?: string;
+  updatedAt?: string;
 }
 
 // Category

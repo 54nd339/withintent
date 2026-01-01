@@ -4,6 +4,18 @@ const MAX_PRODUCTS = 50;
 const DEFAULT_MAX_PRICE = 100000;
 
 /**
+ * Get the effective price (discount price if available, otherwise regular price)
+ */
+export function getEffectivePrice(product: { price: number; discountPrice?: number }): number {
+  return product.discountPrice || product.price;
+}
+
+/**
+ * Format INR currency
+ */
+export const formatINR = (value: number) => `₹${value.toLocaleString("en-IN")}`;
+
+/**
  * Calculate the maximum price from a list of products
  */
 export function calculateMaxPrice(products: Product[]): number {

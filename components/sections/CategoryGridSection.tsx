@@ -6,8 +6,9 @@ import { motion } from 'framer-motion';
 
 const MotionImage = motion.create(Image);
 import { SectionHeader, EmptyState, ViewAllButton } from '@/components';
+import { getGridConfig } from '@/lib/utils';
 import { CategoryGridBlock, Category } from '@/lib/types';
-import { useSectionLayout, useGridConfig } from '@/hooks';
+import { useSectionLayout } from '@/hooks';
 import { RESPONSIVE_PADDING, SECTION_HEADER_MARGIN } from '@/lib/constants';
 
 interface CategoryGridSectionProps {
@@ -47,16 +48,16 @@ function CategoryCard({ category, index }: { category: Category; index: number }
 }
 
 export function CategoryGridSection({ data, categories = [] }: CategoryGridSectionProps) {
+  const { themeStyles, spacingClasses, containerWidthClasses } = useSectionLayout({
+    layout: data?.layout,
+    theme: data?.theme,
+  });
+
   if (!data) {
     return null;
   }
 
-  const { themeStyles, spacingClasses, containerWidthClasses } = useSectionLayout({
-    layout: data.layout,
-    theme: data.theme,
-  });
-
-  const { gridClassName, limit } = useGridConfig({ grid: data.grid });
+  const { gridClassName, limit } = getGridConfig({ grid: data.grid });
   const displayCategories = limit ? categories.slice(0, limit) : categories;
 
   const header = data.header;

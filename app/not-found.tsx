@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Metadata } from 'next';
+import { ArrowLeft } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: '404 • Page Not Found',
@@ -8,172 +9,58 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[var(--background)] dark:bg-[#121212] px-4">
-      <div className="max-w-2xl mx-auto text-center">
-        {/* Animated 404 SVG */}
-        <div className="mb-8 sm:mb-12 flex justify-center px-2">
-          <svg
-            viewBox="0 0 320 200"
-            className="w-full max-w-[280px] sm:max-w-[320px] h-auto text-neutral-900 dark:text-neutral-100"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            preserveAspectRatio="xMidYMid meet"
-          >
-            {/* Number 4 - First */}
-            <g opacity="0.8">
-              <path
-                d="M 50 30 L 50 80 L 80 80 L 110 30 L 110 130"
-                stroke="currentColor"
-                strokeWidth="3"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeDasharray="0,300"
-              >
-                <animate
-                  attributeName="stroke-dasharray"
-                  values="0,300;150,150;300,0"
-                  dur="2.5s"
-                  repeatCount="indefinite"
-                />
-                <animate
-                  attributeName="stroke-dashoffset"
-                  values="0;-150;-300"
-                  dur="2.5s"
-                  repeatCount="indefinite"
-                />
-              </path>
-            </g>
+    <div className="min-h-[600px] w-full flex flex-col items-center justify-center bg-[var(--background)] text-[var(--foreground)] p-12 relative overflow-hidden transition-colors duration-700">
+      {/* Background Abstract Diamond/Gem Shape */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+        <div className="w-[400px] h-[400px] border border-[var(--foreground)]/10 diamond-bg opacity-30" />
+        <div className="absolute w-[380px] h-[380px] border border-[var(--foreground)]/5 diamond-bg opacity-20" style={{ animationDelay: '-2s' }} />
+      </div>
 
-            {/* Number 0 */}
-            <g opacity="0.8">
-              <circle
-                cx="160"
-                cy="80"
-                r="35"
-                stroke="currentColor"
-                strokeWidth="3"
-                fill="none"
-                strokeDasharray="0,220"
-              >
-                <animate
-                  attributeName="stroke-dasharray"
-                  values="0,220;110,110;220,0"
-                  dur="2.5s"
-                  begin="0.4s"
-                  repeatCount="indefinite"
-                />
-                <animate
-                  attributeName="stroke-dashoffset"
-                  values="0;-110;-220"
-                  dur="2.5s"
-                  begin="0.4s"
-                  repeatCount="indefinite"
-                />
-              </circle>
-            </g>
+      <div className="relative z-10 flex flex-col items-center text-center max-w-md mx-auto">
 
-            {/* Number 4 - Second */}
-            <g opacity="0.8">
-              <path
-                d="M 230 30 L 230 80 L 260 80 L 290 30 L 290 130"
-                stroke="currentColor"
-                strokeWidth="3"
-                fill="none"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeDasharray="0,300"
-              >
-                <animate
-                  attributeName="stroke-dasharray"
-                  values="0,300;150,150;300,0"
-                  dur="2.5s"
-                  begin="0.8s"
-                  repeatCount="indefinite"
-                />
-                <animate
-                  attributeName="stroke-dashoffset"
-                  values="0;-150;-300"
-                  dur="2.5s"
-                  begin="0.8s"
-                  repeatCount="indefinite"
-                />
-              </path>
-            </g>
-
-            {/* Decorative gold accent circles */}
-            <circle cx="20" cy="40" r="2" fill="#d4af37" opacity="0.6" className="dark:fill-[#b8961e]">
-              <animate
-                attributeName="cy"
-                values="40;25;40"
-                dur="3s"
-                repeatCount="indefinite"
-              />
-              <animate
-                attributeName="opacity"
-                values="0.6;1;0.6"
-                dur="3s"
-                repeatCount="indefinite"
-              />
-            </circle>
-            <circle cx="300" cy="40" r="2" fill="#d4af37" opacity="0.6" className="dark:fill-[#b8961e]">
-              <animate
-                attributeName="cy"
-                values="40;25;40"
-                dur="3s"
-                begin="0.8s"
-                repeatCount="indefinite"
-              />
-              <animate
-                attributeName="opacity"
-                values="0.6;1;0.6"
-                dur="3s"
-                begin="0.8s"
-                repeatCount="indefinite"
-              />
-            </circle>
-            <circle cx="160" cy="170" r="2" fill="#d4af37" opacity="0.6" className="dark:fill-[#b8961e]">
-              <animate
-                attributeName="cy"
-                values="170;155;170"
-                dur="3s"
-                begin="1.6s"
-                repeatCount="indefinite"
-              />
-              <animate
-                attributeName="opacity"
-                values="0.6;1;0.6"
-                dur="3s"
-                begin="1.6s"
-                repeatCount="indefinite"
-              />
-            </circle>
-          </svg>
+        {/* Main 404 Display */}
+        <div className="mb-10 opacity-0 animate-fade-up relative">
+          <div className="font-serif text-8xl md:text-9xl tracking-[0.15em] font-light text-[var(--foreground)] leading-none flex items-center justify-center">
+            <span>4</span>
+            <span className="relative">
+              0
+              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-8 w-16 h-[1px] bg-[var(--foreground)]" />
+            </span>
+            <span>4</span>
+          </div>
         </div>
 
-        {/* Text content */}
-        <div className="space-y-4 sm:space-y-6">
-          <h1 className="font-serif text-3xl sm:text-4xl md:text-6xl text-neutral-900 dark:text-neutral-100 mb-2 sm:mb-4">
-            Page Not Found
-          </h1>
-          <p className="font-sans text-sm sm:text-base md:text-lg text-neutral-600 dark:text-neutral-400 max-w-md mx-auto px-4">
-            The page you are looking for doesn&apos;t exist or has been moved.
-          </p>
-          
-          {/* Action buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 mt-6 sm:mt-8">
-            <Link
-              href="/"
-              className="inline-block border-b border-neutral-900 dark:border-neutral-100 pb-1 font-sans text-xs tracking-widest uppercase hover:opacity-60 transition-opacity text-neutral-900 dark:text-neutral-100"
-            >
-              Return Home
-            </Link>
-            <span className="text-neutral-400 dark:text-neutral-600">•</span>
+        {/* Text Content */}
+        <div className="space-y-8 opacity-0 animate-fade-up delay-100">
+          <div className="space-y-3">
+            <h2 className="text-xs tracking-[0.3em] uppercase font-sans text-neutral-500 dark:text-neutral-400">
+              Page Not Found
+            </h2>
+            <p className="font-serif text-2xl md:text-3xl font-light italic text-[var(--foreground)]/80">
+              &quot;Rare things are often hard to find.&quot;
+            </p>
+            <p className="text-xs text-neutral-400 dark:text-neutral-500 font-light mt-2 max-w-xs mx-auto leading-relaxed">
+              The piece you are looking for seems to have been moved or is no longer available in our collection.
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center gap-4 pt-4 opacity-0 animate-fade-up delay-200">
             <Link
               href="/shop"
-              className="inline-block border-b border-neutral-900 dark:border-neutral-100 pb-1 font-sans text-xs tracking-widest uppercase hover:opacity-60 transition-opacity text-neutral-900 dark:text-neutral-100"
+              className="group relative px-8 py-3 bg-[var(--foreground)] text-[var(--background)] text-[10px] tracking-[0.25em] uppercase transition-all duration-500 hover:opacity-80 min-w-[200px] text-center"
             >
               Browse Shop
+            </Link>
+
+            <Link
+              href="/"
+              className="group relative text-[10px] tracking-[0.2em] uppercase text-neutral-500 dark:text-neutral-400 hover:text-[var(--foreground)] transition-colors flex items-center gap-2 py-2"
+            >
+              <ArrowLeft size={12} className="group-hover:-translate-x-1 transition-transform duration-500" />
+              <span className="relative">
+                Return Home
+                <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-[var(--foreground)] group-hover:w-full transition-all duration-500" />
+              </span>
             </Link>
           </div>
         </div>

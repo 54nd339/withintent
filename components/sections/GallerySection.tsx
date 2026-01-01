@@ -7,8 +7,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 const MotionImage = motion.create(Image);
 import { X } from 'lucide-react';
 import { SectionHeader, EmptyState } from '@/components';
+import { getGridConfig } from '@/lib/utils';
 import { GalleryBlock, Card } from '@/lib/types';
-import { useSectionLayout, useGridConfig } from '@/hooks';
+import { useSectionLayout } from '@/hooks';
 import { RESPONSIVE_PADDING, SECTION_HEADER_MARGIN } from '@/lib/constants';
 
 interface GallerySectionProps {
@@ -61,17 +62,16 @@ function GalleryCard({ card, index, onOpen }: { card: Card; index: number; onOpe
 
 export function GallerySection({ data }: GallerySectionProps) {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
+  const { themeStyles, spacingClasses, containerWidthClasses } = useSectionLayout({
+    layout: data?.layout,
+    theme: data?.theme,
+  });
 
   if (!data) {
     return null;
   }
 
-  const { themeStyles, spacingClasses, containerWidthClasses } = useSectionLayout({
-    layout: data.layout,
-    theme: data.theme,
-  });
-
-  const { gridClassName, limit } = useGridConfig({ grid: data.grid });
+  const { gridClassName, limit } = getGridConfig({ grid: data.grid });
   const displayCards = limit && data.cards ? data.cards.slice(0, limit) : (data.cards || []);
 
   const header = data.header;

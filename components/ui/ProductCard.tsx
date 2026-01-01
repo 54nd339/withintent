@@ -3,26 +3,27 @@
 import { useState, type MouseEvent } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Heart, Eye } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const MotionImage = motion.create(Image);
-import { Heart } from 'lucide-react';
-import { PriceDisplay, QuantityCounter } from '@/components';
-import { useCartStore, useWishlistStore } from '@/store';
-import { useCartItem, useHydrated } from '@/hooks';
+import { PriceDisplay, QuantityCounter, ProductQuickView } from '@/components';
+import { getBlurPlaceholder, getProductStatus, isProductSold, showToast } from '@/lib/utils';
 import { Product } from '@/lib/types';
-import { getProductStatus, isProductSold } from '@/lib/productUtils';
+import { useCartStore, useWishlistStore } from '@/store';
+import { useCartItem, useStore } from '@/hooks';
 
 type Props = {
   product: Product;
   index: number;
   showPrice?: boolean;
   showStatus?: boolean;
+  quickAnimation?: boolean;
 };
 
-export function ProductCard({ product, index, showPrice = true, showStatus = true }: Props) {
+export function ProductCard({ product, index, showPrice = true, showStatus = true, quickAnimation = false }: Props) {
   const [isHovered, setIsHovered] = useState(false);
-  const hydrated = useHydrated();
+  const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const addItem = useCartStore((state) => state.addItem);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
@@ -30,14 +31,14 @@ export function ProductCard({ product, index, showPrice = true, showStatus = tru
   const quantity = cartItem?.quantity || 0;
   const isInCart = quantity > 0;
 
-  const addToWishlist = useWishlistStore((state) => state.addItem);
-  const removeFromWishlist = useWishlistStore((state) => state.removeItem);
-  const isInWishlistStore = useWishlistStore((state) => state.isInWishlist(product.slug));
-  const isInWishlist = hydrated ? isInWishlistStore : false;
+  const addToWishlist = useStore(useWishlistStore, (state) => state.addItem);
+  const removeFromWishlist = useStore(useWishlistStore, (state) => state.removeItem);
+  const isInWishlist = useStore(useWishlistStore, (state) => state.isInWishlist(product.slug)) ?? false;
 
   const mainImage = product.mainImage?.url;
-  const galleryImage = product.galleryImages?.[0]?.url;
-  const hoverImage = galleryImage && galleryImage !== mainImage ? galleryImage : null;
+  const mainBlur = product.mainImage?.blurDataURL;
+  const galleryImage = product.galleryImages?.[0];
+  const hoverImage = galleryImage && galleryImage.url !== mainImage ? galleryImage : null;
   const hasHoverImage = hoverImage !== null;
   const status = getProductStatus(product);
   const isSold = isProductSold(product);
@@ -45,6 +46,7 @@ export function ProductCard({ product, index, showPrice = true, showStatus = tru
   const handleAddToCart = (e: MouseEvent) => {
     e.stopPropagation();
     addItem(product);
+    showToast.success('Added to cart');
   };
 
   const handleIncrease = (e: MouseEvent) => {
@@ -58,29 +60,38 @@ export function ProductCard({ product, index, showPrice = true, showStatus = tru
       updateQuantity(product.slug, quantity - 1);
     } else {
       removeItem(product.slug);
+      showToast.info('Removed from cart');
     }
   };
 
   const handleRemove = (e: MouseEvent) => {
     e.stopPropagation();
     removeItem(product.slug);
+    showToast.info('Removed from cart');
   };
 
   const handleWishlistToggle = (e: MouseEvent) => {
     e.stopPropagation();
+    if (!addToWishlist || !removeFromWishlist || !product) return;
+    
     if (isInWishlist) {
       removeFromWishlist(product.slug);
+      showToast.info('Removed from wishlist');
     } else {
       addToWishlist(product);
+      showToast.success('Added to wishlist');
     }
   };
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 50 }}
+      initial={{ opacity: 0, y: quickAnimation ? 20 : 50 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-50px' }}
-      transition={{ duration: 0.8, delay: index * 0.1 }}
+      transition={{ 
+        duration: quickAnimation ? 0.2 : 0.8, 
+        delay: quickAnimation ? 0 : index * 0.1 
+      }}
       className="group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -92,16 +103,29 @@ export function ProductCard({ product, index, showPrice = true, showStatus = tru
           </span>
         )}
 
-        <button
-          onClick={handleWishlistToggle}
-          className="absolute top-4 right-4 z-20 p-2 bg-white/90 dark:bg-black/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white dark:hover:bg-black transition-colors"
-          aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
-        >
-          <Heart
-            size={18}
-            className={isInWishlist ? 'fill-red-500 text-red-500' : 'text-neutral-900 dark:text-neutral-100'}
-          />
-        </button>
+        <div className="absolute top-4 right-4 z-20 flex gap-2">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsQuickViewOpen(true);
+            }}
+            className="p-2 bg-white/90 dark:bg-black/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white dark:hover:bg-black transition-colors"
+            aria-label="Quick view"
+          >
+            <Eye size={18} className="text-neutral-900 dark:text-neutral-100" />
+          </button>
+          <button
+            onClick={handleWishlistToggle}
+            className="p-2 bg-white/90 dark:bg-black/90 backdrop-blur-sm rounded-full shadow-sm hover:bg-white dark:hover:bg-black transition-colors"
+            aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+          >
+            <Heart
+              size={18}
+              className={isInWishlist ? 'fill-red-500 text-red-500' : 'text-neutral-900 dark:text-neutral-100'}
+            />
+          </button>
+        </div>
 
         <Link href={`/shop/product/${product.slug}`} className="absolute inset-0 z-10">
           {mainImage && (
@@ -112,24 +136,28 @@ export function ProductCard({ product, index, showPrice = true, showStatus = tru
                 fill
                 className="object-cover pointer-events-none"
                 sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                placeholder="blur"
+                blurDataURL={mainBlur || getBlurPlaceholder()}
                 animate={{
                   opacity: hasHoverImage && isHovered ? 0 : 1,
                   scale: !hasHoverImage && isHovered ? 1.1 : 1,
                 }}
-                transition={{ duration: 0.7, ease: 'easeInOut' }}
+                transition={{ duration: quickAnimation ? 0.2 : 0.7, ease: 'easeInOut' }}
               />
               {hasHoverImage && hoverImage && (
                 <MotionImage
-                  src={hoverImage}
+                  src={hoverImage.url}
                   alt={product.title}
                   fill
                   className="object-cover pointer-events-none"
                   sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
+                  placeholder="blur"
+                  blurDataURL={hoverImage.blurDataURL || getBlurPlaceholder()}
                   animate={{
                     opacity: isHovered ? 1 : 0,
                     scale: isHovered ? 1.1 : 1,
                   }}
-                  transition={{ duration: 0.7, ease: 'easeInOut' }}
+                  transition={{ duration: quickAnimation ? 0.2 : 0.7, ease: 'easeInOut' }}
                 />
               )}
             </>
@@ -232,6 +260,12 @@ export function ProductCard({ product, index, showPrice = true, showStatus = tru
           </button>
         )}
       </div>
+
+      <ProductQuickView
+        product={product}
+        open={isQuickViewOpen}
+        onOpenChange={setIsQuickViewOpen}
+      />
     </motion.div>
   );
 }

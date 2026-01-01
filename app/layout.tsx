@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
-import './globals.css';
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
+import { Toaster } from 'sonner';
 import { ThemeProvider } from '@/providers';
+import './globals.css';
 
 const inter = Inter({
   variable: '--font-inter',
@@ -55,7 +57,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} ${playfair.variable} antialiased`}>
-        <ThemeProvider>{children}</ThemeProvider>
+        <NuqsAdapter>
+          <ThemeProvider>{children}</ThemeProvider>
+          <Toaster position="top-center" richColors />
+        </NuqsAdapter>
       </body>
     </html>
   );

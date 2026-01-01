@@ -1,7 +1,7 @@
 import { cva } from 'class-variance-authority';
 
 /**
- * Spacing variants using CVA - classes must be static strings for Tailwind to extract
+ * Spacing variants
  */
 export const spacingVariants = cva('', {
   variants: {
@@ -83,4 +83,60 @@ export const spacingVariants = cva('', {
     { type: 'marginRight', size: 'xl', class: 'mr-8 sm:mr-12 md:mr-16 lg:mr-20 xl:mr-24 2xl:mr-28' },
     { type: 'marginRight', size: 'xl2', class: 'mr-10 sm:mr-16 md:mr-20 lg:mr-24 xl:mr-28 2xl:mr-32' },
   ],
+});
+
+/**
+ * Quantity Counter Component Variants
+ */
+export const quantityCounterVariants = cva('flex items-center', {
+  variants: {
+    variant: {
+      desktop: 'gap-2',
+      mobile: 'gap-0 border border-neutral-200 dark:border-neutral-700 rounded overflow-hidden',
+      checkout: 'gap-3',
+    },
+  },
+});
+
+export const quantityCounterButtonVariants = cva(
+  'flex items-center justify-center transition-colors',
+  {
+    variants: {
+      variant: {
+        desktop: 'flex-shrink-0 w-10 h-10 border border-neutral-900 dark:border-neutral-100 text-neutral-900 dark:text-neutral-100 hover:bg-neutral-900 hover:text-white dark:hover:bg-neutral-100 dark:hover:text-black',
+        mobile: 'flex-shrink-0 w-12 border-r border-neutral-200 dark:border-neutral-700 text-neutral-900 dark:text-neutral-100 hover:bg-neutral-100 dark:hover:bg-neutral-800 last:border-r-0 last:border-l',
+        checkout: 'p-1.5 sm:p-1 border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800',
+      },
+    },
+  }
+);
+
+export const quantityCounterDisplayVariants = cva(
+  'text-xs uppercase tracking-widest text-neutral-900 dark:text-neutral-100 text-center',
+  {
+    variants: {
+      variant: {
+        desktop: 'flex-1 py-2 border-y border-neutral-900 dark:border-neutral-100',
+        mobile: 'flex-1 py-3 px-4 flex items-center justify-center',
+        checkout: 'font-sans text-sm w-8',
+      },
+    },
+  }
+);
+
+/**
+ * Gap size variants
+ */
+export const gapVariants = cva('gap-4 sm:gap-6 md:gap-8 lg:gap-10', {
+  variants: {
+    size: {
+      none: 'gap-0',
+      xs: 'gap-1 sm:gap-1.5 md:gap-2',
+      sm: 'gap-2 sm:gap-3 md:gap-4 lg:gap-6',
+      md: 'gap-3 sm:gap-4 md:gap-6 lg:gap-8 xl:gap-10',
+      lg: 'gap-4 sm:gap-6 md:gap-8 lg:gap-10 xl:gap-12 2xl:gap-14',
+      xl: 'gap-6 sm:gap-8 md:gap-10 lg:gap-12 xl:gap-16 2xl:gap-20',
+      xl2: 'gap-8 sm:gap-10 md:gap-12 lg:gap-16 xl:gap-20 2xl:gap-24',
+    },
+  },
 });

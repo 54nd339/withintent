@@ -10,14 +10,13 @@ interface CacheOptions {
 
 /**
  * Generic wrapper for creating cached data fetchers
- * Reduces repetitive code by handling React cache + Next.js unstable_cache
  */
 export function createCachedFetcher<T, Args extends any[] = []>(
   fetcher: (...args: Args) => Promise<T>,
   getCacheOptions: (...args: Args) => CacheOptions
 ) {
   return cache((...args: Args) => {
-    const { key, tags, revalidate = CACHE_REVALIDATE } = getCacheOptions(...args);
+    const { key, tags, revalidate = CACHE_REVALIDATE.DEFAULT } = getCacheOptions(...args);
     return unstable_cache(
       async () => fetcher(...args),
       [key],
